@@ -106,7 +106,7 @@ echo Backend:  http://localhost:5001
 echo Frontend: http://localhost:5173
 echo.
 
-start "KRUTII TRANS Backend" cmd /k "cd backend && call venv\Scripts\activate && python app.py"
+start "KRUTII TRANS Backend" cmd /k "cd backend && venv\Scripts\python.exe app.py"
 start "KRUTII TRANS Frontend" cmd /k "cd frontend && npm run dev"
 
 echo Two windows opened (Backend and Frontend).
