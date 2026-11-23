@@ -35,6 +35,9 @@ def enrich_fault(fault, cache=None):
     cache - попередньо завантажені документи {'vehicles': {...}, 'users': {...}}
     (використовується при формуванні списків, щоб уникнути N+1 запитів).
     """
+    # Людські назви категорії та критичності для відображення
+    fault['category_display'] = FaultSchema.CATEGORIES.get(fault.get('category'), fault.get('category'))
+    fault['severity_display'] = FaultSchema.SEVERITIES.get(fault.get('severity'), fault.get('severity'))
     if cache is not None:
         vehicle = cache['vehicles'].get(fault.get('vehicle_id'))
         if vehicle:

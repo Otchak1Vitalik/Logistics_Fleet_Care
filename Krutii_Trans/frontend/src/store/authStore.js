@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { authApi } from '../api/auth'
+import { tr } from '../i18n'
 
 export const useAuthStore = create(
   persist(
@@ -29,7 +30,7 @@ export const useAuthStore = create(
           set({ isLoading: false })
           return {
             success: false,
-            error: error.response?.data?.error || 'Помилка входу'
+            error: error.response?.data?.error || tr("Помилка входу")
           }
         }
       },

@@ -12,6 +12,7 @@ from middleware.auth_middleware import require_auth, require_role
 from models.repair import RepairSchema, RepairCreateSchema, RepairUpdateSchema
 from services.doc_generator import generate_doc_number
 from services.lookup import fetch_by_ids
+from services.inventory import consume_parts, InventoryError
 
 repairs_bp = Blueprint('repairs', __name__)
 repair_schema = RepairSchema()
@@ -20,11 +21,16 @@ create_schema = RepairCreateSchema()
 update_schema = RepairUpdateSchema()
 
 
+REPAIR_TYPE_LABELS = RepairSchema.REPAIR_TYPES
+
+
 def enrich_repair(repair, cache=None):
     """
     Додає пов'язані дані до ремонту.
     cache - попередньо завантажені документи (для списків, щоб уникнути N+1 запитів).
     """
+    # Українська назва типу робіт для відображення у списках
+    repair['repair_type_display'] = REPAIR_TYPE_LABELS.get(repair.get('repair_type'), repair.get('repair_type'))
     if cache is not None:
         for key, field, target in (('vehicles', 'vehicle_id', 'vehicle'),
                                    ('users', 'mechanic_id', 'mechanic'),
@@ -331,6 +337,8 @@ def update_repair(repair_id):
         }), 400
 
     update_data = {k: v for k, v in data.items() if v is not None}
+    # Запчастини змінюються лише через списання при завершенні ремонту
+    update_data.pop('parts_used', None)
     update_data['updated_at'] = datetime.utcnow()
 
     # Конвертуємо date в datetime для MongoDB
@@ -354,6 +362,15 @@ def update_repair(repair_id):
                 'success': False,
                 'error': 'Вкажіть виконані роботи.'
             }), 400
+        # Списання використаних запчастин зі складу (до будь-яких інших змін)
+        if data.get('parts_used'):
+            try:
+                used, parts_total = consume_parts(mongo.db, data['parts_used'], repair_id, g.current_user['_id'])
+            except InventoryError as err:
+                return jsonify({'success': False, 'error': str(err)}), 400
+            update_data['parts_used'] = used
+            if data.get('parts_cost') is None:
+                update_data['parts_cost'] = parts_total
         update_data['completed_at'] = datetime.utcnow()
 
         # Повертаємо авто в активний статус, якщо немає інших ремонтів у роботі

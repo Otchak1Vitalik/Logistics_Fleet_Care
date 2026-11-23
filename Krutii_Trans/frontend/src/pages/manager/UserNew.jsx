@@ -4,6 +4,7 @@ import { usersApi } from '../../api/users'
 import toast from 'react-hot-toast'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import { tr } from '../../i18n'
 
 function UserNew() {
   const navigate = useNavigate()
@@ -28,12 +29,12 @@ function UserNew() {
     e.preventDefault()
 
     if (!form.username.trim() || !form.password || !form.full_name.trim()) {
-      toast.error('Заповніть обов\'язкові поля')
+      toast.error(tr("Заповніть обов'язкові поля"))
       return
     }
 
     if (form.password.length < 6) {
-      toast.error('Пароль має бути не менше 6 символів')
+      toast.error(tr("Пароль має бути не менше 6 символів"))
       return
     }
 
@@ -45,7 +46,7 @@ function UserNew() {
       }
 
       await usersApi.create(data)
-      toast.success('Користувача створено')
+      toast.success(tr("Користувача створено"))
       navigate('/manager/users')
     } catch (error) {
       // Помилка оброблена в interceptor
@@ -57,11 +58,11 @@ function UserNew() {
   return (
     <div className="page-container">
       <Link to="/manager/users" className="back-link">
-        &larr; Назад до списку
+        {tr("← Назад до списку")}
       </Link>
 
       <div className="page-header">
-        <h1>Новий користувач</h1>
+        <h1>{tr("Новий користувач")}</h1>
       </div>
 
       <div className="card">
@@ -69,7 +70,7 @@ function UserNew() {
           <div className="form-row">
             <div className="form-field">
               <label>
-                Логін <span className="required">*</span>
+                {tr("Логін")}{' '}<span className="required">*</span>
               </label>
               <input
                 type="text"
@@ -77,13 +78,13 @@ function UserNew() {
                 className="form-control"
                 value={form.username}
                 onChange={handleChange}
-                placeholder="Латинські букви, цифри, _"
+                placeholder={tr("Латинські букви, цифри, _")}
               />
             </div>
 
             <div className="form-field">
               <label>
-                Пароль <span className="required">*</span>
+                {tr("Пароль")}{' '}<span className="required">*</span>
               </label>
               <input
                 type="password"
@@ -91,14 +92,14 @@ function UserNew() {
                 className="form-control"
                 value={form.password}
                 onChange={handleChange}
-                placeholder="Мінімум 6 символів"
+                placeholder={tr("Мінімум 6 символів")}
               />
             </div>
           </div>
 
           <div className="form-field">
             <label>
-              ПІБ <span className="required">*</span>
+              {tr("ПІБ")}{' '}<span className="required">*</span>
             </label>
             <input
               type="text"
@@ -111,7 +112,7 @@ function UserNew() {
 
           <div className="form-field">
             <label>
-              Роль <span className="required">*</span>
+              {tr("Роль")}{' '}<span className="required">*</span>
             </label>
             <select
               name="role"
@@ -119,15 +120,15 @@ function UserNew() {
               value={form.role}
               onChange={handleChange}
             >
-              <option value="driver">Водій</option>
-              <option value="mechanic">Механік</option>
-              <option value="manager">Керівник</option>
+              <option value="driver">{tr("Водій")}</option>
+              <option value="mechanic">{tr("Механік")}</option>
+              <option value="manager">{tr("Керівник")}</option>
             </select>
           </div>
 
           <div className="form-row">
             <div className="form-field">
-              <label>Телефон</label>
+              <label>{tr("Телефон")}</label>
               <input
                 type="tel"
                 name="phone"
@@ -153,7 +154,7 @@ function UserNew() {
           {form.role === 'driver' && (
             <div className="form-row">
               <div className="form-field">
-                <label>Номер посвідчення</label>
+                <label>{tr("Номер посвідчення")}</label>
                 <input
                   type="text"
                   name="license_number"
@@ -164,13 +165,13 @@ function UserNew() {
               </div>
 
               <div className="form-field">
-                <label>Дійсне до</label>
+                <label>{tr("Дійсне до")}</label>
                 <DatePicker
                   selected={form.license_expiry}
                   onChange={(date) => setForm((prev) => ({ ...prev, license_expiry: date }))}
                   dateFormat="dd.MM.yyyy"
                   className="form-control"
-                  placeholderText="Оберіть дату"
+                  placeholderText={tr("Оберіть дату")}
                 />
               </div>
             </div>
@@ -182,14 +183,14 @@ function UserNew() {
               className="btn btn-secondary"
               onClick={() => navigate('/manager/users')}
             >
-              Скасувати
+              {tr("Скасувати")}
             </button>
             <button
               type="submit"
               className="btn btn-primary"
               disabled={loading}
             >
-              {loading ? 'Збереження...' : 'Створити'}
+              {loading ? tr("Збереження...") : tr("Створити")}
             </button>
           </div>
         </form>

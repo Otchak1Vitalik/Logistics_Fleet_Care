@@ -16,3 +16,6 @@ def ensure_indexes(db):
     db.repairs.create_index([('vehicle_id', ASCENDING), ('status', ASCENDING)])
     db.alerts.create_index([('recipient_role', ASCENDING), ('is_read', ASCENDING)])
     db.alerts.create_index([('related_type', ASCENDING), ('related_id', ASCENDING), ('category', ASCENDING)])
+    db.parts.create_index('name', unique=True)
+    db.part_movements.create_index([('part_id', ASCENDING), ('created_at', DESCENDING)])
+    db.waybills.create_index([('status', ASCENDING), ('completed_at', DESCENDING)])

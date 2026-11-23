@@ -108,12 +108,15 @@ class RepairUpdateSchema(Schema):
     )
     parts_used = fields.List(fields.Dict())
     labor_hours = fields.Float(
+        allow_none=True,
         validate=validate.Range(min=0, error='Години роботи не можуть бути від\'ємними')
     )
     labor_cost = fields.Float(
+        allow_none=True,
         validate=validate.Range(min=0, error='Вартість роботи не може бути від\'ємною')
     )
     parts_cost = fields.Float(
+        allow_none=True,
         validate=validate.Range(min=0, error='Вартість запчастин не може бути від\'ємною')
     )
     odometer = fields.Integer()

@@ -4,6 +4,15 @@ import { BrowserRouter } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import App from './App'
 import './styles/index.css'
+import './store/themeStore'
+import { registerLocale, setDefaultLocale } from 'react-datepicker'
+import { uk, enUS } from 'date-fns/locale'
+import { lang } from './i18n'
+
+// Календарі вибору дат - мовою інтерфейсу
+registerLocale('uk', uk)
+registerLocale('en', enUS)
+setDefaultLocale(lang)
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

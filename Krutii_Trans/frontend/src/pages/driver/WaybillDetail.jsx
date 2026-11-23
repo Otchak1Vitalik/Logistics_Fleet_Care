@@ -7,6 +7,7 @@ import ConfirmModal from '../../components/ConfirmModal'
 import { formatDate, formatDateTime, formatOdometer } from '../../utils/formatters'
 import { formatFuel } from '../../utils/fuelCalc'
 import toast from 'react-hot-toast'
+import { tr } from '../../i18n'
 
 function DriverWaybillDetail() {
   const { id } = useParams()
@@ -25,13 +26,13 @@ function DriverWaybillDetail() {
   const handleActivate = async () => {
     const result = await updateWaybill(id, { status: 'active' })
     if (result.success) {
-      toast.success('Путівку активовано')
+      toast.success(tr("Путівку активовано"))
     }
   }
 
   const handleComplete = async () => {
     if (!odometerEnd) {
-      toast.error('Вкажіть кінцевий пробіг')
+      toast.error(tr("Вкажіть кінцевий пробіг"))
       return
     }
 
@@ -43,13 +44,13 @@ function DriverWaybillDetail() {
     })
 
     if (result.success) {
-      toast.success('Путівку завершено')
+      toast.success(tr("Путівку завершено"))
       setShowCompleteModal(false)
     }
   }
 
   if (isLoading || !currentWaybill) {
-    return <Loader text="Завантаження..." />
+    return <Loader text={tr("Завантаження...")} />
   }
 
   const waybill = currentWaybill
@@ -59,16 +60,16 @@ function DriverWaybillDetail() {
       <div className="page-header">
         <div className="header-left">
           <button className="btn btn-text" onClick={() => navigate(-1)}>
-            Назад
+            {tr("Назад")}
           </button>
-          <h1>Путівка {waybill.number}</h1>
+          <h1>{tr("Путівка")}{' '}{waybill.number}</h1>
           <StatusBadge status={waybill.status} />
         </div>
 
         <div className="header-actions">
           {waybill.status === 'issued' && (
             <button className="btn btn-primary" onClick={handleActivate}>
-              Активувати
+              {tr("Активувати")}
             </button>
           )}
           {waybill.status === 'active' && (
@@ -76,7 +77,7 @@ function DriverWaybillDetail() {
               className="btn btn-success"
               onClick={() => setShowCompleteModal(true)}
             >
-              Завершити
+              {tr("Завершити")}
             </button>
           )}
         </div>
@@ -84,55 +85,55 @@ function DriverWaybillDetail() {
 
       <div className="detail-grid">
         <div className="card">
-          <h3>Основна інформація</h3>
+          <h3>{tr("Основна інформація")}</h3>
           <dl className="info-list">
             <div className="info-item">
-              <dt>Дата видачі</dt>
+              <dt>{tr("Дата видачі")}</dt>
               <dd>{formatDate(waybill.issue_date)}</dd>
             </div>
             <div className="info-item">
-              <dt>Дійсна з</dt>
+              <dt>{tr("Дійсна з")}</dt>
               <dd>{formatDateTime(waybill.valid_from)}</dd>
             </div>
             <div className="info-item">
-              <dt>Дійсна до</dt>
+              <dt>{tr("Дійсна до")}</dt>
               <dd>{formatDateTime(waybill.valid_until)}</dd>
             </div>
           </dl>
         </div>
 
         <div className="card">
-          <h3>Транспорт</h3>
+          <h3>{tr("Транспорт")}</h3>
           <dl className="info-list">
             <div className="info-item">
-              <dt>Номер</dt>
+              <dt>{tr("Номер")}</dt>
               <dd>{waybill.vehicle?.plate_number}</dd>
             </div>
             <div className="info-item">
-              <dt>Марка/Модель</dt>
+              <dt>{tr("Марка/Модель")}</dt>
               <dd>{waybill.vehicle?.brand} {waybill.vehicle?.model}</dd>
             </div>
             <div className="info-item">
-              <dt>Норма витрат</dt>
-              <dd>{waybill.vehicle?.fuel_norm} л/100км</dd>
+              <dt>{tr("Норма витрат")}</dt>
+              <dd>{waybill.vehicle?.fuel_norm}{' '}{tr("л/100км")}</dd>
             </div>
           </dl>
         </div>
 
         <div className="card">
-          <h3>Маршрут</h3>
+          <h3>{tr("Маршрут")}</h3>
           <dl className="info-list">
             <div className="info-item">
-              <dt>Звідки</dt>
+              <dt>{tr("Звідки")}</dt>
               <dd>{waybill.route_from || '-'}</dd>
             </div>
             <div className="info-item">
-              <dt>Куди</dt>
+              <dt>{tr("Куди")}</dt>
               <dd>{waybill.route_to || '-'}</dd>
             </div>
             {waybill.route_description && (
               <div className="info-item full">
-                <dt>Опис маршруту</dt>
+                <dt>{tr("Опис маршруту")}</dt>
                 <dd>{waybill.route_description}</dd>
               </div>
             )}
@@ -140,28 +141,28 @@ function DriverWaybillDetail() {
         </div>
 
         <div className="card">
-          <h3>Пробіг та пальне</h3>
+          <h3>{tr("Пробіг та пальне")}</h3>
           <dl className="info-list">
             <div className="info-item">
-              <dt>Пробіг на початку</dt>
+              <dt>{tr("Пробіг на початку")}</dt>
               <dd>{formatOdometer(waybill.odometer_start)}</dd>
             </div>
             <div className="info-item">
-              <dt>Пробіг в кінці</dt>
+              <dt>{tr("Пробіг в кінці")}</dt>
               <dd>{waybill.odometer_end ? formatOdometer(waybill.odometer_end) : '-'}</dd>
             </div>
             {waybill.odometer_end && (
               <div className="info-item">
-                <dt>Пройдено</dt>
+                <dt>{tr("Пройдено")}</dt>
                 <dd>{formatOdometer(waybill.odometer_end - waybill.odometer_start)}</dd>
               </div>
             )}
             <div className="info-item">
-              <dt>Видано пального</dt>
+              <dt>{tr("Видано пального")}</dt>
               <dd>{formatFuel(waybill.fuel_issued)}</dd>
             </div>
             <div className="info-item">
-              <dt>Витрачено пального</dt>
+              <dt>{tr("Витрачено пального")}</dt>
               <dd>{waybill.fuel_used ? formatFuel(waybill.fuel_used) : '-'}</dd>
             </div>
           </dl>
@@ -169,14 +170,14 @@ function DriverWaybillDetail() {
 
         {waybill.notes && (
           <div className="card full-width">
-            <h3>Примітки</h3>
+            <h3>{tr("Примітки")}</h3>
             <p>{waybill.notes}</p>
           </div>
         )}
 
         {waybill.completion_notes && (
           <div className="card full-width">
-            <h3>Примітки при завершенні</h3>
+            <h3>{tr("Примітки при завершенні")}</h3>
             <p>{waybill.completion_notes}</p>
           </div>
         )}
@@ -187,13 +188,13 @@ function DriverWaybillDetail() {
         <div className="modal-overlay" onClick={() => setShowCompleteModal(false)}>
           <div className="modal modal-lg" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Завершення путівки</h3>
+              <h3>{tr("Завершення путівки")}</h3>
             </div>
 
             <div className="modal-body">
               <div className="form-field">
                 <label htmlFor="odometerEnd">
-                  Кінцевий пробіг (км) <span className="required">*</span>
+                  {tr("Кінцевий пробіг (км)")}{' '}<span className="required">*</span>
                 </label>
                 <input
                   type="number"
@@ -205,12 +206,12 @@ function DriverWaybillDetail() {
                   required
                 />
                 <span className="field-hint">
-                  Початковий пробіг: {formatOdometer(waybill.odometer_start)}
+                  {tr("Початковий пробіг:")}{' '}{formatOdometer(waybill.odometer_start)}
                 </span>
               </div>
 
               <div className="form-field">
-                <label htmlFor="fuelUsed">Витрачено пального (л)</label>
+                <label htmlFor="fuelUsed">{tr("Витрачено пального (л)")}</label>
                 <input
                   type="number"
                   id="fuelUsed"
@@ -223,7 +224,7 @@ function DriverWaybillDetail() {
               </div>
 
               <div className="form-field">
-                <label htmlFor="completionNotes">Примітки</label>
+                <label htmlFor="completionNotes">{tr("Примітки")}</label>
                 <textarea
                   id="completionNotes"
                   className="form-control"
@@ -239,10 +240,10 @@ function DriverWaybillDetail() {
                 className="btn btn-secondary"
                 onClick={() => setShowCompleteModal(false)}
               >
-                Скасувати
+                {tr("Скасувати")}
               </button>
               <button className="btn btn-success" onClick={handleComplete}>
-                Завершити путівку
+                {tr("Завершити путівку")}
               </button>
             </div>
           </div>

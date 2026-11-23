@@ -3,6 +3,7 @@ import { settingsApi } from '../../api/settings'
 import toast from 'react-hot-toast'
 import Loader from '../../components/Loader'
 import ConfirmModal from '../../components/ConfirmModal'
+import { tr } from '../../i18n'
 
 function ManagerSettings() {
   const [settings, setSettings] = useState(null)
@@ -65,7 +66,7 @@ function ManagerSettings() {
     setSaving(true)
     try {
       await settingsApi.update(form)
-      toast.success('Налаштування збережено')
+      toast.success(tr("Налаштування збережено"))
       loadSettings()
     } catch (error) {
       // Помилка оброблена в interceptor
@@ -77,7 +78,7 @@ function ManagerSettings() {
   const handleReset = async () => {
     try {
       await settingsApi.reset()
-      toast.success('Налаштування скинуто')
+      toast.success(tr("Налаштування скинуто"))
       setShowResetModal(false)
       loadSettings()
     } catch (error) {
@@ -86,26 +87,26 @@ function ManagerSettings() {
   }
 
   if (loading) {
-    return <Loader text="Завантаження..." />
+    return <Loader text={tr("Завантаження...")} />
   }
 
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Налаштування системи</h1>
+        <h1>{tr("Налаштування системи")}</h1>
         <button
           className="btn btn-secondary"
           onClick={() => setShowResetModal(true)}
         >
-          Скинути до замовчування
+          {tr("Скинути до замовчування")}
         </button>
       </div>
 
       <form onSubmit={handleSubmit}>
         <div className="card">
-          <h3 className="mb-md">Загальні налаштування</h3>
+          <h3 className="mb-md">{tr("Загальні налаштування")}</h3>
           <div className="form-field">
-            <label>Назва компанії</label>
+            <label>{tr("Назва компанії")}</label>
             <input
               type="text"
               name="company_name"
@@ -117,10 +118,10 @@ function ManagerSettings() {
         </div>
 
         <div className="card">
-          <h3 className="mb-md">Паливні налаштування</h3>
+          <h3 className="mb-md">{tr("Паливні налаштування")}</h3>
           <div className="form-row">
             <div className="form-field">
-              <label>Норма витрат за замовчуванням (л/100км)</label>
+              <label>{tr("Норма витрат за замовчуванням (л/100км)")}</label>
               <input
                 type="number"
                 name="default_fuel_norm"
@@ -132,12 +133,12 @@ function ManagerSettings() {
                 step="0.1"
               />
               <div className="form-hint">
-                Використовується при створенні нового транспорту
+                {tr("Використовується при створенні нового транспорту")}
               </div>
             </div>
 
             <div className="form-field">
-              <label>Поріг перевитрати (%)</label>
+              <label>{tr("Поріг перевитрати (%)")}</label>
               <input
                 type="number"
                 name="overspend_threshold"
@@ -148,12 +149,12 @@ function ManagerSettings() {
                 max={50}
               />
               <div className="form-hint">
-                Перевищення норми, що вважається перевитратою
+                {tr("Перевищення норми, що вважається перевитратою")}
               </div>
             </div>
 
             <div className="form-field">
-              <label>Зимовий коефіцієнт</label>
+              <label>{tr("Зимовий коефіцієнт")}</label>
               <input
                 type="number"
                 name="winter_coefficient"
@@ -165,17 +166,17 @@ function ManagerSettings() {
                 step="0.01"
               />
               <div className="form-hint">
-                Множник для зимового періоду (листопад-березень)
+                {tr("Множник для зимового періоду (листопад-березень)")}
               </div>
             </div>
           </div>
         </div>
 
         <div className="card">
-          <h3 className="mb-md">Налаштування ТО</h3>
+          <h3 className="mb-md">{tr("Налаштування ТО")}</h3>
           <div className="form-row">
             <div className="form-field">
-              <label>Попередження (км до ТО)</label>
+              <label>{tr("Попередження (км до ТО)")}</label>
               <input
                 type="number"
                 name="maintenance_warning_km"
@@ -187,7 +188,7 @@ function ManagerSettings() {
             </div>
 
             <div className="form-field">
-              <label>Попередження (днів до ТО)</label>
+              <label>{tr("Попередження (днів до ТО)")}</label>
               <input
                 type="number"
                 name="maintenance_warning_days"
@@ -199,7 +200,7 @@ function ManagerSettings() {
             </div>
 
             <div className="form-field">
-              <label>Інтервал ТО (км)</label>
+              <label>{tr("Інтервал ТО (км)")}</label>
               <input
                 type="number"
                 name="maintenance_interval_km"
@@ -209,12 +210,12 @@ function ManagerSettings() {
                 min={1000}
               />
               <div className="form-hint">
-                Пробіг до наступного ТО після завершення
+                {tr("Пробіг до наступного ТО після завершення")}
               </div>
             </div>
 
             <div className="form-field">
-              <label>Інтервал ТО (днів)</label>
+              <label>{tr("Інтервал ТО (днів)")}</label>
               <input
                 type="number"
                 name="maintenance_interval_days"
@@ -225,17 +226,17 @@ function ManagerSettings() {
                 max={730}
               />
               <div className="form-hint">
-                Термін до наступного ТО після завершення
+                {tr("Термін до наступного ТО після завершення")}
               </div>
             </div>
           </div>
         </div>
 
         <div className="card">
-          <h3 className="mb-md">Ескалація несправностей</h3>
+          <h3 className="mb-md">{tr("Ескалація несправностей")}</h3>
           <div className="form-row">
             <div className="form-field">
-              <label>Сповіщення механіку (годин)</label>
+              <label>{tr("Сповіщення механіку (годин)")}</label>
               <input
                 type="number"
                 name="fault_mechanic_hours"
@@ -245,12 +246,12 @@ function ManagerSettings() {
                 min={1}
               />
               <div className="form-hint">
-                Час без відповіді до сповіщення механіків
+                {tr("Час без відповіді до сповіщення механіків")}
               </div>
             </div>
 
             <div className="form-field">
-              <label>Сповіщення керівнику (годин)</label>
+              <label>{tr("Сповіщення керівнику (годин)")}</label>
               <input
                 type="number"
                 name="fault_manager_hours"
@@ -260,7 +261,7 @@ function ManagerSettings() {
                 min={1}
               />
               <div className="form-hint">
-                Час без відповіді до ескалації керівнику
+                {tr("Час без відповіді до ескалації керівнику")}
               </div>
             </div>
           </div>
@@ -272,7 +273,7 @@ function ManagerSettings() {
             className="btn btn-primary"
             disabled={saving}
           >
-            {saving ? 'Збереження...' : 'Зберегти налаштування'}
+            {saving ? tr("Збереження...") : tr("Зберегти налаштування")}
           </button>
         </div>
       </form>
@@ -280,15 +281,14 @@ function ManagerSettings() {
       {/* Модалка скидання */}
       {showResetModal && (
         <ConfirmModal
-          title="Скидання налаштувань"
+          title={tr("Скидання налаштувань")}
           onClose={() => setShowResetModal(false)}
           onConfirm={handleReset}
-          confirmText="Скинути"
+          confirmText={tr("Скинути")}
           confirmVariant="danger"
         >
           <p>
-            Ви впевнені, що хочете скинути всі налаштування до значень за замовчуванням?
-            Цю дію неможливо скасувати.
+            {tr("Ви впевнені, що хочете скинути всі налаштування до значень за замовчуванням? Цю дію неможливо скасувати.")}
           </p>
         </ConfirmModal>
       )}

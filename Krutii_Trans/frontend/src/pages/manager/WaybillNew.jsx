@@ -6,6 +6,7 @@ import { usersApi } from '../../api/users'
 import toast from 'react-hot-toast'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import { tr } from '../../i18n'
 
 function WaybillNew() {
   const navigate = useNavigate()
@@ -67,12 +68,12 @@ function WaybillNew() {
     e.preventDefault()
 
     if (!form.vehicle_id || !form.driver_id) {
-      toast.error('Оберіть транспорт та водія')
+      toast.error(tr("Оберіть транспорт та водія"))
       return
     }
 
     if (form.valid_until <= form.valid_from) {
-      toast.error('Дата закінчення має бути пізніше дати початку')
+      toast.error(tr("Дата закінчення має бути пізніше дати початку"))
       return
     }
 
@@ -93,7 +94,7 @@ function WaybillNew() {
       })
 
       const response = await waybillsApi.create(data)
-      toast.success(`Путівку ${response.data.waybill.number} створено`)
+      toast.success(tr("Путівку {0} створено", response.data.waybill.number))
       navigate('/manager/waybills')
     } catch (error) {
       // Помилка оброблена в interceptor
@@ -107,21 +108,21 @@ function WaybillNew() {
   return (
     <div className="page-container">
       <Link to="/manager/waybills" className="back-link">
-        &larr; Назад до списку
+        {tr("← Назад до списку")}
       </Link>
 
       <div className="page-header">
-        <h1>Нова путівка</h1>
+        <h1>{tr("Нова путівка")}</h1>
       </div>
 
       <div className="card">
         <form onSubmit={handleSubmit}>
-          <h3 className="mb-md">Транспорт та водій</h3>
+          <h3 className="mb-md">{tr("Транспорт та водій")}</h3>
 
           <div className="form-row">
             <div className="form-field">
               <label>
-                Транспорт <span className="required">*</span>
+                {tr("Транспорт")}{' '}<span className="required">*</span>
               </label>
               <select
                 name="vehicle_id"
@@ -129,7 +130,7 @@ function WaybillNew() {
                 value={form.vehicle_id}
                 onChange={handleVehicleChange}
               >
-                <option value="">Оберіть транспорт</option>
+                <option value="">{tr("Оберіть транспорт")}</option>
                 {vehicles.map((v) => (
                   <option key={v._id} value={v._id}>
                     {v.plate_number} - {v.brand} {v.model}
@@ -138,15 +139,14 @@ function WaybillNew() {
               </select>
               {selectedVehicle && (
                 <div className="form-hint">
-                  Пробіг: {selectedVehicle.odometer?.toLocaleString()} км |
-                  Норма: {selectedVehicle.fuel_norm} л/100км
+                  {tr("Пробіг:")}{' '}{selectedVehicle.odometer?.toLocaleString()}{' '}{tr("км | Норма:")}{' '}{selectedVehicle.fuel_norm}{' '}{tr("л/100км")}
                 </div>
               )}
             </div>
 
             <div className="form-field">
               <label>
-                Водій <span className="required">*</span>
+                {tr("Водій")}{' '}<span className="required">*</span>
               </label>
               <select
                 name="driver_id"
@@ -154,7 +154,7 @@ function WaybillNew() {
                 value={form.driver_id}
                 onChange={handleChange}
               >
-                <option value="">Оберіть водія</option>
+                <option value="">{tr("Оберіть водія")}</option>
                 {drivers.map((d) => (
                   <option key={d._id} value={d._id}>
                     {d.full_name}
@@ -164,11 +164,11 @@ function WaybillNew() {
             </div>
           </div>
 
-          <h3 className="mb-md mt-lg">Термін дії</h3>
+          <h3 className="mb-md mt-lg">{tr("Термін дії")}</h3>
 
           <div className="form-row">
             <div className="form-field">
-              <label>Дата видачі</label>
+              <label>{tr("Дата видачі")}</label>
               <DatePicker
                 selected={form.issue_date}
                 onChange={(date) => setForm((prev) => ({ ...prev, issue_date: date }))}
@@ -178,7 +178,7 @@ function WaybillNew() {
             </div>
 
             <div className="form-field">
-              <label>Дійсна з</label>
+              <label>{tr("Дійсна з")}</label>
               <DatePicker
                 selected={form.valid_from}
                 onChange={(date) => setForm((prev) => ({ ...prev, valid_from: date }))}
@@ -191,7 +191,7 @@ function WaybillNew() {
             </div>
 
             <div className="form-field">
-              <label>Дійсна до</label>
+              <label>{tr("Дійсна до")}</label>
               <DatePicker
                 selected={form.valid_until}
                 onChange={(date) => setForm((prev) => ({ ...prev, valid_until: date }))}
@@ -205,51 +205,51 @@ function WaybillNew() {
             </div>
           </div>
 
-          <h3 className="mb-md mt-lg">Маршрут</h3>
+          <h3 className="mb-md mt-lg">{tr("Маршрут")}</h3>
 
           <div className="form-row">
             <div className="form-field">
-              <label>Пункт відправлення</label>
+              <label>{tr("Пункт відправлення")}</label>
               <input
                 type="text"
                 name="route_from"
                 className="form-control"
                 value={form.route_from}
                 onChange={handleChange}
-                placeholder="Київ, склад"
+                placeholder={tr("Київ, склад")}
               />
             </div>
 
             <div className="form-field">
-              <label>Пункт призначення</label>
+              <label>{tr("Пункт призначення")}</label>
               <input
                 type="text"
                 name="route_to"
                 className="form-control"
                 value={form.route_to}
                 onChange={handleChange}
-                placeholder="Одеса, порт"
+                placeholder={tr("Одеса, порт")}
               />
             </div>
           </div>
 
           <div className="form-field">
-            <label>Опис маршруту</label>
+            <label>{tr("Опис маршруту")}</label>
             <textarea
               name="route_description"
               className="form-control"
               value={form.route_description}
               onChange={handleChange}
               rows={3}
-              placeholder="Додаткові деталі маршруту..."
+              placeholder={tr("Додаткові деталі маршруту...")}
             />
           </div>
 
-          <h3 className="mb-md mt-lg">Пробіг та пальне</h3>
+          <h3 className="mb-md mt-lg">{tr("Пробіг та пальне")}</h3>
 
           <div className="form-row">
             <div className="form-field">
-              <label>Початковий пробіг (км)</label>
+              <label>{tr("Початковий пробіг (км)")}</label>
               <input
                 type="number"
                 name="odometer_start"
@@ -261,7 +261,7 @@ function WaybillNew() {
             </div>
 
             <div className="form-field">
-              <label>Видано пального (л)</label>
+              <label>{tr("Видано пального (л)")}</label>
               <input
                 type="number"
                 name="fuel_issued"
@@ -275,7 +275,7 @@ function WaybillNew() {
           </div>
 
           <div className="form-field">
-            <label>Примітки</label>
+            <label>{tr("Примітки")}</label>
             <textarea
               name="notes"
               className="form-control"
@@ -291,14 +291,14 @@ function WaybillNew() {
               className="btn btn-secondary"
               onClick={() => navigate('/manager/waybills')}
             >
-              Скасувати
+              {tr("Скасувати")}
             </button>
             <button
               type="submit"
               className="btn btn-primary"
               disabled={loading}
             >
-              {loading ? 'Створення...' : 'Видати путівку'}
+              {loading ? tr("Створення...") : tr("Видати путівку")}
             </button>
           </div>
         </form>

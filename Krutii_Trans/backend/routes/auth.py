@@ -10,11 +10,13 @@ from marshmallow import ValidationError
 
 from extensions import mongo, limiter
 from middleware.auth_middleware import require_auth
-from models.user import UserSchema, PasswordChangeSchema
+from models.user import UserSchema, PasswordChangeSchema, ProfileUpdateSchema
+from services.profile import build_profile
 
 auth_bp = Blueprint('auth', __name__)
 user_schema = UserSchema()
 password_schema = PasswordChangeSchema()
+profile_schema = ProfileUpdateSchema()
 
 
 @auth_bp.route('/login', methods=['POST'])
@@ -110,7 +112,41 @@ def me():
     """
     return jsonify({
         'success': True,
-        'user': user_schema.dump(g.current_user)
+        'user': user_schema.dump(g.current_user),
+        # Статистика для сторінки «Мій профіль» (залежить від ролі)
+        'profile': build_profile(mongo.db, g.current_user)
+    })
+
+
+@auth_bp.route('/me', methods=['PUT'])
+@require_auth
+def update_me():
+    """
+    Зміна власних контактів (телефон, email).
+    ПІБ, роль і дані посвідчення змінює лише керівник.
+    """
+    raw = request.get_json() or {}
+    payload = {k: (raw[k].strip() or None) if isinstance(raw.get(k), str) else raw.get(k)
+               for k in ('phone', 'email') if k in raw}
+    try:
+        data = profile_schema.load(payload)
+    except ValidationError as err:
+        return jsonify({
+            'success': False,
+            'error': 'Помилка валідації.',
+            'details': err.messages
+        }), 400
+
+    if not data:
+        return jsonify({'success': False, 'error': 'Немає даних для оновлення.'}), 400
+
+    data['updated_at'] = datetime.utcnow()
+    mongo.db.users.update_one({'_id': ObjectId(g.current_user['_id'])}, {'$set': data})
+    user = mongo.db.users.find_one({'_id': ObjectId(g.current_user['_id'])})
+    return jsonify({
+        'success': True,
+        'message': 'Контакти оновлено.',
+        'user': user_schema.dump(user)
     })
 
 

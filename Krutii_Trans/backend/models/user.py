@@ -18,6 +18,7 @@ class UserSchema(Schema):
     is_active = fields.Boolean(default=True)
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
+    last_login = fields.DateTime(dump_only=True)
 
     # Для водіїв
     license_number = fields.String(allow_none=True)
@@ -91,3 +92,12 @@ class PasswordChangeSchema(Schema):
             raise ValidationError('Пароль має містити хоча б одну велику літеру')
         if not any(c.isdigit() for c in value):
             raise ValidationError('Пароль має містити хоча б одну цифру')
+
+
+class ProfileUpdateSchema(Schema):
+    """Контакти, які користувач може змінити у власному профілі"""
+    phone = fields.String(
+        allow_none=True,
+        validate=validate.Regexp(r'^\+?[\d\s\-()]{7,20}$', error='Невірний формат телефону')
+    )
+    email = fields.Email(allow_none=True, error_messages={'invalid': 'Невірний формат email'})

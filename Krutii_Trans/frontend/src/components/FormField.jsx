@@ -1,3 +1,4 @@
+import { tr } from '../i18n'
 function FormField({
   label,
   name,
@@ -38,7 +39,7 @@ function FormField({
   if (type === 'select') {
     input = (
       <select {...inputProps}>
-        <option value="">{placeholder || 'Оберіть...'}</option>
+        <option value="">{placeholder || tr("Оберіть...")}</option>
         {options?.map((opt) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}

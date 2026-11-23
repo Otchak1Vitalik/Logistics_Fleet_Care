@@ -1,12 +1,13 @@
+import { tr } from '../i18n'
 /**
  * Генерація попереднього перегляду номера документа (клієнтська сторона)
  */
 
 const DOC_SERIES = {
-  waybill: 'ПЛ',
-  fault: 'НС',
-  repair: 'РМ',
-  fuel_invoice: 'НП'
+  waybill: tr("ПЛ"),
+  fault: tr("НС"),
+  repair: tr("РМ"),
+  fuel_invoice: tr("НП")
 }
 
 export function previewDocNumber(docType) {
@@ -25,10 +26,10 @@ export function parseDocNumber(docNumber) {
 
 export function getDocTypeLabel(docType) {
   const labels = {
-    waybill: 'Путівка',
-    fault: 'Несправність',
-    repair: 'Ремонт',
-    fuel_invoice: 'Паливна накладна'
+    waybill: tr("Путівка"),
+    fault: tr("Несправність"),
+    repair: tr("Ремонт"),
+    fuel_invoice: tr("Паливна накладна")
   }
   return labels[docType] || docType
 }

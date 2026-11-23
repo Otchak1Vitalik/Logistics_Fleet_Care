@@ -1,6 +1,7 @@
 """
 Система сповіщень та ескалації
 """
+import math
 from datetime import datetime, timedelta
 from bson import ObjectId
 
@@ -145,7 +146,7 @@ def _to_date(value):
     return None
 
 
-def check_vehicle_maintenance(db, vehicle: dict, settings: dict = None):
+def check_vehicle_maintenance(db, vehicle: dict, settings: dict = None, avg_daily_km: float = None):
     """
     Перевіряє один транспортний засіб на потребу ТО і за потреби створює сповіщення.
 
@@ -191,6 +192,14 @@ def check_vehicle_maintenance(db, vehicle: dict, settings: dict = None):
         elif days_remaining <= warning_days:
             needs_warning = True
             reasons.append(f'залишилось {days_remaining} днів')
+
+    # Прогноз: за середнім добовим пробігом ТО настане раніше, ніж через поріг попередження
+    if not needs_warning and not needs_critical and next_km and avg_daily_km:
+        km_remaining = next_km - odometer
+        forecast_days = math.ceil(km_remaining / avg_daily_km) if km_remaining > 0 else 0
+        if forecast_days <= warning_days:
+            needs_warning = True
+            reasons.append(f'за прогнозом через {forecast_days} дн. (≈{round(avg_daily_km)} км/добу)')
 
     if not needs_warning and not needs_critical:
         return None
@@ -242,8 +251,10 @@ def check_maintenance_alerts(db, settings: dict = None):
     if settings is None:
         settings = db.settings.find_one({'_id': 'system'}) or {}
 
+    from services.maintenance_forecast import daily_mileage
+    rates = daily_mileage(db)
     for vehicle in db.vehicles.find({'status': {'$in': ['active', 'repair']}}):
-        check_vehicle_maintenance(db, vehicle, settings)
+        check_vehicle_maintenance(db, vehicle, settings, rates.get(str(vehicle['_id'])))
 
 
 def setup_scheduler(scheduler, app):

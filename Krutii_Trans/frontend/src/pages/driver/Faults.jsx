@@ -4,6 +4,7 @@ import { faultsApi } from '../../api/faults'
 import DataTable from '../../components/DataTable'
 import StatusBadge from '../../components/StatusBadge'
 import { formatDateTime } from '../../utils/formatters'
+import { tr } from '../../i18n'
 
 function DriverFaults() {
   const navigate = useNavigate()
@@ -28,33 +29,33 @@ function DriverFaults() {
   const columns = [
     {
       key: 'number',
-      label: 'Номер',
+      label: tr("Номер"),
       width: '120px'
     },
     {
       key: 'vehicle',
-      label: 'Транспорт',
+      label: tr("Транспорт"),
       render: (_, row) => row.vehicle?.plate_number || '-'
     },
     {
       key: 'category',
-      label: 'Категорія',
+      label: tr("Категорія"),
       render: (_, row) => row.category_display || row.category
     },
     {
       key: 'severity',
-      label: 'Критичність',
+      label: tr("Критичність"),
       render: (_, row) => row.severity_display || row.severity
     },
     {
       key: 'report_date',
-      label: 'Дата',
+      label: tr("Дата"),
       width: '140px',
       render: (val) => formatDateTime(val)
     },
     {
       key: 'status',
-      label: 'Статус',
+      label: tr("Статус"),
       width: '120px',
       render: (val) => <StatusBadge status={val} />
     }
@@ -63,12 +64,12 @@ function DriverFaults() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Мої несправності</h1>
+        <h1>{tr("Мої несправності")}</h1>
         <button
           className="btn btn-primary"
           onClick={() => navigate('/driver/faults/new')}
         >
-          Повідомити про несправність
+          {tr("Повідомити про несправність")}
         </button>
       </div>
 
@@ -76,7 +77,7 @@ function DriverFaults() {
         columns={columns}
         data={faults}
         isLoading={isLoading}
-        emptyMessage="Немає повідомлень про несправності"
+        emptyMessage={tr("Немає повідомлень про несправності")}
         onRowClick={(row) => navigate(`/driver/faults/${row._id}`)}
       />
     </div>

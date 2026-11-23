@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
+import { useRoleBase } from '../../utils/useRoleBase'
 import { useNavigate } from 'react-router-dom'
 import { repairsApi } from '../../api/repairs'
 import DataTable from '../../components/DataTable'
 import StatusBadge from '../../components/StatusBadge'
 import { formatDate } from '../../utils/formatters'
+import { tr } from '../../i18n'
 
 function MechanicRepairs() {
   const navigate = useNavigate()
+  const base = useRoleBase()
   const [repairs, setRepairs] = useState([])
   const [filter, setFilter] = useState('active') // active, all
   const [isLoading, setIsLoading] = useState(true)
@@ -32,39 +35,39 @@ function MechanicRepairs() {
   const columns = [
     {
       key: 'number',
-      label: 'Номер',
+      label: tr("Номер"),
       width: '100px'
     },
     {
       key: 'vehicle',
-      label: 'Транспорт',
+      label: tr("Транспорт"),
       render: (_, row) => row.vehicle?.plate_number || '-'
     },
     {
       key: 'repair_type',
-      label: 'Тип',
+      label: tr("Тип"),
       width: '140px',
       render: (_, row) => row.repair_type_display || row.repair_type
     },
     {
       key: 'description',
-      label: 'Опис',
+      label: tr("Опис"),
       render: (val) => (val?.length > 50 ? val.slice(0, 50) + '...' : val)
     },
     {
       key: 'scheduled_date',
-      label: 'Дата',
+      label: tr("Дата"),
       width: '100px',
       render: (val) => formatDate(val)
     },
     {
       key: 'mechanic',
-      label: 'Механік',
+      label: tr("Механік"),
       render: (_, row) => row.mechanic?.full_name || '-'
     },
     {
       key: 'status',
-      label: 'Статус',
+      label: tr("Статус"),
       width: '120px',
       render: (val) => <StatusBadge status={val} />
     }
@@ -73,7 +76,7 @@ function MechanicRepairs() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Ремонти</h1>
+        <h1>{tr("Ремонти")}</h1>
 
         <div className="header-actions">
           <div className="filter-tabs">
@@ -81,21 +84,21 @@ function MechanicRepairs() {
               className={`tab ${filter === 'active' ? 'active' : ''}`}
               onClick={() => setFilter('active')}
             >
-              Активні
+              {tr("Активні")}
             </button>
             <button
               className={`tab ${filter === 'all' ? 'active' : ''}`}
               onClick={() => setFilter('all')}
             >
-              Всі
+              {tr("Всі")}
             </button>
           </div>
 
           <button
             className="btn btn-primary"
-            onClick={() => navigate('/mechanic/repairs/new')}
+            onClick={() => navigate(`${base}/repairs/new`)}
           >
-            Новий ремонт
+            {tr("Новий ремонт")}
           </button>
         </div>
       </div>
@@ -104,8 +107,8 @@ function MechanicRepairs() {
         columns={columns}
         data={repairs}
         isLoading={isLoading}
-        emptyMessage={filter === 'active' ? 'Немає активних ремонтів' : 'Немає ремонтів'}
-        onRowClick={(row) => navigate(`/mechanic/repairs/${row._id}`)}
+        emptyMessage={filter === 'active' ? tr("Немає активних ремонтів") : tr("Немає ремонтів")}
+        onRowClick={(row) => navigate(`${base}/repairs/${row._id}`)}
       />
     </div>
   )

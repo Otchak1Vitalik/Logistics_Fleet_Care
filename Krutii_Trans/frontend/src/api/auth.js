@@ -10,6 +10,9 @@ export const authApi = {
   me: () =>
     api.get('/auth/me'),
 
+  updateMe: (data) =>
+    api.put('/auth/me', data),
+
   changePassword: (currentPassword, newPassword) =>
     api.post('/auth/change-password', {
       current_password: currentPassword,

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { authApi } from '../api/auth'
 import { useAuthStore } from '../store/authStore'
 import toast from 'react-hot-toast'
+import { tr } from '../i18n'
 
 function ChangePassword() {
   const navigate = useNavigate()
@@ -17,17 +18,17 @@ function ChangePassword() {
     e.preventDefault()
 
     if (!currentPassword || !newPassword || !confirmPassword) {
-      toast.error('Заповніть всі поля')
+      toast.error(tr("Заповніть всі поля"))
       return
     }
 
     if (newPassword.length < 6) {
-      toast.error('Новий пароль має бути не менше 6 символів')
+      toast.error(tr("Новий пароль має бути не менше 6 символів"))
       return
     }
 
     if (newPassword !== confirmPassword) {
-      toast.error('Паролі не співпадають')
+      toast.error(tr("Паролі не співпадають"))
       return
     }
 
@@ -35,7 +36,7 @@ function ChangePassword() {
 
     try {
       await authApi.changePassword(currentPassword, newPassword)
-      toast.success('Пароль успішно змінено')
+      toast.success(tr("Пароль успішно змінено"))
       navigate(`/${user?.role || ''}`)
     } catch (error) {
       // Помилка вже показана через interceptor
@@ -47,13 +48,13 @@ function ChangePassword() {
   return (
     <div className="page-container page-narrow">
       <div className="page-header">
-        <h1>Зміна пароля</h1>
+        <h1>{tr("Зміна пароля")}</h1>
       </div>
 
       <div className="card">
         <form onSubmit={handleSubmit}>
           <div className="form-field">
-            <label htmlFor="currentPassword">Поточний пароль</label>
+            <label htmlFor="currentPassword">{tr("Поточний пароль")}</label>
             <input
               type="password"
               id="currentPassword"
@@ -65,7 +66,7 @@ function ChangePassword() {
           </div>
 
           <div className="form-field">
-            <label htmlFor="newPassword">Новий пароль</label>
+            <label htmlFor="newPassword">{tr("Новий пароль")}</label>
             <input
               type="password"
               id="newPassword"
@@ -76,12 +77,12 @@ function ChangePassword() {
               minLength={6}
             />
             <span className="field-hint">
-              Мінімум 6 символів, має містити велику літеру та цифру
+              {tr("Мінімум 6 символів, має містити велику літеру та цифру")}
             </span>
           </div>
 
           <div className="form-field">
-            <label htmlFor="confirmPassword">Підтвердження пароля</label>
+            <label htmlFor="confirmPassword">{tr("Підтвердження пароля")}</label>
             <input
               type="password"
               id="confirmPassword"
@@ -98,14 +99,14 @@ function ChangePassword() {
               className="btn btn-secondary"
               onClick={() => navigate(-1)}
             >
-              Скасувати
+              {tr("Скасувати")}
             </button>
             <button
               type="submit"
               className="btn btn-primary"
               disabled={isLoading}
             >
-              {isLoading ? 'Збереження...' : 'Змінити пароль'}
+              {isLoading ? tr("Збереження...") : tr("Змінити пароль")}
             </button>
           </div>
         </form>

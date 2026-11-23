@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import toast from 'react-hot-toast'
+import { tr } from '../i18n'
 
 const QUICK_LOGIN = [
-  { username: 'admin', password: 'Admin1234', role: 'manager', label: 'Керівник' },
-  { username: 'mech_koval', password: 'Mech1234', role: 'mechanic', label: 'Механік' },
-  { username: 'driver_ivanov', password: 'Driver1234', role: 'driver', label: 'Водій' }
+  { username: 'admin', password: 'Admin1234', role: 'manager', label: tr("Керівник") },
+  { username: 'mech_koval', password: 'Mech1234', role: 'mechanic', label: tr("Механік") },
+  { username: 'driver_ivanov', password: 'Driver1234', role: 'driver', label: tr("Водій") }
 ]
 
 function Login() {
@@ -20,14 +21,14 @@ function Login() {
     e.preventDefault()
 
     if (!username.trim() || !password) {
-      toast.error('Введіть логін та пароль')
+      toast.error(tr("Введіть логін та пароль"))
       return
     }
 
     const result = await login(username.trim(), password)
 
     if (result.success) {
-      toast.success('Вхід виконано успішно')
+      toast.success(tr("Вхід виконано успішно"))
       navigate(`/${result.user.role}`)
     } else {
       toast.error(result.error)
@@ -38,7 +39,7 @@ function Login() {
     const result = await login(credentials.username, credentials.password)
 
     if (result.success) {
-      toast.success(`Вхід як ${credentials.label}`)
+      toast.success(tr("Вхід як {0}", credentials.label))
       navigate(`/${result.user.role}`)
     } else {
       toast.error(result.error)
@@ -47,32 +48,32 @@ function Login() {
 
   return (
     <div className="login-form">
-      <h2>Вхід в систему</h2>
+      <h2>{tr("Вхід в систему")}</h2>
 
       <form onSubmit={handleSubmit}>
         <div className="form-field">
-          <label htmlFor="username">Логін</label>
+          <label htmlFor="username">{tr("Логін")}</label>
           <input
             type="text"
             id="username"
             className="form-control"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="Введіть логін"
+            placeholder={tr("Введіть логін")}
             autoComplete="username"
             autoFocus
           />
         </div>
 
         <div className="form-field">
-          <label htmlFor="password">Пароль</label>
+          <label htmlFor="password">{tr("Пароль")}</label>
           <input
             type="password"
             id="password"
             className="form-control"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Введіть пароль"
+            placeholder={tr("Введіть пароль")}
             autoComplete="current-password"
           />
         </div>
@@ -82,12 +83,12 @@ function Login() {
           className="btn btn-primary btn-block"
           disabled={isLoading}
         >
-          {isLoading ? 'Вхід...' : 'Увійти'}
+          {isLoading ? tr("Вхід...") : tr("Увійти")}
         </button>
       </form>
 
       <div className="quick-login">
-        <p className="quick-login-title">Швидкий вхід:</p>
+        <p className="quick-login-title">{tr("Швидкий вхід:")}</p>
         <div className="quick-login-buttons">
           {QUICK_LOGIN.map((cred) => (
             <button

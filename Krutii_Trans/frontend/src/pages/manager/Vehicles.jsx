@@ -4,18 +4,19 @@ import { vehiclesApi } from '../../api/vehicles'
 import DataTable from '../../components/DataTable'
 import StatusBadge from '../../components/StatusBadge'
 import { formatOdometer } from '../../utils/formatters'
+import { tr } from '../../i18n'
 
 const STATUSES = {
-  active: 'Активний',
-  repair: 'В ремонті',
-  inspection: 'На огляді',
-  decommissioned: 'Списано'
+  active: tr("Активний"),
+  repair: tr("В ремонті"),
+  inspection: tr("На огляді"),
+  decommissioned: tr("Списано")
 }
 
 const FUEL_TYPES = {
-  diesel: 'Дизель',
-  petrol: 'Бензин',
-  gas: 'Газ'
+  diesel: tr("Дизель"),
+  petrol: tr("Бензин"),
+  gas: tr("Газ")
 }
 
 function ManagerVehicles() {
@@ -50,7 +51,7 @@ function ManagerVehicles() {
   const columns = [
     {
       key: 'plate_number',
-      label: 'Номер',
+      label: tr("Номер"),
       render: (_, row) => (
         <div>
           <div className="font-medium">{row.plate_number}</div>
@@ -62,26 +63,26 @@ function ManagerVehicles() {
     },
     {
       key: 'year',
-      label: 'Рік'
+      label: tr("Рік")
     },
     {
       key: 'fuel_type',
-      label: 'Пальне',
+      label: tr("Пальне"),
       render: (type) => FUEL_TYPES[type] || type
     },
     {
       key: 'fuel_norm',
-      label: 'Норма',
-      render: (norm) => norm ? `${norm} л/100км` : '-'
+      label: tr("Норма"),
+      render: (norm) => norm ? tr("{0} л/100км", norm) : '-'
     },
     {
       key: 'odometer',
-      label: 'Пробіг',
+      label: tr("Пробіг"),
       render: (km) => formatOdometer(km)
     },
     {
       key: 'status',
-      label: 'Статус',
+      label: tr("Статус"),
       render: (status) => <StatusBadge status={status} />
     }
   ]
@@ -99,25 +100,25 @@ function ManagerVehicles() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Автопарк</h1>
+        <h1>{tr("Автопарк")}</h1>
         <button
           className="btn btn-primary"
           onClick={() => navigate('/manager/vehicles/new')}
         >
-          Додати транспорт
+          {tr("Додати транспорт")}
         </button>
       </div>
 
       {/* Фільтри */}
       <div className="filters">
         <div className="filter-group">
-          <label>Статус</label>
+          <label>{tr("Статус")}</label>
           <select
             className="form-control"
             value={statusFilter}
             onChange={(e) => handleFilterChange('status', e.target.value)}
           >
-            <option value="">Всі</option>
+            <option value="">{tr("Всі")}</option>
             {Object.entries(STATUSES).map(([key, label]) => (
               <option key={key} value={key}>{label}</option>
             ))}
@@ -125,13 +126,13 @@ function ManagerVehicles() {
         </div>
 
         <div className="filter-group">
-          <label>Тип пального</label>
+          <label>{tr("Тип пального")}</label>
           <select
             className="form-control"
             value={fuelFilter}
             onChange={(e) => handleFilterChange('fuel_type', e.target.value)}
           >
-            <option value="">Всі</option>
+            <option value="">{tr("Всі")}</option>
             {Object.entries(FUEL_TYPES).map(([key, label]) => (
               <option key={key} value={key}>{label}</option>
             ))}
@@ -146,7 +147,7 @@ function ManagerVehicles() {
           data={vehicles}
           isLoading={loading}
           onRowClick={(row) => navigate(`/manager/vehicles/${row._id}`)}
-          emptyMessage="Транспорт не знайдено"
+          emptyMessage={tr("Транспорт не знайдено")}
         />
       </div>
     </div>

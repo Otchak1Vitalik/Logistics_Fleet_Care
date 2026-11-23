@@ -85,3 +85,11 @@ def test_lists_contain_related_data(app, db, ids):
     repair = mech.get('/api/repairs').get_json()['repairs'][0]
     assert repair['vehicle']['plate_number'] == 'BC0001AA'
     assert repair['mechanic']['username'] == 'mech' and repair['fault']['_id'] == fid
+
+
+def test_fault_list_has_display_labels(app, db, ids):
+    vid = make_vehicle(db)
+    make_waybill(db, vid, ids['driver'])
+    login(app, 'driver').post('/api/faults', json={**FAULT, 'vehicle_id': vid})
+    fault = login(app, 'mech').get('/api/faults').get_json()['faults'][0]
+    assert fault['category_display'] == 'Гальма' and fault['severity_display'] == 'Критична'

@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react'
+import { useRoleBase } from '../../utils/useRoleBase'
 import { useParams, useNavigate } from 'react-router-dom'
 import { faultsApi } from '../../api/faults'
 import StatusBadge from '../../components/StatusBadge'
 import Loader from '../../components/Loader'
 import { formatDateTime, formatOdometer } from '../../utils/formatters'
 import toast from 'react-hot-toast'
+import { tr } from '../../i18n'
 
 function MechanicFaultDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const base = useRoleBase()
   const [fault, setFault] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [showResolveModal, setShowResolveModal] = useState(false)
@@ -34,7 +37,7 @@ function MechanicFaultDetail() {
   const handleAcknowledge = async () => {
     try {
       await faultsApi.update(id, { status: 'acknowledged' })
-      toast.success('Несправність прийнято в роботу')
+      toast.success(tr("Несправність прийнято в роботу"))
       loadFault()
     } catch (error) {
       // Ігноруємо
@@ -43,12 +46,12 @@ function MechanicFaultDetail() {
 
   const handleResolve = async () => {
     if (!resolution.trim()) {
-      toast.error('Вкажіть опис рішення')
+      toast.error(tr("Вкажіть опис рішення"))
       return
     }
     try {
       await faultsApi.update(id, { status: 'resolved', resolution })
-      toast.success('Несправність вирішено')
+      toast.success(tr("Несправність вирішено"))
       setShowResolveModal(false)
       loadFault()
     } catch (error) {
@@ -58,12 +61,12 @@ function MechanicFaultDetail() {
 
   const handleReject = async () => {
     if (!rejectionReason.trim()) {
-      toast.error('Вкажіть причину відхилення')
+      toast.error(tr("Вкажіть причину відхилення"))
       return
     }
     try {
       await faultsApi.update(id, { status: 'rejected', rejection_reason: rejectionReason })
-      toast.success('Несправність відхилено')
+      toast.success(tr("Несправність відхилено"))
       setShowRejectModal(false)
       loadFault()
     } catch (error) {
@@ -72,11 +75,11 @@ function MechanicFaultDetail() {
   }
 
   const handleCreateRepair = () => {
-    navigate('/mechanic/repairs/new', { state: { faultId: id, vehicleId: fault.vehicle_id } })
+    navigate(`${base}/repairs/new`, { state: { faultId: id, vehicleId: fault.vehicle_id } })
   }
 
   if (isLoading || !fault) {
-    return <Loader text="Завантаження..." />
+    return <Loader text={tr("Завантаження...")} />
   }
 
   const canAcknowledge = fault.status === 'new'
@@ -89,21 +92,21 @@ function MechanicFaultDetail() {
       <div className="page-header">
         <div className="header-left">
           <button className="btn btn-text" onClick={() => navigate(-1)}>
-            Назад
+            {tr("Назад")}
           </button>
-          <h1>Несправність {fault.number}</h1>
+          <h1>{tr("Несправність")}{' '}{fault.number}</h1>
           <StatusBadge status={fault.status} />
         </div>
 
         <div className="header-actions">
           {canAcknowledge && (
             <button className="btn btn-primary" onClick={handleAcknowledge}>
-              Прийняти
+              {tr("Прийняти")}
             </button>
           )}
           {canCreateRepair && (
             <button className="btn btn-info" onClick={handleCreateRepair}>
-              Створити ремонт
+              {tr("Створити ремонт")}
             </button>
           )}
           {canResolve && (
@@ -111,7 +114,7 @@ function MechanicFaultDetail() {
               className="btn btn-success"
               onClick={() => setShowResolveModal(true)}
             >
-              Вирішено
+              {tr("Вирішено")}
             </button>
           )}
           {canReject && (
@@ -119,7 +122,7 @@ function MechanicFaultDetail() {
               className="btn btn-danger"
               onClick={() => setShowRejectModal(true)}
             >
-              Відхилити
+              {tr("Відхилити")}
             </button>
           )}
         </div>
@@ -127,38 +130,38 @@ function MechanicFaultDetail() {
 
       <div className="detail-grid">
         <div className="card">
-          <h3>Транспорт</h3>
+          <h3>{tr("Транспорт")}</h3>
           <dl className="info-list">
             <div className="info-item">
-              <dt>Номер</dt>
+              <dt>{tr("Номер")}</dt>
               <dd>{fault.vehicle?.plate_number}</dd>
             </div>
             <div className="info-item">
-              <dt>Марка/Модель</dt>
+              <dt>{tr("Марка/Модель")}</dt>
               <dd>
                 {fault.vehicle?.brand} {fault.vehicle?.model}
               </dd>
             </div>
             <div className="info-item">
-              <dt>Пробіг</dt>
+              <dt>{tr("Пробіг")}</dt>
               <dd>{formatOdometer(fault.odometer)}</dd>
             </div>
           </dl>
         </div>
 
         <div className="card">
-          <h3>Деталі несправності</h3>
+          <h3>{tr("Деталі несправності")}</h3>
           <dl className="info-list">
             <div className="info-item">
-              <dt>Дата повідомлення</dt>
+              <dt>{tr("Дата повідомлення")}</dt>
               <dd>{formatDateTime(fault.report_date)}</dd>
             </div>
             <div className="info-item">
-              <dt>Категорія</dt>
+              <dt>{tr("Категорія")}</dt>
               <dd>{fault.category_display || fault.category}</dd>
             </div>
             <div className="info-item">
-              <dt>Критичність</dt>
+              <dt>{tr("Критичність")}</dt>
               <dd
                 className={
                   fault.severity === 'critical'
@@ -172,27 +175,27 @@ function MechanicFaultDetail() {
               </dd>
             </div>
             <div className="info-item">
-              <dt>Від водія</dt>
+              <dt>{tr("Від водія")}</dt>
               <dd>{fault.reporter?.full_name}</dd>
             </div>
           </dl>
         </div>
 
         <div className="card full-width">
-          <h3>Опис</h3>
+          <h3>{tr("Опис")}</h3>
           <p className="description-text">{fault.description}</p>
         </div>
 
         {fault.resolution && (
           <div className="card full-width">
-            <h3>Рішення</h3>
+            <h3>{tr("Рішення")}</h3>
             <p className="description-text">{fault.resolution}</p>
           </div>
         )}
 
         {fault.rejection_reason && (
           <div className="card full-width">
-            <h3>Причина відхилення</h3>
+            <h3>{tr("Причина відхилення")}</h3>
             <p className="description-text">{fault.rejection_reason}</p>
           </div>
         )}
@@ -203,17 +206,17 @@ function MechanicFaultDetail() {
         <div className="modal-overlay" onClick={() => setShowResolveModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Рішення несправності</h3>
+              <h3>{tr("Рішення несправності")}</h3>
             </div>
             <div className="modal-body">
               <div className="form-field">
-                <label>Опис виконаних робіт</label>
+                <label>{tr("Опис виконаних робіт")}</label>
                 <textarea
                   className="form-control"
                   value={resolution}
                   onChange={(e) => setResolution(e.target.value)}
                   rows={4}
-                  placeholder="Опишіть, що було зроблено..."
+                  placeholder={tr("Опишіть, що було зроблено...")}
                 />
               </div>
             </div>
@@ -222,10 +225,10 @@ function MechanicFaultDetail() {
                 className="btn btn-secondary"
                 onClick={() => setShowResolveModal(false)}
               >
-                Скасувати
+                {tr("Скасувати")}
               </button>
               <button className="btn btn-success" onClick={handleResolve}>
-                Підтвердити
+                {tr("Підтвердити")}
               </button>
             </div>
           </div>
@@ -237,17 +240,17 @@ function MechanicFaultDetail() {
         <div className="modal-overlay" onClick={() => setShowRejectModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Відхилення несправності</h3>
+              <h3>{tr("Відхилення несправності")}</h3>
             </div>
             <div className="modal-body">
               <div className="form-field">
-                <label>Причина відхилення</label>
+                <label>{tr("Причина відхилення")}</label>
                 <textarea
                   className="form-control"
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
                   rows={4}
-                  placeholder="Вкажіть причину..."
+                  placeholder={tr("Вкажіть причину...")}
                 />
               </div>
             </div>
@@ -256,10 +259,10 @@ function MechanicFaultDetail() {
                 className="btn btn-secondary"
                 onClick={() => setShowRejectModal(false)}
               >
-                Скасувати
+                {tr("Скасувати")}
               </button>
               <button className="btn btn-danger" onClick={handleReject}>
-                Відхилити
+                {tr("Відхилити")}
               </button>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { Outlet, Navigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { tr } from '../i18n'
 
 function AuthLayout() {
   const { isAuthenticated, user, _hasHydrated } = useAuthStore()
@@ -11,7 +12,7 @@ function AuthLayout() {
         <div className="auth-container">
           <div className="auth-logo">
             <h1>KRUTII TRANS</h1>
-            <p>Завантаження...</p>
+            <p>{tr("Завантаження...")}</p>
           </div>
         </div>
       </div>
@@ -28,7 +29,7 @@ function AuthLayout() {
       <div className="auth-container">
         <div className="auth-logo">
           <h1>KRUTII TRANS</h1>
-          <p>Система управління автопарком</p>
+          <p>{tr("Система управління автопарком")}</p>
         </div>
         <Outlet />
       </div>

@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react'
+import { useRoleBase } from '../../utils/useRoleBase'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { repairsApi } from '../../api/repairs'
 import { vehiclesApi } from '../../api/vehicles'
 import { settingsApi } from '../../api/settings'
 import FormField from '../../components/FormField'
 import toast from 'react-hot-toast'
+import { tr } from '../../i18n'
 
 function MechanicRepairNew() {
   const navigate = useNavigate()
+  const base = useRoleBase()
   const location = useLocation()
 
   const [vehicles, setVehicles] = useState([])
@@ -54,7 +57,7 @@ function MechanicRepairNew() {
     e.preventDefault()
 
     if (!formData.vehicle_id || !formData.repair_type || !formData.description) {
-      toast.error('Заповніть всі обов\'язкові поля')
+      toast.error(tr("Заповніть всі обов'язкові поля"))
       return
     }
 
@@ -73,8 +76,8 @@ function MechanicRepairNew() {
       if (formData.notes) payload.notes = formData.notes
 
       const response = await repairsApi.create(payload)
-      toast.success(`Ремонт ${response.data.repair.number} створено`)
-      navigate('/mechanic/repairs')
+      toast.success(tr("Ремонт {0} створено", response.data.repair.number))
+      navigate(`${base}/repairs`)
     } catch (error) {
       // Помилка вже показана
     }
@@ -86,15 +89,15 @@ function MechanicRepairNew() {
     <div className="page-container page-narrow">
       <div className="page-header">
         <button className="btn btn-text" onClick={() => navigate(-1)}>
-          Назад
+          {tr("Назад")}
         </button>
-        <h1>Новий ремонт</h1>
+        <h1>{tr("Новий ремонт")}</h1>
       </div>
 
       <div className="card">
         <form onSubmit={handleSubmit}>
           <FormField
-            label="Транспортний засіб"
+            label={tr("Транспортний засіб")}
             name="vehicle_id"
             type="select"
             value={formData.vehicle_id}
@@ -104,7 +107,7 @@ function MechanicRepairNew() {
           />
 
           <FormField
-            label="Тип робіт"
+            label={tr("Тип робіт")}
             name="repair_type"
             type="select"
             value={formData.repair_type}
@@ -114,19 +117,19 @@ function MechanicRepairNew() {
           />
 
           <FormField
-            label="Опис робіт"
+            label={tr("Опис робіт")}
             name="description"
             type="textarea"
             value={formData.description}
             onChange={handleChange}
-            placeholder="Опишіть заплановані роботи..."
+            placeholder={tr("Опишіть заплановані роботи...")}
             rows={4}
             required
           />
 
           <div className="form-row">
             <FormField
-              label="Запланована дата"
+              label={tr("Запланована дата")}
               name="scheduled_date"
               type="date"
               value={formData.scheduled_date}
@@ -134,7 +137,7 @@ function MechanicRepairNew() {
             />
 
             <FormField
-              label="Пробіг (км)"
+              label={tr("Пробіг (км)")}
               name="odometer"
               type="number"
               value={formData.odometer}
@@ -144,7 +147,7 @@ function MechanicRepairNew() {
           </div>
 
           <FormField
-            label="Примітки"
+            label={tr("Примітки")}
             name="notes"
             type="textarea"
             value={formData.notes}
@@ -158,14 +161,14 @@ function MechanicRepairNew() {
               className="btn btn-secondary"
               onClick={() => navigate(-1)}
             >
-              Скасувати
+              {tr("Скасувати")}
             </button>
             <button
               type="submit"
               className="btn btn-primary"
               disabled={isLoading}
             >
-              {isLoading ? 'Збереження...' : 'Створити'}
+              {isLoading ? tr("Збереження...") : tr("Створити")}
             </button>
           </div>
         </form>

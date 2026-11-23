@@ -38,10 +38,10 @@ def seed_database():
         {
             'username': 'admin',
             'password_hash': hash_password('Admin1234'),
-            'full_name': 'Богатир Василь Петрович',
+            'full_name': 'Литвиненко Василь Петрович',
             'role': 'manager',
             'phone': '+380501234567',
-            'email': 'admin@bogatur.ua',
+            'email': 'admin@krutiitrans.ua',
             'is_active': True,
             'created_at': datetime.utcnow() - timedelta(days=365),
             'updated_at': datetime.utcnow()
@@ -53,7 +53,7 @@ def seed_database():
             'full_name': 'Коваль Олександр Іванович',
             'role': 'mechanic',
             'phone': '+380502345678',
-            'email': 'koval@bogatur.ua',
+            'email': 'koval@krutiitrans.ua',
             'is_active': True,
             'created_at': datetime.utcnow() - timedelta(days=300),
             'updated_at': datetime.utcnow()
@@ -64,7 +64,7 @@ def seed_database():
             'full_name': 'Петрук Михайло Сергійович',
             'role': 'mechanic',
             'phone': '+380503456789',
-            'email': 'petruk@bogatur.ua',
+            'email': 'petruk@krutiitrans.ua',
             'is_active': True,
             'created_at': datetime.utcnow() - timedelta(days=280),
             'updated_at': datetime.utcnow()
@@ -77,7 +77,7 @@ def seed_database():
             'role': 'driver',
             'phone': '+380504567890',
             'license_number': 'АВС123456',
-            'license_expiry': day_start(datetime.utcnow() + timedelta(days=365)),
+            'license_expiry': day_start(datetime.utcnow() + timedelta(days=20)),  # спливає скоро - видно в профілі
             'is_active': True,
             'created_at': datetime.utcnow() - timedelta(days=250),
             'updated_at': datetime.utcnow()
@@ -174,7 +174,7 @@ def seed_database():
     mechanic_usernames = [u['username'] for u in users if u['role'] == 'mechanic']
     print(f'Створено {len(users)} користувачів (1 керівник, 2 механіки, 8 водіїв).')
 
-    # === Транспортні засоби (12 одиниць) ===
+    # === Транспортні засоби (31 одиниця: дизель, бензин, газ; різні статуси) ===
     vehicles_data = [
         ('AA1234BB', 'MAN', 'TGX 18.440', 2020, 'WMAN05ZZ1LY123456', 28.0, 400, 125000),
         ('AA5678CC', 'Volvo', 'FH 500', 2021, 'YV2RT40A5LB654321', 26.5, 450, 89000),
@@ -188,13 +188,40 @@ def seed_database():
         ('CC5678BB', 'Mercedes-Benz', 'Arocs 1843', 2019, 'WDB96340320444555', 31.0, 450, 189000),
         ('DD1234AA', 'Iveco', 'Stralis 460', 2020, 'WJMM1VPH50C555666', 28.5, 400, 134000),
         ('DD5678BB', 'Renault', 'T 480', 2021, 'VF622GVA000666777', 25.0, 420, 78000),
+        # Легкі фургони на бензині
+        ('KA1122AB', 'Toyota', 'Hiace 2.7', 2019, 'JTFSS22P900123456', 13.5, 70, 98000, 'petrol'),
+        ('KA3344CD', 'Volkswagen', 'Transporter T6 2.0 TSI', 2020, 'WV1ZZZ7HZLH012345', 12.0, 80, 64000, 'petrol'),
+        ('KA5566EF', 'Renault', 'Kangoo 1.6', 2021, 'VF1KW0BB565123456', 8.5, 60, 41000, 'petrol'),
+        # Авто на газу (метан, CNG)
+        ('KB1122AB', 'Iveco', 'Daily 35S14 CNG', 2021, 'ZCFC135D005654321', 14.0, 220, 72000, 'gas'),
+        ('KB3344CD', 'Mercedes-Benz', 'Sprinter 316 NGT', 2018, 'WDB9066331S765432', 15.5, 200, 154000, 'gas'),
+        ('KB5566EF', 'Scania', 'G 340 CNG', 2020, 'YS2G4X20005876543', 30.0, 500, 118000, 'gas'),
+        # Ще бензинові: 1 в експлуатації, 2 в ремонті, 2 на огляді
+        ('KA7788GH', 'Citroen', 'Berlingo 1.2 PureTech', 2021, 'VR7EFHNSMMJ123456', 7.5, 50, 38000, 'petrol', 'active'),
+        ('KA9900IK', 'Peugeot', 'Partner 1.2 PureTech', 2020, 'VR3EFHNSMLJ234567', 7.8, 50, 57000, 'petrol', 'repair'),
+        ('KA2233LM', 'Fiat', 'Doblo 1.4', 2018, 'ZFA26300006345678', 8.9, 60, 132000, 'petrol', 'repair'),
+        ('KA4455NO', 'Opel', 'Combo 1.2 Turbo', 2022, 'VXEEFHNSMNJ456789', 7.2, 50, 26000, 'petrol', 'inspection'),
+        ('KA6677PR', 'Volkswagen', 'Caddy 1.5 TSI', 2021, 'WV1ZZZSKZMX567890', 7.9, 50, 49000, 'petrol', 'inspection'),
+        # Ще газові: 1 в експлуатації, 2 в ремонті, 2 на огляді
+        ('KB7788GH', 'Fiat', 'Doblo 1.4 Natural Power', 2019, 'ZFA26300006678901', 9.5, 120, 87000, 'gas', 'active'),
+        ('KB9900IK', 'Volkswagen', 'Caddy 1.4 TGI', 2020, 'WV1ZZZSKZLX789012', 9.0, 130, 64000, 'gas', 'repair'),
+        ('KB2233LM', 'Iveco', 'Eurocargo 120E CNG', 2019, 'ZCFA1ED0102890123', 22.0, 400, 141000, 'gas', 'repair'),
+        ('KB4455NO', 'Mercedes-Benz', 'Econic 1830 NGT', 2018, 'WDB9570311L901234', 33.0, 600, 176000, 'gas', 'inspection'),
+        ('KB6677PR', 'Opel', 'Combo 1.4 CNG', 2017, 'W0L0XCF0612012345', 9.8, 110, 158000, 'gas', 'inspection'),
+        # Списані (по одному на кожен тип пального)
+        ('KC1100AA', 'MAN', 'TGA 18.430', 2008, 'WMAH05ZZZ8M123456', 34.0, 400, 812000, 'diesel', 'decommissioned'),
+        ('KC2200BB', 'Iveco', 'Daily 35C14 CNG', 2010, 'ZCFC35A1005234567', 16.0, 180, 503000, 'gas', 'decommissioned'),
+        ('KC3300CC', 'Ford', 'Transit 2.3', 2009, 'WF0XXXTTFX9345678', 14.5, 80, 467000, 'petrol', 'decommissioned'),
     ]
 
     vehicles = []
     statuses = ['active', 'active', 'active', 'active', 'active', 'active',
-                'active', 'active', 'repair', 'active', 'inspection', 'active']
+                'active', 'active', 'repair', 'active', 'inspection', 'active',
+                'active', 'active', 'active', 'active', 'active', 'active']
 
-    for i, (plate, brand, model, year, vin, norm, tank, odo) in enumerate(vehicles_data):
+    for i, (plate, brand, model, year, vin, norm, tank, odo, *rest) in enumerate(vehicles_data):
+        fuel_type = rest[0] if rest else 'diesel'
+        status = rest[1] if len(rest) > 1 else statuses[i]
         last_maint = random.randint(5000, 10000)
         vehicles.append({
             'plate_number': plate,
@@ -202,8 +229,8 @@ def seed_database():
             'model': model,
             'year': year,
             'vin': vin,
-            'status': statuses[i],
-            'fuel_type': 'diesel',
+            'status': status,
+            'fuel_type': fuel_type,
             'fuel_norm': norm,
             'tank_capacity': tank,
             'odometer': odo,
@@ -221,9 +248,11 @@ def seed_database():
     result = db.vehicles.insert_many(vehicles)
     vehicle_ids = {vehicles[i]['plate_number']: str(result.inserted_ids[i]) for i in range(len(vehicles))}
     plate_numbers = list(vehicle_ids.keys())
+    active_plates = [v['plate_number'] for v in vehicles if v['status'] == 'active']
+    vehicle_fuel = {v['plate_number']: v['fuel_type'] for v in vehicles}
     print(f'Створено {len(vehicles)} транспортних засобів.')
 
-    # === Путівки (30 штук) ===
+    # === Путівки (90 завершених за 60 днів + 3 активні) ===
     routes = [
         ('Київ', 'Львів', 'Доставка будматеріалів'),
         ('Львів', 'Одеса', 'Перевезення продуктів'),
@@ -245,11 +274,18 @@ def seed_database():
     waybills = []
     waybill_num = 100001
 
-    for i in range(30):
-        days_ago = random.randint(0, 60)
+    # Достатньо путівок, щоб середній добовий пробіг (прогноз ТО) був реалістичним.
+    # Активні путівки - на різних авто; одна з них у демо-водія driver_ivanov.
+    plan = [(random.randint(1, 60), None) for _ in range(90)] + [(0, 'driver_ivanov'), (0, None), (0, None)]
+    busy_plates = set()
+    for days_ago, fixed_driver in plan:
         route = random.choice(routes)
-        plate = random.choice(plate_numbers[:8])  # Тільки активні авто
-        driver = random.choice(driver_usernames)
+        if days_ago == 0:
+            plate = random.choice([p for p in active_plates if p not in busy_plates])
+            busy_plates.add(plate)
+        else:
+            plate = random.choice(active_plates)  # Тільки активні авто
+        driver = fixed_driver or random.choice(driver_usernames)
         distance = random.randint(200, 800)
         fuel_norm = next(v['fuel_norm'] for v in vehicles if v['plate_number'] == plate)
         fuel_issued = int(distance / 100 * fuel_norm * 1.1)
@@ -328,7 +364,8 @@ def seed_database():
             'vehicle_id': vehicle_ids[plate],
             'reported_by': user_ids[driver],
             'report_date': datetime.utcnow() - timedelta(hours=hours_ago),
-            'category': category,
+            # Категорії шин, охолодження і паливної системи зводимо до довідника системи
+            'category': {'tires': 'suspension', 'cooling': 'engine', 'fuel_system': 'engine'}.get(category, category),
             'severity': severity,
             'description': desc,
             'odometer': random.randint(50000, 200000),
@@ -380,8 +417,8 @@ def seed_database():
     repairs = []
     repair_num = 300001
 
-    for i in range(20):
-        days_ago = random.randint(0, 90)
+    for i in range(30):
+        days_ago = random.randint(0, 170)  # близько півроку історії для графіків витрат
         plate = random.choice(plate_numbers)
         mechanic = random.choice(mechanic_usernames)
         repair_type = random.choice(repair_types)
@@ -433,16 +470,78 @@ def seed_database():
         })
         repair_num += 1
 
+    # Заплановані на найближчі тижні роботи (для календаря ТО)
+    for days_ahead in (2, 5, 9, 13, 18, 24):
+        plate = random.choice(active_plates)
+        repair_type = random.choice(['maintenance', 'maintenance', 'repair', 'inspection'])
+        desc = 'Планове ТО-1' if repair_type == 'maintenance' else random.choice(repair_descriptions)
+        repairs.append({
+            'number': f'РМ-{repair_num}',
+            'vehicle_id': vehicle_ids[plate],
+            'mechanic_id': user_ids[random.choice(mechanic_usernames)],
+            'fault_id': None,
+            'repair_type': repair_type,
+            'description': desc,
+            'scheduled_date': day_start(datetime.utcnow() + timedelta(days=days_ahead)),
+            'started_at': None,
+            'completed_at': None,
+            'odometer': random.randint(50000, 200000),
+            'status': 'planned',
+            'work_performed': None,
+            'parts_used': [],
+            'labor_hours': None,
+            'labor_cost': None,
+            'parts_cost': None,
+            'notes': None,
+            'created_by': user_ids['admin'],
+            'created_at': datetime.utcnow(),
+            'updated_at': datetime.utcnow()
+        })
+        repair_num += 1
+
+    # Поточні роботи для авто, які зараз у ремонті або на огляді (узгоджено зі статусом авто)
+    current_work = {
+        'repair': ['Ремонт паливної системи', 'Заміна зчеплення', 'Ремонт КПП', 'Ремонт пневмосистеми'],
+        'inspection': ['Технічний огляд', 'Діагностика ходової частини', 'Перевірка гальмівної системи'],
+    }
+    for v in vehicles:
+        if v['status'] not in current_work:
+            continue
+        days_ago = random.randint(1, 4)
+        repairs.append({
+            'number': f'РМ-{repair_num}',
+            'vehicle_id': vehicle_ids[v['plate_number']],
+            'mechanic_id': user_ids[random.choice(mechanic_usernames)],
+            'fault_id': None,
+            'repair_type': 'repair' if v['status'] == 'repair' else 'inspection',
+            'description': random.choice(current_work[v['status']]),
+            'scheduled_date': day_start(datetime.utcnow() - timedelta(days=days_ago)),
+            'started_at': datetime.utcnow() - timedelta(days=days_ago),
+            'completed_at': None,
+            'odometer': v['odometer'],
+            'status': 'in_progress',
+            'work_performed': None,
+            'parts_used': [],
+            'labor_hours': None,
+            'labor_cost': None,
+            'parts_cost': None,
+            'notes': None,
+            'created_by': user_ids['admin'],
+            'created_at': datetime.utcnow() - timedelta(days=days_ago),
+            'updated_at': datetime.utcnow() - timedelta(days=days_ago)
+        })
+        repair_num += 1
+
     db.repairs.insert_many(repairs)
     print(f'Створено {len(repairs)} ремонтів.')
 
-    # === Паливні накладні (12 штук) ===
+    # === Паливні накладні (24 штуки, близько півроку) ===
     suppliers = ['ОККО', 'WOG', 'Shell', 'БРСМ-Нафта', 'Авіас']
     invoices = []
     invoice_num = 400001
 
-    for i in range(12):
-        days_ago = i * 5 + random.randint(0, 3)
+    for i in range(24):
+        days_ago = i * 7 + random.randint(0, 3)
         supplier = random.choice(suppliers)
         quantity = random.randint(1500, 5000)
         price = round(random.uniform(48.0, 56.0), 2)
@@ -452,7 +551,7 @@ def seed_database():
             'number': f'НП-{invoice_num}',
             'date': day_start(datetime.utcnow() - timedelta(days=days_ago)),
             'supplier': supplier,
-            'fuel_type': 'diesel',
+            'fuel_type': random.choice(['diesel', 'diesel', 'diesel', 'petrol', 'gas']),
             'quantity': quantity,
             'price_per_liter': price,
             'total_amount': round(quantity * price, 2),
@@ -470,18 +569,24 @@ def seed_database():
     fuel_records = []
     for i in range(50):
         days_ago = random.randint(0, 60)
-        plate = random.choice(plate_numbers[:8])
+        plate = random.choice(active_plates)
         driver = random.choice(driver_usernames)
         quantity = random.randint(100, 400)
+        # Частина записів - зовнішні заправки на АЗС з ціною і сумою, решта - видача з накладної
+        is_external = random.random() < 0.35
+        price = round(random.uniform(50.0, 58.0), 2) if is_external else None
 
         fuel_records.append({
             'vehicle_id': vehicle_ids[plate],
             'driver_id': user_ids[driver],
             'date': day_start(datetime.utcnow() - timedelta(days=days_ago)),
-            'fuel_type': 'diesel',
+            'fuel_type': vehicle_fuel[plate],
             'quantity': quantity,
             'odometer': random.randint(50000, 200000),
-            'source': random.choice(['invoice', 'station']),
+            'record_type': 'external' if is_external else 'issue',
+            'station': random.choice(suppliers) if is_external else None,
+            'price_per_liter': price,
+            'total_amount': round(quantity * price, 2) if is_external else None,
             'notes': None,
             'created_by': user_ids['admin'],
             'created_at': datetime.utcnow() - timedelta(days=days_ago),
@@ -491,59 +596,137 @@ def seed_database():
     db.fuel_records.insert_many(fuel_records)
     print(f'Створено {len(fuel_records)} записів про видачу пального.')
 
-    # === Сповіщення (25 штук) ===
-    alert_types = ['info', 'warning', 'warning', 'critical']
-    alert_categories = ['maintenance', 'fuel', 'fault', 'escalation', 'general']
-    alert_titles = {
-        'maintenance': ['Наближається ТО', 'Прострочене ТО', 'Закінчується техогляд', 'Потрібна заміна шин'],
-        'fuel': ['Перевитрата пального', 'Низький залишок пального', 'Підозріла витрата'],
-        'fault': ['Нова несправність', 'Критична несправність', 'Несправність не підтверджена'],
-        'escalation': ['Несправність без відповіді', 'Ескалація керівнику', 'Терміновий ремонт'],
-        'general': ['Нагадування', 'Системне повідомлення', 'Оновлення даних']
-    }
+    # === Сповіщення ===
+    # Формат збігається з тим, що створює сама система (recipient_role / recipient_id, is_dismissed),
+    # інакше сповіщення не відображаються на сторінках.
+    now = datetime.utcnow()
+    plate_by_id = {vid: plate for plate, vid in vehicle_ids.items()}
+    severity_labels = {'low': 'низька', 'medium': 'середня', 'high': 'висока', 'critical': 'критична'}
 
-    alerts = []
-    for i in range(25):
-        hours_ago = random.randint(1, 200)
-        alert_type = random.choice(alert_types)
-        category = random.choice(alert_categories)
-        title = random.choice(alert_titles[category])
-
-        alerts.append({
-            'user_id': user_ids['admin'],
+    def make_alert(alert_type, category, title, message, role=None, recipient=None,
+                   related_type=None, related_id=None, hours_ago=1, read=False):
+        created = now - timedelta(hours=hours_ago)
+        return {
             'alert_type': alert_type,
             'category': category,
             'title': title,
-            'message': f'{title} - потребує уваги',
-            'is_read': random.random() > 0.4,
-            'related_entity': random.choice(['vehicle', 'waybill', 'fault', None]),
-            'related_id': None,
-            'created_at': datetime.utcnow() - timedelta(hours=hours_ago),
-            'read_at': datetime.utcnow() - timedelta(hours=hours_ago - 1) if random.random() > 0.5 else None
-        })
+            'message': message,
+            'recipient_id': recipient,
+            'recipient_role': role,
+            'related_type': related_type,
+            'related_id': related_id,
+            'is_read': read,
+            'read_at': created + timedelta(minutes=30) if read else None,
+            'is_dismissed': False,
+            'dismissed_at': None,
+            'created_at': created,
+        }
 
-    # Сповіщення для механіків
-    for mechanic in mechanic_usernames:
-        for i in range(8):
-            hours_ago = random.randint(1, 100)
-            category = random.choice(['fault', 'maintenance', 'escalation'])
-            title = random.choice(alert_titles[category])
+    alerts = []
+    for fault in faults:
+        fid = str(fault['_id'])
+        plate = plate_by_id.get(fault['vehicle_id'], '—')
+        hours = max(1, int((now - fault['report_date']).total_seconds() // 3600))
+        sev = fault['severity']
+        alert_type = 'critical' if sev == 'critical' else 'warning' if sev == 'high' else 'info'
+        is_open = fault['status'] in ('new', 'acknowledged')
+        # Сповіщення механікам про кожну несправність
+        alerts.append(make_alert(alert_type, 'fault', f'Нова несправність: {plate}',
+                                 f'Серйозність: {severity_labels[sev]}. {fault["description"]}',
+                                 role='mechanic', related_type='fault', related_id=fid,
+                                 hours_ago=hours, read=not is_open))
+        # Критичні відкриті несправності - також керівнику
+        if sev == 'critical' and is_open:
+            alerts.append(make_alert('critical', 'fault', f'Критична несправність: {plate}',
+                                     f'{fault["number"]}: {fault["description"]}. Потрібне термінове рішення.',
+                                     role='manager', related_type='fault', related_id=fid, hours_ago=hours))
+        # Ескалація нових несправностей без відповіді
+        if fault['status'] == 'new' and hours >= 4:
+            alerts.append(make_alert('warning', 'escalation', f'Несправність без відповіді: {plate}',
+                                     f'Несправність {fault["number"]} чекає на відповідь понад 4 години.',
+                                     role='mechanic', related_type='fault', related_id=fid, hours_ago=hours - 4))
+        if fault['status'] == 'new' and hours >= 24:
+            alerts.append(make_alert('critical', 'escalation', 'УВАГА: Несправність без відповіді 24+ год',
+                                     f'Несправність {fault["number"]} ({plate}) не має відповіді понад 24 години!',
+                                     role='manager', related_type='fault', related_id=fid, hours_ago=hours - 24))
 
-            alerts.append({
-                'user_id': user_ids[mechanic],
-                'alert_type': random.choice(['warning', 'critical']),
-                'category': category,
-                'title': title,
-                'message': f'{title} - потребує уваги',
-                'is_read': random.random() > 0.5,
-                'related_entity': 'fault',
-                'related_id': None,
-                'created_at': datetime.utcnow() - timedelta(hours=hours_ago),
-                'read_at': None
-            })
+    # Перевитрата пального за завершеними путівками - керівнику
+    for wb in [w for w in waybills if w['status'] == 'completed' and w.get('fuel_used')][:6]:
+        distance = wb['odometer_end'] - wb['odometer_start']
+        vehicle = next(v for v in vehicles if vehicle_ids[v['plate_number']] == wb['vehicle_id'])
+        actual = wb['fuel_used'] / distance * 100
+        deviation = (actual - vehicle['fuel_norm']) / vehicle['fuel_norm'] * 100
+        if deviation > 10:
+            alerts.append(make_alert('warning', 'fuel', f'Перевитрата пального: {vehicle["plate_number"]}',
+                                     f'Путівка {wb["number"]}: {actual:.1f} л/100 км при нормі '
+                                     f'{vehicle["fuel_norm"]} л/100 км (+{deviation:.1f}%).',
+                                     role='manager', related_type='waybill',
+                                     hours_ago=random.randint(5, 120), read=random.random() > 0.5))
 
-    db.alerts.insert_many(alerts)
-    print(f'Створено {len(alerts)} сповіщень.')
+    # Документи, термін дії яких спливає (страховка, техогляд) - керівнику
+    for v in vehicles:
+        if v['status'] == 'decommissioned':
+            continue
+        for field, label in (('insurance_expiry', 'страховий поліс'), ('inspection_expiry', 'техогляд')):
+            days_left = (v[field] - day_start(now)).days
+            if days_left <= 45:
+                alerts.append(make_alert('warning', 'general', f'Закінчується {label}: {v["plate_number"]}',
+                                         f'Термін дії спливає через {days_left} дн.',
+                                         role='manager', related_type='vehicle',
+                                         related_id=vehicle_ids[v['plate_number']], hours_ago=random.randint(2, 48)))
+
+    if alerts:
+        db.alerts.insert_many(alerts)
+    # Сповіщення про ТО формує сама система - запускаємо ту саму перевірку, що й планувальник
+    from services.alert_engine import check_maintenance_alerts
+    check_maintenance_alerts(db)
+    print(f'Створено {db.alerts.count_documents({})} сповіщень.')
+
+    # === Склад запчастин ===
+    from services.inventory import check_low_stock
+    parts_data = [
+        # назва, артикул, категорія, од., залишок, мінімум, ціна
+        ('Колодки гальмівні передні', 'BP-1021', 'brakes', 'компл.', 2, 4, 3200),
+        ('Колодки гальмівні задні', 'BP-1022', 'brakes', 'компл.', 6, 3, 2900),
+        ('Диск гальмівний', 'BD-330', 'brakes', 'шт', 4, 2, 5400),
+        ('Фільтр масляний', 'OF-210', 'filters', 'шт', 18, 6, 480),
+        ('Фільтр паливний', 'FF-118', 'filters', 'шт', 3, 5, 950),
+        ('Фільтр повітряний', 'AF-402', 'filters', 'шт', 9, 4, 1350),
+        ('Олива моторна 10W-40', 'OIL-1040', 'oils', 'л', 120, 40, 210),
+        ('Антифриз G12', 'CL-G12', 'oils', 'л', 35, 20, 120),
+        ('Рідина гальмівна DOT-4', 'BF-DOT4', 'oils', 'л', 8, 5, 260),
+        ('Ремінь ГРМ', 'TB-77', 'engine', 'шт', 2, 2, 2600),
+        ('Свічка запалювання', 'SP-14', 'engine', 'шт', 24, 8, 220),
+        ('Акумулятор 12В 190Аг', 'BAT-190', 'electrical', 'шт', 3, 2, 7800),
+        ('Лампа H7 24В', 'LMP-H7', 'electrical', 'шт', 20, 10, 150),
+        ('Амортизатор', 'SH-552', 'suspension', 'шт', 4, 2, 4300),
+        ('Шина 315/80 R22.5', 'TYR-315', 'tyres', 'шт', 6, 4, 16500),
+        ('Щітка склоочисника', 'WB-600', 'other', 'шт', 10, 6, 320),
+    ]
+    db.parts.delete_many({})
+    db.part_movements.delete_many({})
+    parts = [{
+        'name': n, 'article': a, 'category': c, 'unit': u, 'quantity': q, 'min_quantity': mq, 'price': pr,
+        'created_at': now - timedelta(days=120), 'updated_at': now,
+    } for n, a, c, u, q, mq, pr in parts_data]
+    db.parts.insert_many(parts)
+    # Історія руху: початкове надходження і списання в кількох завершених ремонтах
+    movements = [{'part_id': str(p['_id']), 'type': 'in', 'quantity': p['quantity'] + random.randint(2, 10),
+                  'price': p['price'], 'note': 'Початковий залишок', 'user_id': user_ids['admin'],
+                  'created_at': now - timedelta(days=120)} for p in parts]
+    for r in [r for r in db.repairs.find({'status': 'completed'})][:8]:
+        part = random.choice(parts)
+        qty = 1 if part['unit'] != 'л' else random.randint(4, 12)
+        used = {'part_id': str(part['_id']), 'name': part['name'], 'unit': part['unit'], 'quantity': qty,
+                'price': part['price'], 'cost': qty * part['price']}
+        db.repairs.update_one({'_id': r['_id']}, {'$set': {'parts_used': [used]}})
+        movements.append({'part_id': str(part['_id']), 'type': 'out', 'quantity': qty, 'price': part['price'],
+                          'repair_id': str(r['_id']), 'user_id': r.get('mechanic_id'),
+                          'created_at': r.get('completed_at') or now})
+    db.part_movements.insert_many(movements)
+    for p in parts:
+        check_low_stock(db, p)
+    print(f'Створено {len(parts)} позицій складу запчастин.')
 
     # === Налаштування ===
     settings = {
@@ -576,7 +759,7 @@ def seed_database():
     print(f'  Ремонти: {len(repairs)}')
     print(f'  Паливні накладні: {len(invoices)}')
     print(f'  Записи пального: {len(fuel_records)}')
-    print(f'  Сповіщення: {len(alerts)}')
+    print(f'  Сповіщення: {db.alerts.count_documents({})}')
     print('\nОблікові записи для входу:')
     print('  Керівник: admin / Admin1234')
     print('  Механік:  mech_koval / Mech1234')

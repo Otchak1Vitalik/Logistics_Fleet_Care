@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { vehiclesApi } from '../api/vehicles'
+import { tr } from '../i18n'
 
 export const useVehicleStore = create((set, get) => ({
   vehicles: [],
@@ -18,7 +19,7 @@ export const useVehicleStore = create((set, get) => ({
     } catch (error) {
       set({
         isLoading: false,
-        error: error.response?.data?.error || 'Помилка завантаження'
+        error: error.response?.data?.error || tr("Помилка завантаження")
       })
     }
   },
@@ -35,7 +36,7 @@ export const useVehicleStore = create((set, get) => ({
     } catch (error) {
       set({
         isLoading: false,
-        error: error.response?.data?.error || 'Помилка завантаження'
+        error: error.response?.data?.error || tr("Помилка завантаження")
       })
       return null
     }
@@ -51,7 +52,7 @@ export const useVehicleStore = create((set, get) => ({
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.error || 'Помилка створення'
+        error: error.response?.data?.error || tr("Помилка створення")
       }
     }
   },
@@ -72,7 +73,7 @@ export const useVehicleStore = create((set, get) => ({
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.error || 'Помилка оновлення'
+        error: error.response?.data?.error || tr("Помилка оновлення")
       }
     }
   },

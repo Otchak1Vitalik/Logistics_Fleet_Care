@@ -6,6 +6,7 @@ import { fuelApi } from '../../api/fuel'
 import StatusBadge from '../../components/StatusBadge'
 import Loader from '../../components/Loader'
 import { formatDateTime, formatOdometer } from '../../utils/formatters'
+import { tr } from '../../i18n'
 
 function DriverDashboard() {
   const navigate = useNavigate()
@@ -37,44 +38,44 @@ function DriverDashboard() {
   }
 
   if (loading) {
-    return <Loader text="Завантаження..." />
+    return <Loader text={tr("Завантаження...")} />
   }
 
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Головна</h1>
+        <h1>{tr("Головна")}</h1>
       </div>
 
       {/* Активна путівка */}
       <div className="card card-highlight">
-        <h2>Активна путівка</h2>
+        <h2>{tr("Активна путівка")}</h2>
         {activeWaybill ? (
           <div className="active-waybill">
             <div className="waybill-info">
               <div className="info-row">
-                <span className="label">Номер:</span>
+                <span className="label">{tr("Номер:")}</span>
                 <span className="value">{activeWaybill.number}</span>
                 <StatusBadge status={activeWaybill.status} />
               </div>
               <div className="info-row">
-                <span className="label">Транспорт:</span>
+                <span className="label">{tr("Транспорт:")}</span>
                 <span className="value">
                   {activeWaybill.vehicle?.plate_number} - {activeWaybill.vehicle?.brand} {activeWaybill.vehicle?.model}
                 </span>
               </div>
               <div className="info-row">
-                <span className="label">Маршрут:</span>
+                <span className="label">{tr("Маршрут:")}</span>
                 <span className="value">
                   {activeWaybill.route_from} - {activeWaybill.route_to}
                 </span>
               </div>
               <div className="info-row">
-                <span className="label">Дійсна до:</span>
+                <span className="label">{tr("Дійсна до:")}</span>
                 <span className="value">{formatDateTime(activeWaybill.valid_until)}</span>
               </div>
               <div className="info-row">
-                <span className="label">Початковий пробіг:</span>
+                <span className="label">{tr("Початковий пробіг:")}</span>
                 <span className="value">{formatOdometer(activeWaybill.odometer_start)}</span>
               </div>
             </div>
@@ -82,12 +83,12 @@ function DriverDashboard() {
               className="btn btn-primary"
               onClick={() => navigate(`/driver/waybills/${activeWaybill._id}`)}
             >
-              Перейти до путівки
+              {tr("Перейти до путівки")}
             </button>
           </div>
         ) : (
           <div className="empty-state">
-            <p>Немає активної путівки</p>
+            <p>{tr("Немає активної путівки")}</p>
           </div>
         )}
       </div>
@@ -96,12 +97,12 @@ function DriverDashboard() {
         {/* Останні несправності */}
         <div className="card">
           <div className="card-header">
-            <h3>Мої несправності</h3>
+            <h3>{tr("Мої несправності")}</h3>
             <button
               className="btn btn-text"
               onClick={() => navigate('/driver/faults')}
             >
-              Всі
+              {tr("Всі")}
             </button>
           </div>
           {recentFaults.length > 0 ? (
@@ -123,14 +124,14 @@ function DriverDashboard() {
               ))}
             </ul>
           ) : (
-            <div className="empty-state small">Немає несправностей</div>
+            <div className="empty-state small">{tr("Немає несправностей")}</div>
           )}
           <div className="card-footer">
             <button
               className="btn btn-primary"
               onClick={() => navigate('/driver/faults/new')}
             >
-              Повідомити про несправність
+              {tr("Повідомити про несправність")}
             </button>
           </div>
         </div>
@@ -138,12 +139,12 @@ function DriverDashboard() {
         {/* Останні заправки */}
         <div className="card">
           <div className="card-header">
-            <h3>Історія заправок</h3>
+            <h3>{tr("Історія заправок")}</h3>
             <button
               className="btn btn-text"
               onClick={() => navigate('/driver/fuel')}
             >
-              Всі
+              {tr("Всі")}
             </button>
           </div>
           {recentFuel.length > 0 ? (
@@ -152,7 +153,7 @@ function DriverDashboard() {
                 <li key={record._id} className="list-item">
                   <div className="item-main">
                     <span className="item-title">
-                      {record.quantity} л - {record.vehicle?.plate_number}
+                      {record.quantity}{' '}{tr("л -")}{' '}{record.vehicle?.plate_number}
                     </span>
                     <span className="item-subtitle">
                       {formatDateTime(record.date)}
@@ -163,7 +164,7 @@ function DriverDashboard() {
               ))}
             </ul>
           ) : (
-            <div className="empty-state small">Немає записів</div>
+            <div className="empty-state small">{tr("Немає записів")}</div>
           )}
         </div>
       </div>

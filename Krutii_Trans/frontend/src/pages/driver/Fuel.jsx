@@ -3,6 +3,7 @@ import { fuelApi } from '../../api/fuel'
 import DataTable from '../../components/DataTable'
 import { formatDateTime, formatCurrency } from '../../utils/formatters'
 import { formatFuel } from '../../utils/fuelCalc'
+import { tr } from '../../i18n'
 
 function DriverFuel() {
   const [records, setRecords] = useState([])
@@ -26,35 +27,35 @@ function DriverFuel() {
   const columns = [
     {
       key: 'date',
-      label: 'Дата',
+      label: tr("Дата"),
       width: '140px',
       render: (val) => formatDateTime(val)
     },
     {
       key: 'vehicle',
-      label: 'Транспорт',
+      label: tr("Транспорт"),
       render: (_, row) => row.vehicle?.plate_number || '-'
     },
     {
       key: 'quantity',
-      label: 'Кількість',
+      label: tr("Кількість"),
       width: '100px',
       render: (val) => formatFuel(val)
     },
     {
       key: 'record_type',
-      label: 'Тип',
+      label: tr("Тип"),
       width: '120px',
-      render: (val) => val === 'issue' ? 'Видача' : 'Зовнішня'
+      render: (val) => val === 'issue' ? tr("Видача") : tr("Зовнішня")
     },
     {
       key: 'station',
-      label: 'АЗС',
+      label: tr("АЗС"),
       render: (val) => val || '-'
     },
     {
       key: 'total_amount',
-      label: 'Сума',
+      label: tr("Сума"),
       width: '100px',
       render: (val) => val ? formatCurrency(val) : '-'
     }
@@ -72,21 +73,21 @@ function DriverFuel() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Історія заправок</h1>
+        <h1>{tr("Історія заправок")}</h1>
       </div>
 
       <div className="stats-row">
         <div className="stat-card">
           <span className="stat-value">{formatFuel(totalIssued)}</span>
-          <span className="stat-label">Видано з бази</span>
+          <span className="stat-label">{tr("Видано з бази")}</span>
         </div>
         <div className="stat-card">
           <span className="stat-value">{formatFuel(totalExternal)}</span>
-          <span className="stat-label">Зовнішні заправки</span>
+          <span className="stat-label">{tr("Зовнішні заправки")}</span>
         </div>
         <div className="stat-card">
           <span className="stat-value">{formatFuel(totalIssued + totalExternal)}</span>
-          <span className="stat-label">Загалом</span>
+          <span className="stat-label">{tr("Загалом")}</span>
         </div>
       </div>
 
@@ -94,7 +95,7 @@ function DriverFuel() {
         columns={columns}
         data={records}
         isLoading={isLoading}
-        emptyMessage="Немає записів про заправки"
+        emptyMessage={tr("Немає записів про заправки")}
       />
     </div>
   )

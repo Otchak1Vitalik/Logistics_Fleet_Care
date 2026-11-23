@@ -7,6 +7,8 @@ from bson import ObjectId
 from marshmallow import ValidationError
 
 from extensions import mongo
+from services.lookup import fetch_by_ids
+from services.maintenance_forecast import forecast_for_vehicle
 from middleware.auth_middleware import require_auth, require_role
 from models.vehicle import VehicleSchema, VehicleCreateSchema, VehicleUpdateSchema
 
@@ -82,7 +84,8 @@ def get_vehicle(vehicle_id):
 
     return jsonify({
         'success': True,
-        'vehicle': vehicle_schema.dump(vehicle)
+        'vehicle': vehicle_schema.dump(vehicle),
+        'maintenance_forecast': forecast_for_vehicle(mongo.db, vehicle)
     })
 
 
@@ -286,45 +289,79 @@ def update_odometer(vehicle_id):
 @require_role('manager', 'mechanic')
 def get_vehicle_history(vehicle_id):
     """
-    Отримання історії транспортного засобу (путівки, ремонти, несправності).
+    Повна історія транспортного засобу («медична карта»): хронологія путівок,
+    несправностей, ремонтів і заправок, підсумки витрат і прогноз ТО.
     """
     try:
         vehicle = mongo.db.vehicles.find_one({'_id': ObjectId(vehicle_id)})
-    except:
-        return jsonify({
-            'success': False,
-            'error': 'Невірний формат ID.'
-        }), 400
-
+    except Exception:
+        return jsonify({'success': False, 'error': 'Невірний формат ID.'}), 400
     if not vehicle:
-        return jsonify({
-            'success': False,
-            'error': 'Транспортний засіб не знайдено.'
-        }), 404
+        return jsonify({'success': False, 'error': 'Транспортний засіб не знайдено.'}), 404
 
-    # Останні путівки
-    waybills = list(mongo.db.waybills.find(
-        {'vehicle_id': vehicle_id}
-    ).sort('created_at', -1).limit(10))
-
-    # Останні ремонти
-    repairs = list(mongo.db.repairs.find(
-        {'vehicle_id': vehicle_id}
-    ).sort('created_at', -1).limit(10))
-
-    # Останні несправності
-    faults = list(mongo.db.fault_reports.find(
-        {'vehicle_id': vehicle_id}
-    ).sort('created_at', -1).limit(10))
-
-    # Конвертація ObjectId в строки
-    for item in waybills + repairs + faults:
+    waybills = list(mongo.db.waybills.find({'vehicle_id': vehicle_id}).sort('created_at', -1))
+    repairs = list(mongo.db.repairs.find({'vehicle_id': vehicle_id}).sort('created_at', -1))
+    faults = list(mongo.db.fault_reports.find({'vehicle_id': vehicle_id}).sort('report_date', -1))
+    fuel = list(mongo.db.fuel_records.find({'vehicle_id': vehicle_id}).sort('date', -1))
+    for item in waybills + repairs + faults + fuel:
         item['_id'] = str(item['_id'])
+
+    users = fetch_by_ids(mongo.db.users, {w.get('driver_id') for w in waybills} |
+                         {f.get('reported_by') for f in faults} | {r.get('mechanic_id') for r in repairs})
+    name = lambda uid: (users.get(uid) or {}).get('full_name')
+
+    timeline = []
+    for w in waybills:
+        distance = (w['odometer_end'] - w['odometer_start']) if w.get('odometer_end') else None
+        timeline.append({
+            'type': 'waybill', 'id': w['_id'], 'date': w.get('completed_at') or w.get('issue_date') or w.get('created_at'),
+            'number': w.get('number'), 'status': w.get('status'),
+            'title': ' → '.join(x for x in (w.get('route_from'), w.get('route_to')) if x) or w.get('route_description'),
+            'person': name(w.get('driver_id')), 'distance': distance, 'fuel': w.get('fuel_used'),
+        })
+    for f in faults:
+        timeline.append({
+            'type': 'fault', 'id': f['_id'], 'date': f.get('report_date'), 'number': f.get('number'),
+            'status': f.get('status'), 'title': f.get('description'),
+            'severity': f.get('severity'), 'person': name(f.get('reported_by')),
+        })
+    for r in repairs:
+        cost = (r.get('labor_cost') or 0) + (r.get('parts_cost') or 0)
+        timeline.append({
+            'type': 'repair', 'id': r['_id'], 'date': r.get('completed_at') or r.get('started_at') or r.get('scheduled_date'),
+            'number': r.get('number'), 'status': r.get('status'), 'repair_type': r.get('repair_type'),
+            'title': r.get('work_performed') or r.get('description'), 'person': name(r.get('mechanic_id')),
+            'cost': cost or None, 'parts': [p.get('name') for p in r.get('parts_used') or [] if p.get('name')],
+        })
+    for x in fuel:
+        timeline.append({
+            'type': 'fuel', 'id': x['_id'], 'date': x.get('date'), 'record_type': x.get('record_type'),
+            'title': x.get('station'), 'fuel': x.get('quantity'), 'cost': x.get('total_amount'),
+        })
+    timeline = [t for t in timeline if t.get('date')]
+    timeline.sort(key=lambda t: t['date'], reverse=True)
+
+    completed_waybills = [w for w in waybills if w.get('status') == 'completed' and w.get('odometer_end')]
+    completed_repairs = [r for r in repairs if r.get('status') == 'completed']
+    totals = {
+        'waybills': len(waybills),
+        'distance': sum(max(0, w['odometer_end'] - w['odometer_start']) for w in completed_waybills),
+        'fuel_used': round(sum(w.get('fuel_used') or 0 for w in completed_waybills), 1),
+        'faults': len(faults),
+        'open_faults': sum(1 for f in faults if f.get('status') in ('new', 'acknowledged', 'in_repair')),
+        'repairs': len(completed_repairs),
+        'repairs_cost': round(sum((r.get('labor_cost') or 0) + (r.get('parts_cost') or 0) for r in completed_repairs), 2),
+        'fuel_cost': round(sum(x.get('total_amount') or 0 for x in fuel), 2),
+    }
 
     return jsonify({
         'success': True,
         'vehicle': vehicle_schema.dump(vehicle),
-        'waybills': waybills,
-        'repairs': repairs,
-        'faults': faults
+        'maintenance_forecast': forecast_for_vehicle(mongo.db, vehicle),
+        'totals': totals,
+        'timeline': timeline,
+        # Попередній формат (останні 10 записів) - для сумісності
+        'waybills': waybills[:10],
+        'repairs': repairs[:10],
+        'faults': faults[:10],
     })

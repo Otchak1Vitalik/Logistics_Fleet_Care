@@ -4,6 +4,7 @@ import { vehiclesApi } from '../../api/vehicles'
 import toast from 'react-hot-toast'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import { tr } from '../../i18n'
 
 // Марки та моделі вантажівок
 const TRUCK_DATA = {
@@ -88,7 +89,7 @@ function VehicleNew() {
     e.preventDefault()
 
     if (!form.plate_number.trim() || !form.brand.trim() || !form.model.trim()) {
-      toast.error('Заповніть обов\'язкові поля')
+      toast.error(tr("Заповніть обов'язкові поля"))
       return
     }
 
@@ -109,7 +110,7 @@ function VehicleNew() {
       })
 
       await vehiclesApi.create(data)
-      toast.success('Транспорт додано')
+      toast.success(tr("Транспорт додано"))
       navigate('/manager/vehicles')
     } catch (error) {
       // Помилка оброблена в interceptor
@@ -123,21 +124,21 @@ function VehicleNew() {
   return (
     <div className="page-container">
       <Link to="/manager/vehicles" className="back-link">
-        &larr; Назад до списку
+        {tr("← Назад до списку")}
       </Link>
 
       <div className="page-header">
-        <h1>Новий транспорт</h1>
+        <h1>{tr("Новий транспорт")}</h1>
       </div>
 
       <div className="card">
         <form onSubmit={handleSubmit}>
-          <h3 className="mb-md">Основна iнформацiя</h3>
+          <h3 className="mb-md">{tr("Основна iнформацiя")}</h3>
 
           <div className="form-row">
             <div className="form-field">
               <label>
-                Номерний знак <span className="required">*</span>
+                {tr("Номерний знак")}{' '}<span className="required">*</span>
               </label>
               <div className="input-with-button">
                 <input
@@ -152,7 +153,7 @@ function VehicleNew() {
                   type="button"
                   className="btn btn-icon"
                   onClick={() => setForm((prev) => ({ ...prev, plate_number: generatePlateNumber() }))}
-                  title="Згенерувати"
+                  title={tr("Згенерувати")}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16" />
@@ -162,7 +163,7 @@ function VehicleNew() {
             </div>
 
             <div className="form-field">
-              <label>VIN код</label>
+              <label>{tr("VIN код")}</label>
               <div className="input-with-button">
                 <input
                   type="text"
@@ -170,14 +171,14 @@ function VehicleNew() {
                   className="form-control"
                   value={form.vin}
                   onChange={handleChange}
-                  placeholder="17 символiв"
+                  placeholder={tr("17 символiв")}
                   maxLength={17}
                 />
                 <button
                   type="button"
                   className="btn btn-icon"
                   onClick={() => setForm((prev) => ({ ...prev, vin: generateVIN() }))}
-                  title="Згенерувати"
+                  title={tr("Згенерувати")}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16" />
@@ -190,7 +191,7 @@ function VehicleNew() {
           <div className="form-row">
             <div className="form-field">
               <label>
-                Марка <span className="required">*</span>
+                {tr("Марка")}{' '}<span className="required">*</span>
               </label>
               <select
                 name="brand"
@@ -198,7 +199,7 @@ function VehicleNew() {
                 value={form.brand}
                 onChange={handleBrandChange}
               >
-                <option value="">Оберiть марку</option>
+                <option value="">{tr("Оберiть марку")}</option>
                 {BRANDS.map((brand) => (
                   <option key={brand} value={brand}>{brand}</option>
                 ))}
@@ -207,7 +208,7 @@ function VehicleNew() {
 
             <div className="form-field">
               <label>
-                Модель <span className="required">*</span>
+                {tr("Модель")}{' '}<span className="required">*</span>
               </label>
               <select
                 name="model"
@@ -217,7 +218,7 @@ function VehicleNew() {
                 disabled={!form.brand}
               >
                 <option value="">
-                  {form.brand ? 'Оберiть модель' : 'Спочатку оберiть марку'}
+                  {form.brand ? tr("Оберiть модель") : tr("Спочатку оберiть марку")}
                 </option>
                 {models.map((model) => (
                   <option key={model} value={model}>{model}</option>
@@ -226,7 +227,7 @@ function VehicleNew() {
             </div>
 
             <div className="form-field">
-              <label>Рiк випуску</label>
+              <label>{tr("Рiк випуску")}</label>
               <select
                 name="year"
                 className="form-control"
@@ -240,25 +241,25 @@ function VehicleNew() {
             </div>
           </div>
 
-          <h3 className="mb-md mt-lg">Паливнi характеристики</h3>
+          <h3 className="mb-md mt-lg">{tr("Паливнi характеристики")}</h3>
 
           <div className="form-row">
             <div className="form-field">
-              <label>Тип пального</label>
+              <label>{tr("Тип пального")}</label>
               <select
                 name="fuel_type"
                 className="form-control"
                 value={form.fuel_type}
                 onChange={handleChange}
               >
-                <option value="diesel">Дизель</option>
-                <option value="petrol">Бензин</option>
-                <option value="gas">Газ</option>
+                <option value="diesel">{tr("Дизель")}</option>
+                <option value="petrol">{tr("Бензин")}</option>
+                <option value="gas">{tr("Газ")}</option>
               </select>
             </div>
 
             <div className="form-field">
-              <label>Норма витрат (л/100км)</label>
+              <label>{tr("Норма витрат (л/100км)")}</label>
               <input
                 type="number"
                 name="fuel_norm"
@@ -272,7 +273,7 @@ function VehicleNew() {
             </div>
 
             <div className="form-field">
-              <label>Об'єм баку (л)</label>
+              <label>{tr("Об'єм баку (л)")}</label>
               <input
                 type="number"
                 name="tank_capacity"
@@ -284,11 +285,11 @@ function VehicleNew() {
             </div>
           </div>
 
-          <h3 className="mb-md mt-lg">Пробiг та ТО</h3>
+          <h3 className="mb-md mt-lg">{tr("Пробiг та ТО")}</h3>
 
           <div className="form-row">
             <div className="form-field">
-              <label>Поточний пробiг (км)</label>
+              <label>{tr("Поточний пробiг (км)")}</label>
               <input
                 type="number"
                 name="odometer"
@@ -300,7 +301,7 @@ function VehicleNew() {
             </div>
 
             <div className="form-field">
-              <label>Наступне ТО (км)</label>
+              <label>{tr("Наступне ТО (км)")}</label>
               <input
                 type="number"
                 name="next_maintenance_km"
@@ -312,35 +313,35 @@ function VehicleNew() {
             </div>
 
             <div className="form-field">
-              <label>Наступне ТО (дата)</label>
+              <label>{tr("Наступне ТО (дата)")}</label>
               <DatePicker
                 selected={form.next_maintenance_date}
                 onChange={(date) => setForm((prev) => ({ ...prev, next_maintenance_date: date }))}
                 dateFormat="dd.MM.yyyy"
                 className="form-control"
-                placeholderText="Оберiть дату"
+                placeholderText={tr("Оберiть дату")}
               />
             </div>
           </div>
 
-          <h3 className="mb-md mt-lg">Документи</h3>
+          <h3 className="mb-md mt-lg">{tr("Документи")}</h3>
 
           <div className="form-row">
             <div className="form-field">
-              <label>Техогляд дiйсний до</label>
+              <label>{tr("Техогляд дiйсний до")}</label>
               <DatePicker
                 selected={form.inspection_expiry}
                 onChange={(date) => setForm((prev) => ({ ...prev, inspection_expiry: date }))}
                 dateFormat="dd.MM.yyyy"
                 className="form-control"
-                placeholderText="Оберiть дату"
+                placeholderText={tr("Оберiть дату")}
               />
             </div>
           </div>
 
           <div className="form-row">
             <div className="form-field">
-              <label>Страховий полiс</label>
+              <label>{tr("Страховий полiс")}</label>
               <input
                 type="text"
                 name="insurance_policy"
@@ -351,13 +352,13 @@ function VehicleNew() {
             </div>
 
             <div className="form-field">
-              <label>Страховка дiйсна до</label>
+              <label>{tr("Страховка дiйсна до")}</label>
               <DatePicker
                 selected={form.insurance_expiry}
                 onChange={(date) => setForm((prev) => ({ ...prev, insurance_expiry: date }))}
                 dateFormat="dd.MM.yyyy"
                 className="form-control"
-                placeholderText="Оберiть дату"
+                placeholderText={tr("Оберiть дату")}
               />
             </div>
           </div>
@@ -368,14 +369,14 @@ function VehicleNew() {
               className="btn btn-secondary"
               onClick={() => navigate('/manager/vehicles')}
             >
-              Скасувати
+              {tr("Скасувати")}
             </button>
             <button
               type="submit"
               className="btn btn-primary"
               disabled={loading}
             >
-              {loading ? 'Збереження...' : 'Додати'}
+              {loading ? tr("Збереження...") : tr("Додати")}
             </button>
           </div>
         </form>

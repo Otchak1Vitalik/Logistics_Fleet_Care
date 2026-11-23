@@ -6,6 +6,7 @@ import { reportsApi } from '../../api/reports'
 import StatusBadge from '../../components/StatusBadge'
 import Loader from '../../components/Loader'
 import { formatDateTime } from '../../utils/formatters'
+import { tr } from '../../i18n'
 
 function MechanicDashboard() {
   const navigate = useNavigate()
@@ -38,29 +39,29 @@ function MechanicDashboard() {
   }
 
   if (loading) {
-    return <Loader text="Завантаження..." />
+    return <Loader text={tr("Завантаження...")} />
   }
 
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Головна</h1>
+        <h1>{tr("Головна")}</h1>
       </div>
 
       <div className="stats-row">
         <div className="stat-card stat-warning">
           <span className="stat-value">{pendingFaults.length}</span>
-          <span className="stat-label">Несправності в очікуванні</span>
+          <span className="stat-label">{tr("Несправності в очікуванні")}</span>
         </div>
         <div className="stat-card stat-info">
           <span className="stat-value">{scheduledRepairs.length}</span>
-          <span className="stat-label">Активні ремонти</span>
+          <span className="stat-label">{tr("Активні ремонти")}</span>
         </div>
         <div className="stat-card stat-danger">
           <span className="stat-value">
             {maintenanceSchedule.filter((v) => v.status === 'overdue').length}
           </span>
-          <span className="stat-label">Прострочене ТО</span>
+          <span className="stat-label">{tr("Прострочене ТО")}</span>
         </div>
       </div>
 
@@ -68,12 +69,12 @@ function MechanicDashboard() {
         {/* Несправності */}
         <div className="card">
           <div className="card-header">
-            <h3>Несправності</h3>
+            <h3>{tr("Несправності")}</h3>
             <button
               className="btn btn-text"
               onClick={() => navigate('/mechanic/faults')}
             >
-              Всі
+              {tr("Всі")}
             </button>
           </div>
           {pendingFaults.length > 0 ? (
@@ -97,19 +98,19 @@ function MechanicDashboard() {
               ))}
             </ul>
           ) : (
-            <div className="empty-state small">Немає несправностей</div>
+            <div className="empty-state small">{tr("Немає несправностей")}</div>
           )}
         </div>
 
         {/* Ремонти */}
         <div className="card">
           <div className="card-header">
-            <h3>Активні ремонти</h3>
+            <h3>{tr("Активні ремонти")}</h3>
             <button
               className="btn btn-text"
               onClick={() => navigate('/mechanic/repairs')}
             >
-              Всі
+              {tr("Всі")}
             </button>
           </div>
           {scheduledRepairs.length > 0 ? (
@@ -131,14 +132,14 @@ function MechanicDashboard() {
               ))}
             </ul>
           ) : (
-            <div className="empty-state small">Немає активних ремонтів</div>
+            <div className="empty-state small">{tr("Немає активних ремонтів")}</div>
           )}
           <div className="card-footer">
             <button
               className="btn btn-primary"
               onClick={() => navigate('/mechanic/repairs/new')}
             >
-              Створити ремонт
+              {tr("Створити ремонт")}
             </button>
           </div>
         </div>
@@ -146,12 +147,12 @@ function MechanicDashboard() {
         {/* Графік ТО */}
         <div className="card full-width">
           <div className="card-header">
-            <h3>Потребують ТО</h3>
+            <h3>{tr("Потребують ТО")}</h3>
             <button
               className="btn btn-text"
               onClick={() => navigate('/mechanic/fleet')}
             >
-              Всі
+              {tr("Всі")}
             </button>
           </div>
           {maintenanceSchedule.length > 0 ? (
@@ -167,20 +168,20 @@ function MechanicDashboard() {
                       {vehicle.plate_number} - {vehicle.brand} {vehicle.model}
                     </span>
                     <span className="item-subtitle">
-                      {vehicle.km_remaining !== null && `Залишилось ${vehicle.km_remaining} км`}
+                      {vehicle.km_remaining !== null && tr("Залишилось {0} км", vehicle.km_remaining)}
                       {vehicle.km_remaining !== null && vehicle.days_remaining !== null && ' | '}
-                      {vehicle.days_remaining !== null && `${vehicle.days_remaining} днів`}
+                      {vehicle.days_remaining !== null && tr("{0} днів", vehicle.days_remaining)}
                     </span>
                   </div>
                   <StatusBadge
                     status={vehicle.status}
-                    customLabel={vehicle.status === 'overdue' ? 'Прострочено' : 'Скоро'}
+                    customLabel={vehicle.status === 'overdue' ? tr("Прострочено") : tr("Скоро")}
                   />
                 </li>
               ))}
             </ul>
           ) : (
-            <div className="empty-state small">Всі авто в порядку</div>
+            <div className="empty-state small">{tr("Всі авто в порядку")}</div>
           )}
         </div>
       </div>

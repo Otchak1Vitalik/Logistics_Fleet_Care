@@ -6,6 +6,7 @@ from flask import Blueprint, request, jsonify, g
 from bson import ObjectId
 
 from extensions import mongo
+from services.maintenance_forecast import daily_mileage, forecast
 from middleware.auth_middleware import require_auth, require_role
 
 reports_bp = Blueprint('reports', __name__)
@@ -307,6 +308,8 @@ def maintenance_schedule():
 
     result = []
     today = datetime.utcnow().date()
+    # Середній добовий пробіг усього автопарку - одним запитом
+    rates = daily_mileage(mongo.db)
 
     for v in vehicles:
         km_remaining = None
@@ -332,10 +335,10 @@ def maintenance_schedule():
                     next_date = None
             if next_date:
                 days_remaining = (next_date - today).days
-            if days_remaining <= 0:
-                status = 'overdue'
-            elif days_remaining <= 14 and status != 'overdue':
-                status = 'warning'
+                if days_remaining <= 0:
+                    status = 'overdue'
+                elif days_remaining <= 14 and status != 'overdue':
+                    status = 'warning'
 
         result.append({
             '_id': str(v['_id']),
@@ -349,7 +352,8 @@ def maintenance_schedule():
             'next_maintenance_date': v.get('next_maintenance_date'),
             'km_remaining': km_remaining,
             'days_remaining': days_remaining,
-            'status': status
+            'status': status,
+            'forecast': forecast(v, rates.get(str(v['_id'])), today)
         })
 
     # Сортуємо: спочатку прострочені, потім попередження
@@ -453,4 +457,183 @@ def costs_summary():
             'invoices': invoice_costs
         },
         'repairs': repair_costs
+    })
+
+
+# ---------------------------------------------------------------------------
+# Аналітика для графіків дашборда
+# ---------------------------------------------------------------------------
+FAULT_CATEGORY_LABELS = {
+    'engine': 'Двигун', 'transmission': 'Трансмісія', 'brakes': 'Гальма',
+    'electrical': 'Електрика', 'suspension': 'Підвіска', 'body': 'Кузов', 'other': 'Інше'
+}
+FUEL_TYPE_LABELS = {'diesel': 'Дизель', 'petrol': 'Бензин', 'gas': 'Газ'}
+MONTH_LABELS = ['Січ', 'Лют', 'Бер', 'Кві', 'Тра', 'Чер', 'Лип', 'Сер', 'Вер', 'Жов', 'Лис', 'Гру']
+
+
+def _month_starts(count, now=None):
+    """Повертає перші дні останніх count місяців (від найстарішого до поточного)."""
+    now = now or datetime.utcnow()
+    year, month = now.year, now.month
+    result = []
+    for _ in range(count):
+        result.append(datetime(year, month, 1))
+        month -= 1
+        if month == 0:
+            month, year = 12, year - 1
+    return list(reversed(result))
+
+
+@reports_bp.route('/analytics', methods=['GET'])
+@require_auth
+@require_role('manager')
+def analytics():
+    """
+    Дані для графіків: витрати по місяцях, несправності за категоріями,
+    структура автопарку за типом пального.
+    """
+    try:
+        months = min(max(int(request.args.get('months', 6)), 1), 24)
+    except (TypeError, ValueError):
+        months = 6
+    starts = _month_starts(months)
+    period_start = starts[0]
+
+    # Витрати на ремонти/ТО за місяцем завершення
+    repair_rows = mongo.db.repairs.aggregate([
+        {'$match': {'status': 'completed', 'completed_at': {'$gte': period_start}}},
+        {'$group': {
+            '_id': {'y': {'$year': '$completed_at'}, 'm': {'$month': '$completed_at'}},
+            'total': {'$sum': {'$add': [{'$ifNull': ['$labor_cost', 0]}, {'$ifNull': ['$parts_cost', 0]}]}},
+        }},
+    ])
+    repairs_by_month = {(r['_id']['y'], r['_id']['m']): r['total'] for r in repair_rows}
+
+    # Витрати на пальне: паливні накладні за датою
+    fuel_rows = mongo.db.fuel_invoices.aggregate([
+        {'$match': {'date': {'$gte': period_start}, 'total_amount': {'$exists': True}}},
+        {'$group': {'_id': {'y': {'$year': '$date'}, 'm': {'$month': '$date'}}, 'total': {'$sum': '$total_amount'}}},
+    ])
+    fuel_by_month = {(r['_id']['y'], r['_id']['m']): r['total'] for r in fuel_rows}
+
+    monthly_costs = [{
+        'month': f"{MONTH_LABELS[d.month - 1]} {d.year % 100:02d}",
+        'repairs': round(repairs_by_month.get((d.year, d.month), 0), 2),
+        'fuel': round(fuel_by_month.get((d.year, d.month), 0), 2),
+    } for d in starts]
+
+    # Несправності за категоріями (за той самий період)
+    fault_rows = mongo.db.fault_reports.aggregate([
+        {'$match': {'report_date': {'$gte': period_start}}},
+        {'$group': {'_id': '$category', 'count': {'$sum': 1}}},
+    ])
+    # Категорії поза довідником об'єднуємо в «Інше»
+    fault_counts = {}
+    for r in fault_rows:
+        key = r['_id'] if r['_id'] in FAULT_CATEGORY_LABELS else 'other'
+        fault_counts[key] = fault_counts.get(key, 0) + r['count']
+    faults_by_category = sorted(({
+        'category': key,
+        'label': FAULT_CATEGORY_LABELS[key],
+        'count': count,
+    } for key, count in fault_counts.items()), key=lambda x: -x['count'])
+
+    # Автопарк за типом пального (без списаних)
+    fuel_type_rows = mongo.db.vehicles.aggregate([
+        {'$match': {'status': {'$ne': 'decommissioned'}}},
+        {'$group': {'_id': {'$ifNull': ['$fuel_type', 'diesel']}, 'count': {'$sum': 1}}},
+        {'$sort': {'count': -1}},
+    ])
+    fleet_by_fuel = [{
+        'fuel_type': r['_id'],
+        'label': FUEL_TYPE_LABELS.get(r['_id'], r['_id']),
+        'count': r['count'],
+    } for r in fuel_type_rows]
+
+    return jsonify({
+        'success': True,
+        'analytics': {
+            'monthly_costs': monthly_costs,
+            'faults_by_category': faults_by_category,
+            'fleet_by_fuel': fleet_by_fuel,
+        }
+    })
+
+
+# ---------------------------------------------------------------------------
+# Календар ТО і ремонтів
+# ---------------------------------------------------------------------------
+def _as_datetime(value):
+    if isinstance(value, datetime):
+        return value
+    if isinstance(value, str):
+        try:
+            return datetime.fromisoformat(value.replace('Z', '+00:00')).replace(tzinfo=None)
+        except ValueError:
+            return None
+    return None
+
+
+@reports_bp.route('/maintenance-calendar', methods=['GET'])
+@require_auth
+@require_role('manager', 'mechanic')
+def maintenance_calendar():
+    """
+    Події календаря за місяць:
+    - planned_maintenance: планова дата наступного ТО автомобіля;
+    - repair: заплановані та виконувані ремонти / ТО (за scheduled_date).
+    Параметри: year, month (за замовчуванням - поточний місяць).
+    """
+    now = datetime.utcnow()
+    try:
+        year = int(request.args.get('year', now.year))
+        month = int(request.args.get('month', now.month))
+        start = datetime(year, month, 1)
+    except (TypeError, ValueError):
+        return jsonify({'success': False, 'error': 'Невірний рік або місяць.'}), 400
+    end = datetime(year + (month == 12), month % 12 + 1, 1)
+    today = now.date()
+
+    events = []
+
+    vehicles = list(mongo.db.vehicles.find({'status': {'$ne': 'decommissioned'}}))
+    plates = {str(v['_id']): v['plate_number'] for v in vehicles}
+    for v in vehicles:
+        due = _as_datetime(v.get('next_maintenance_date'))
+        if due and start <= due < end:
+            events.append({
+                'date': due.strftime('%Y-%m-%d'),
+                'type': 'planned_maintenance',
+                'status': 'overdue' if due.date() < today else 'planned',
+                'title': f"ТО: {v['plate_number']}",
+                'vehicle_id': str(v['_id']),
+                'plate_number': v['plate_number'],
+                'details': f"{v.get('brand', '')} {v.get('model', '')}, план: {v.get('next_maintenance_km', '—')} км",
+            })
+
+    repairs = mongo.db.repairs.find({
+        'scheduled_date': {'$gte': start, '$lt': end},
+        'status': {'$in': ['planned', 'in_progress', 'completed']},
+    })
+    type_labels = {'maintenance': 'ТО', 'repair': 'Рем.', 'inspection': 'Огл.'}  # короткі підписи для клітинок календаря
+    for r in repairs:
+        plate = plates.get(r.get('vehicle_id'), '—')
+        events.append({
+            'date': r['scheduled_date'].strftime('%Y-%m-%d'),
+            'type': 'repair',
+            'repair_type': r.get('repair_type'),
+            'status': r.get('status'),
+            'title': f"{type_labels.get(r.get('repair_type'), 'Роботи')}: {plate}",
+            'repair_id': str(r['_id']),
+            'vehicle_id': r.get('vehicle_id'),
+            'plate_number': plate,
+            'details': (r.get('description') or '')[:120],
+        })
+
+    events.sort(key=lambda e: (e['date'], e['type']))
+    return jsonify({
+        'success': True,
+        'year': year,
+        'month': month,
+        'events': events,
     })

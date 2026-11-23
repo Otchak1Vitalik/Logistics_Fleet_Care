@@ -1,16 +1,21 @@
 import { Outlet } from 'react-router-dom'
 import TopBar from '../components/TopBar'
 import SideBar from '../components/SideBar'
+import { tr } from '../i18n'
 
 const navItems = [
-  { to: '/manager', label: 'Головна', icon: 'home', end: true },
-  { to: '/manager/users', label: 'Користувачі', icon: 'users' },
-  { to: '/manager/vehicles', label: 'Автопарк', icon: 'truck' },
-  { to: '/manager/waybills', label: 'Путівки', icon: 'document' },
-  { to: '/manager/fuel', label: 'Паливо', icon: 'fuel' },
-  { to: '/manager/reports', label: 'Звіти', icon: 'chart' },
-  { to: '/manager/alerts', label: 'Сповіщення', icon: 'bell' },
-  { to: '/manager/settings', label: 'Налаштування', icon: 'settings' }
+  { to: '/manager', label: tr("Головна"), icon: 'home', end: true },
+  { to: '/manager/users', label: tr("Користувачі"), icon: 'users' },
+  { to: '/manager/vehicles', label: tr("Автопарк"), icon: 'truck' },
+  { to: '/manager/waybills', label: tr("Путівки"), icon: 'document' },
+  { to: '/manager/faults', label: tr("Несправності"), icon: 'warning' },
+  { to: '/manager/repairs', label: tr("Ремонти"), icon: 'wrench' },
+  { to: '/manager/parts', label: tr("Склад"), icon: 'box' },
+  { to: '/manager/fuel', label: tr("Паливо"), icon: 'fuel' },
+  { to: '/manager/calendar', label: tr("Календар ТО"), icon: 'calendar' },
+  { to: '/manager/reports', label: tr("Звіти"), icon: 'chart' },
+  { to: '/manager/alerts', label: tr("Сповіщення"), icon: 'bell' },
+  { to: '/manager/settings', label: tr("Налаштування"), icon: 'settings' }
 ]
 
 function ManagerLayout() {

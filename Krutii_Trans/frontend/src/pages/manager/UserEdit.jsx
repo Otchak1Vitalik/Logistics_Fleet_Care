@@ -6,11 +6,12 @@ import DatePicker from 'react-datepicker'
 import Loader from '../../components/Loader'
 import ConfirmModal from '../../components/ConfirmModal'
 import 'react-datepicker/dist/react-datepicker.css'
+import { tr } from '../../i18n'
 
 const ROLES = {
-  manager: 'Керівник',
-  mechanic: 'Механік',
-  driver: 'Водій'
+  manager: tr("Керівник"),
+  mechanic: tr("Механік"),
+  driver: tr("Водій")
 }
 
 function UserEdit() {
@@ -67,7 +68,7 @@ function UserEdit() {
     e.preventDefault()
 
     if (!form.full_name.trim()) {
-      toast.error('Введіть ПІБ')
+      toast.error(tr("Введіть ПІБ"))
       return
     }
 
@@ -79,7 +80,7 @@ function UserEdit() {
       }
 
       await usersApi.update(id, data)
-      toast.success('Дані збережено')
+      toast.success(tr("Дані збережено"))
       navigate('/manager/users')
     } catch (error) {
       // Помилка оброблена в interceptor
@@ -90,13 +91,13 @@ function UserEdit() {
 
   const handleResetPassword = async () => {
     if (!newPassword || newPassword.length < 6) {
-      toast.error('Пароль має бути не менше 6 символів')
+      toast.error(tr("Пароль має бути не менше 6 символів"))
       return
     }
 
     try {
       await usersApi.resetPassword(id, newPassword)
-      toast.success('Пароль скинуто')
+      toast.success(tr("Пароль скинуто"))
       setShowResetModal(false)
       setNewPassword('')
     } catch (error) {
@@ -105,13 +106,13 @@ function UserEdit() {
   }
 
   if (loading) {
-    return <Loader text="Завантаження..." />
+    return <Loader text={tr("Завантаження...")} />
   }
 
   if (!user) {
     return (
       <div className="page-container">
-        <div className="empty-state">Користувача не знайдено</div>
+        <div className="empty-state">{tr("Користувача не знайдено")}</div>
       </div>
     )
   }
@@ -119,27 +120,27 @@ function UserEdit() {
   return (
     <div className="page-container">
       <Link to="/manager/users" className="back-link">
-        &larr; Назад до списку
+        {tr("← Назад до списку")}
       </Link>
 
       <div className="page-header">
-        <h1>Редагування: {user.full_name}</h1>
+        <h1>{tr("Редагування:")}{' '}{user.full_name}</h1>
         <button
           className="btn btn-secondary"
           onClick={() => setShowResetModal(true)}
         >
-          Скинути пароль
+          {tr("Скинути пароль")}
         </button>
       </div>
 
       <div className="card">
         <div className="info-grid mb-lg">
           <div className="info-row">
-            <span className="label">Логін</span>
+            <span className="label">{tr("Логін")}</span>
             <span className="value">{user.username}</span>
           </div>
           <div className="info-row">
-            <span className="label">Роль</span>
+            <span className="label">{tr("Роль")}</span>
             <span className="value">{ROLES[user.role]}</span>
           </div>
         </div>
@@ -147,7 +148,7 @@ function UserEdit() {
         <form onSubmit={handleSubmit}>
           <div className="form-field">
             <label>
-              ПІБ <span className="required">*</span>
+              {tr("ПІБ")}{' '}<span className="required">*</span>
             </label>
             <input
               type="text"
@@ -160,7 +161,7 @@ function UserEdit() {
 
           <div className="form-row">
             <div className="form-field">
-              <label>Телефон</label>
+              <label>{tr("Телефон")}</label>
               <input
                 type="tel"
                 name="phone"
@@ -186,7 +187,7 @@ function UserEdit() {
           {user.role === 'driver' && (
             <div className="form-row">
               <div className="form-field">
-                <label>Номер посвідчення</label>
+                <label>{tr("Номер посвідчення")}</label>
                 <input
                   type="text"
                   name="license_number"
@@ -197,13 +198,13 @@ function UserEdit() {
               </div>
 
               <div className="form-field">
-                <label>Дійсне до</label>
+                <label>{tr("Дійсне до")}</label>
                 <DatePicker
                   selected={form.license_expiry}
                   onChange={(date) => setForm((prev) => ({ ...prev, license_expiry: date }))}
                   dateFormat="dd.MM.yyyy"
                   className="form-control"
-                  placeholderText="Оберіть дату"
+                  placeholderText={tr("Оберіть дату")}
                 />
               </div>
             </div>
@@ -217,7 +218,7 @@ function UserEdit() {
                 checked={form.is_active}
                 onChange={handleChange}
               />
-              Активний
+              {tr("Активний")}
             </label>
           </div>
 
@@ -227,14 +228,14 @@ function UserEdit() {
               className="btn btn-secondary"
               onClick={() => navigate('/manager/users')}
             >
-              Скасувати
+              {tr("Скасувати")}
             </button>
             <button
               type="submit"
               className="btn btn-primary"
               disabled={saving}
             >
-              {saving ? 'Збереження...' : 'Зберегти'}
+              {saving ? tr("Збереження...") : tr("Зберегти")}
             </button>
           </div>
         </form>
@@ -243,23 +244,23 @@ function UserEdit() {
       {/* Модалка скидання пароля */}
       {showResetModal && (
         <ConfirmModal
-          title="Скидання пароля"
+          title={tr("Скидання пароля")}
           onClose={() => {
             setShowResetModal(false)
             setNewPassword('')
           }}
           onConfirm={handleResetPassword}
-          confirmText="Скинути"
+          confirmText={tr("Скинути")}
           confirmVariant="danger"
         >
           <div className="form-field">
-            <label>Новий пароль</label>
+            <label>{tr("Новий пароль")}</label>
             <input
               type="password"
               className="form-control"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Мінімум 6 символів"
+              placeholder={tr("Мінімум 6 символів")}
               autoFocus
             />
           </div>

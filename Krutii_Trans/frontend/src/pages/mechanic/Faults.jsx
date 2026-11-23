@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
+import { useRoleBase } from '../../utils/useRoleBase'
 import { useNavigate } from 'react-router-dom'
 import { faultsApi } from '../../api/faults'
 import DataTable from '../../components/DataTable'
 import StatusBadge from '../../components/StatusBadge'
 import { formatDateTime } from '../../utils/formatters'
+import { tr } from '../../i18n'
 
 function MechanicFaults() {
   const navigate = useNavigate()
+  const base = useRoleBase()
   const [faults, setFaults] = useState([])
   const [filter, setFilter] = useState('pending') // pending, all
   const [isLoading, setIsLoading] = useState(true)
@@ -32,22 +35,22 @@ function MechanicFaults() {
   const columns = [
     {
       key: 'number',
-      label: 'Номер',
+      label: tr("Номер"),
       width: '100px'
     },
     {
       key: 'vehicle',
-      label: 'Транспорт',
+      label: tr("Транспорт"),
       render: (_, row) => row.vehicle?.plate_number || '-'
     },
     {
       key: 'category',
-      label: 'Категорія',
+      label: tr("Категорія"),
       render: (_, row) => row.category_display || row.category
     },
     {
       key: 'severity',
-      label: 'Критичність',
+      label: tr("Критичність"),
       width: '100px',
       render: (_, row) => (
         <span
@@ -65,18 +68,18 @@ function MechanicFaults() {
     },
     {
       key: 'reporter',
-      label: 'Від',
+      label: tr("Від"),
       render: (_, row) => row.reporter?.full_name || '-'
     },
     {
       key: 'report_date',
-      label: 'Дата',
+      label: tr("Дата"),
       width: '140px',
       render: (val) => formatDateTime(val)
     },
     {
       key: 'status',
-      label: 'Статус',
+      label: tr("Статус"),
       width: '120px',
       render: (val) => <StatusBadge status={val} />
     }
@@ -85,20 +88,20 @@ function MechanicFaults() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Несправності</h1>
+        <h1>{tr("Несправності")}</h1>
 
         <div className="filter-tabs">
           <button
             className={`tab ${filter === 'pending' ? 'active' : ''}`}
             onClick={() => setFilter('pending')}
           >
-            В очікуванні
+            {tr("В очікуванні")}
           </button>
           <button
             className={`tab ${filter === 'all' ? 'active' : ''}`}
             onClick={() => setFilter('all')}
           >
-            Всі
+            {tr("Всі")}
           </button>
         </div>
       </div>
@@ -109,10 +112,10 @@ function MechanicFaults() {
         isLoading={isLoading}
         emptyMessage={
           filter === 'pending'
-            ? 'Немає несправностей в очікуванні'
-            : 'Немає несправностей'
+            ? tr("Немає несправностей в очікуванні")
+            : tr("Немає несправностей")
         }
-        onRowClick={(row) => navigate(`/mechanic/faults/${row._id}`)}
+        onRowClick={(row) => navigate(`${base}/faults/${row._id}`)}
       />
     </div>
   )

@@ -4,12 +4,13 @@ import { waybillsApi } from '../../api/waybills'
 import DataTable from '../../components/DataTable'
 import StatusBadge from '../../components/StatusBadge'
 import { formatDate, formatDateTime } from '../../utils/formatters'
+import { tr } from '../../i18n'
 
 const STATUSES = {
-  issued: 'Видано',
-  active: 'Активна',
-  completed: 'Завершена',
-  cancelled: 'Скасована'
+  issued: tr("Видано"),
+  active: tr("Активна"),
+  completed: tr("Завершена"),
+  cancelled: tr("Скасована")
 }
 
 function ManagerWaybills() {
@@ -42,7 +43,7 @@ function ManagerWaybills() {
   const columns = [
     {
       key: 'number',
-      label: 'Номер',
+      label: tr("Номер"),
       render: (_, row) => (
         <div>
           <div className="font-medium">{row.number}</div>
@@ -54,17 +55,17 @@ function ManagerWaybills() {
     },
     {
       key: 'vehicle',
-      label: 'Транспорт',
+      label: tr("Транспорт"),
       render: (_, row) => row.vehicle?.plate_number || '-'
     },
     {
       key: 'driver',
-      label: 'Водій',
+      label: tr("Водій"),
       render: (_, row) => row.driver?.full_name || '-'
     },
     {
       key: 'route',
-      label: 'Маршрут',
+      label: tr("Маршрут"),
       render: (_, row) => (
         <div style={{ maxWidth: '200px' }}>
           {row.route_from && row.route_to
@@ -75,12 +76,12 @@ function ManagerWaybills() {
     },
     {
       key: 'valid_until',
-      label: 'Дійсна до',
+      label: tr("Дійсна до"),
       render: (val) => formatDateTime(val)
     },
     {
       key: 'status',
-      label: 'Статус',
+      label: tr("Статус"),
       render: (status) => <StatusBadge status={status} />
     }
   ]
@@ -98,25 +99,25 @@ function ManagerWaybills() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Путівки</h1>
+        <h1>{tr("Путівки")}</h1>
         <button
           className="btn btn-primary"
           onClick={() => navigate('/manager/waybills/new')}
         >
-          Видати путівку
+          {tr("Видати путівку")}
         </button>
       </div>
 
       {/* Фільтри */}
       <div className="filters">
         <div className="filter-group">
-          <label>Статус</label>
+          <label>{tr("Статус")}</label>
           <select
             className="form-control"
             value={statusFilter}
             onChange={(e) => handleFilterChange('status', e.target.value)}
           >
-            <option value="">Всі</option>
+            <option value="">{tr("Всі")}</option>
             {Object.entries(STATUSES).map(([key, label]) => (
               <option key={key} value={key}>{label}</option>
             ))}
@@ -131,7 +132,7 @@ function ManagerWaybills() {
           data={waybills}
           isLoading={loading}
           onRowClick={(row) => navigate(`/manager/waybills/${row._id}`)}
-          emptyMessage="Путівок не знайдено"
+          emptyMessage={tr("Путівок не знайдено")}
         />
       </div>
     </div>

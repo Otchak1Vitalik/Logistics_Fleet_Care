@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAlertStore } from '../store/alertStore'
+import { tr, lang } from '../i18n'
 
 function AlertBell() {
   const { unreadCount, fetchUnreadCount, alerts, fetchAlerts, markAsRead } = useAlertStore()
@@ -39,20 +40,20 @@ function AlertBell() {
       {isOpen && (
         <div className="alert-dropdown">
           <div className="dropdown-header">
-            <span>Сповіщення</span>
+            <span>{tr("Сповіщення")}</span>
             {alerts.length > 0 && (
               <button
                 className="btn btn-text btn-sm"
                 onClick={() => useAlertStore.getState().markAllAsRead()}
               >
-                Прочитати всі
+                {tr("Прочитати всі")}
               </button>
             )}
           </div>
 
           <div className="dropdown-content">
             {alerts.length === 0 ? (
-              <div className="empty-state">Немає нових сповіщень</div>
+              <div className="empty-state">{tr("Немає нових сповіщень")}</div>
             ) : (
               alerts.slice(0, 10).map((alert) => (
                 <div
@@ -65,7 +66,7 @@ function AlertBell() {
                   <div className="alert-title">{alert.title}</div>
                   <div className="alert-message">{alert.message}</div>
                   <div className="alert-time">
-                    {new Date(alert.created_at).toLocaleString('uk-UA')}
+                    {new Date(alert.created_at).toLocaleString(lang === 'en' ? 'en-US' : 'uk-UA')}
                   </div>
                 </div>
               ))

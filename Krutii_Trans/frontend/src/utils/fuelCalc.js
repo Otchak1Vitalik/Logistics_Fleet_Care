@@ -1,3 +1,4 @@
+import { tr } from '../i18n'
 /**
  * Розрахунки витрат пального (клієнтська сторона)
  */
@@ -27,7 +28,7 @@ export function checkOverspend(actualConsumption, baseNorm, threshold = 10) {
       isOverspend: false,
       deviation: 0,
       deviationPercent: 0,
-      message: 'Норма не встановлена'
+      message: tr("Норма не встановлена")
     }
   }
 
@@ -37,13 +38,13 @@ export function checkOverspend(actualConsumption, baseNorm, threshold = 10) {
 
   let message
   if (isOverspend) {
-    message = `Перевитрата ${deviationPercent.toFixed(1)}%`
+    message = tr("Перевитрата {0}%", deviationPercent.toFixed(1))
   } else if (deviationPercent > 0) {
-    message = `Незначне перевищення ${deviationPercent.toFixed(1)}%`
+    message = tr("Незначне перевищення {0}%", deviationPercent.toFixed(1))
   } else if (deviationPercent < -5) {
-    message = `Економія ${Math.abs(deviationPercent).toFixed(1)}%`
+    message = tr("Економія {0}%", Math.abs(deviationPercent).toFixed(1))
   } else {
-    message = 'В межах норми'
+    message = tr("В межах норми")
   }
 
   return {
@@ -56,10 +57,10 @@ export function checkOverspend(actualConsumption, baseNorm, threshold = 10) {
 
 export function formatFuel(value, decimals = 1) {
   if (value === null || value === undefined) return '-'
-  return `${value.toFixed(decimals)} л`
+  return tr("{0} л", value.toFixed(decimals))
 }
 
 export function formatConsumption(value) {
   if (value === null || value === undefined) return '-'
-  return `${value.toFixed(1)} л/100км`
+  return tr("{0} л/100км", value.toFixed(1))
 }

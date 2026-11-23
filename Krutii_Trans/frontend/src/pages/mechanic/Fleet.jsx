@@ -4,6 +4,7 @@ import { useVehicleStore } from '../../store/vehicleStore'
 import DataTable from '../../components/DataTable'
 import StatusBadge from '../../components/StatusBadge'
 import { formatOdometer, formatDate } from '../../utils/formatters'
+import { tr } from '../../i18n'
 
 function MechanicFleet() {
   const navigate = useNavigate()
@@ -16,23 +17,23 @@ function MechanicFleet() {
   const columns = [
     {
       key: 'plate_number',
-      label: 'Номер',
+      label: tr("Номер"),
       width: '100px'
     },
     {
       key: 'brand',
-      label: 'Марка/Модель',
+      label: tr("Марка/Модель"),
       render: (_, row) => `${row.brand} ${row.model}`
     },
     {
       key: 'odometer',
-      label: 'Пробіг',
+      label: tr("Пробіг"),
       width: '120px',
       render: (val) => formatOdometer(val)
     },
     {
       key: 'next_maintenance_km',
-      label: 'Наступне ТО (км)',
+      label: tr("Наступне ТО (км)"),
       width: '140px',
       render: (val, row) => {
         if (!val) return '-'
@@ -46,13 +47,13 @@ function MechanicFleet() {
     },
     {
       key: 'next_maintenance_date',
-      label: 'Наступне ТО (дата)',
+      label: tr("Наступне ТО (дата)"),
       width: '120px',
       render: (val) => formatDate(val)
     },
     {
       key: 'status',
-      label: 'Статус',
+      label: tr("Статус"),
       width: '120px',
       render: (val) => <StatusBadge status={val} />
     }
@@ -61,14 +62,14 @@ function MechanicFleet() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Автопарк</h1>
+        <h1>{tr("Автопарк")}</h1>
       </div>
 
       <DataTable
         columns={columns}
         data={vehicles}
         isLoading={isLoading}
-        emptyMessage="Немає транспортних засобів"
+        emptyMessage={tr("Немає транспортних засобів")}
         onRowClick={(row) => navigate(`/mechanic/fleet/${row._id}`)}
       />
     </div>

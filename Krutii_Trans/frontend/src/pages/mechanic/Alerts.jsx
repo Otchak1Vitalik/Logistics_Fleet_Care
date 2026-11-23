@@ -3,6 +3,7 @@ import { useAlertStore } from '../../store/alertStore'
 import StatusBadge from '../../components/StatusBadge'
 import Loader from '../../components/Loader'
 import { formatDateTime, timeAgo } from '../../utils/formatters'
+import { tr } from '../../i18n'
 
 function MechanicAlerts() {
   const { alerts, fetchAlerts, markAsRead, markAllAsRead, dismiss, isLoading } = useAlertStore()
@@ -13,13 +14,13 @@ function MechanicAlerts() {
   }, [filter])
 
   if (isLoading) {
-    return <Loader text="Завантаження..." />
+    return <Loader text={tr("Завантаження...")} />
   }
 
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Сповіщення</h1>
+        <h1>{tr("Сповіщення")}</h1>
 
         <div className="header-actions">
           <div className="filter-tabs">
@@ -27,19 +28,19 @@ function MechanicAlerts() {
               className={`tab ${filter === 'unread' ? 'active' : ''}`}
               onClick={() => setFilter('unread')}
             >
-              Непрочитані
+              {tr("Непрочитані")}
             </button>
             <button
               className={`tab ${filter === 'all' ? 'active' : ''}`}
               onClick={() => setFilter('all')}
             >
-              Всі
+              {tr("Всі")}
             </button>
           </div>
 
           {alerts.length > 0 && filter === 'unread' && (
             <button className="btn btn-secondary" onClick={markAllAsRead}>
-              Прочитати всі
+              {tr("Прочитати всі")}
             </button>
           )}
         </div>
@@ -48,8 +49,8 @@ function MechanicAlerts() {
       {alerts.length === 0 ? (
         <div className="empty-state">
           {filter === 'unread'
-            ? 'Немає непрочитаних сповіщень'
-            : 'Немає сповіщень'}
+            ? tr("Немає непрочитаних сповіщень")
+            : tr("Немає сповіщень")}
         </div>
       ) : (
         <div className="alerts-list">
@@ -80,14 +81,14 @@ function MechanicAlerts() {
                       className="btn btn-text btn-sm"
                       onClick={() => markAsRead(alert._id)}
                     >
-                      Прочитано
+                      {tr("Прочитано")}
                     </button>
                   )}
                   <button
                     className="btn btn-text btn-sm"
                     onClick={() => dismiss(alert._id)}
                   >
-                    Приховати
+                    {tr("Приховати")}
                   </button>
                 </div>
               </div>

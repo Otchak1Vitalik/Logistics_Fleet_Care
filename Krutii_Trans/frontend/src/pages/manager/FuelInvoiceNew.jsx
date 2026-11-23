@@ -4,6 +4,7 @@ import { fuelApi } from '../../api/fuel'
 import toast from 'react-hot-toast'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import { tr } from '../../i18n'
 
 function FuelInvoiceNew() {
   const navigate = useNavigate()
@@ -28,7 +29,7 @@ function FuelInvoiceNew() {
     e.preventDefault()
 
     if (!form.quantity || form.quantity <= 0) {
-      toast.error('Вкажіть кількість пального')
+      toast.error(tr("Вкажіть кількість пального"))
       return
     }
 
@@ -47,7 +48,7 @@ function FuelInvoiceNew() {
       })
 
       const response = await fuelApi.createInvoice(data)
-      toast.success(`Накладну ${response.data.invoice.number} створено`)
+      toast.success(tr("Накладну {0} створено", response.data.invoice.number))
       navigate('/manager/fuel')
     } catch (error) {
       // Помилка оброблена в interceptor
@@ -63,18 +64,18 @@ function FuelInvoiceNew() {
   return (
     <div className="page-container">
       <Link to="/manager/fuel" className="back-link">
-        &larr; Назад
+        {tr("← Назад")}
       </Link>
 
       <div className="page-header">
-        <h1>Нова накладна на пальне</h1>
+        <h1>{tr("Нова накладна на пальне")}</h1>
       </div>
 
       <div className="card">
         <form onSubmit={handleSubmit}>
           <div className="form-row">
             <div className="form-field">
-              <label>Дата</label>
+              <label>{tr("Дата")}</label>
               <DatePicker
                 selected={form.date}
                 onChange={(date) => setForm((prev) => ({ ...prev, date: date }))}
@@ -84,14 +85,14 @@ function FuelInvoiceNew() {
             </div>
 
             <div className="form-field">
-              <label>Постачальник</label>
+              <label>{tr("Постачальник")}</label>
               <input
                 type="text"
                 name="supplier"
                 className="form-control"
                 value={form.supplier}
                 onChange={handleChange}
-                placeholder="Назва АЗС або постачальника"
+                placeholder={tr("Назва АЗС або постачальника")}
               />
             </div>
           </div>
@@ -99,7 +100,7 @@ function FuelInvoiceNew() {
           <div className="form-row">
             <div className="form-field">
               <label>
-                Тип пального <span className="required">*</span>
+                {tr("Тип пального")}{' '}<span className="required">*</span>
               </label>
               <select
                 name="fuel_type"
@@ -107,15 +108,15 @@ function FuelInvoiceNew() {
                 value={form.fuel_type}
                 onChange={handleChange}
               >
-                <option value="diesel">Дизель</option>
-                <option value="petrol">Бензин</option>
-                <option value="gas">Газ</option>
+                <option value="diesel">{tr("Дизель")}</option>
+                <option value="petrol">{tr("Бензин")}</option>
+                <option value="gas">{tr("Газ")}</option>
               </select>
             </div>
 
             <div className="form-field">
               <label>
-                Кількість (л) <span className="required">*</span>
+                {tr("Кількість (л)")}{' '}<span className="required">*</span>
               </label>
               <input
                 type="number"
@@ -131,7 +132,7 @@ function FuelInvoiceNew() {
 
           <div className="form-row">
             <div className="form-field">
-              <label>Ціна за літр (грн)</label>
+              <label>{tr("Ціна за літр (грн)")}</label>
               <input
                 type="number"
                 name="price_per_liter"
@@ -144,11 +145,11 @@ function FuelInvoiceNew() {
             </div>
 
             <div className="form-field">
-              <label>Загальна сума</label>
+              <label>{tr("Загальна сума")}</label>
               <input
                 type="text"
                 className="form-control"
-                value={totalAmount ? `${totalAmount} грн` : '-'}
+                value={totalAmount ? tr("{0} грн", totalAmount) : '-'}
                 disabled
               />
             </div>
@@ -160,14 +161,14 @@ function FuelInvoiceNew() {
               className="btn btn-secondary"
               onClick={() => navigate('/manager/fuel')}
             >
-              Скасувати
+              {tr("Скасувати")}
             </button>
             <button
               type="submit"
               className="btn btn-primary"
               disabled={loading}
             >
-              {loading ? 'Створення...' : 'Створити накладну'}
+              {loading ? tr("Створення...") : tr("Створити накладну")}
             </button>
           </div>
         </form>

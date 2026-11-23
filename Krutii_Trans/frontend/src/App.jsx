@@ -11,6 +11,7 @@ import ManagerLayout from './layouts/ManagerLayout'
 // Auth pages
 import Login from './pages/Login'
 import ChangePassword from './pages/ChangePassword'
+import Profile from './pages/Profile'
 
 // Driver pages
 import DriverDashboard from './pages/driver/Dashboard'
@@ -50,12 +51,17 @@ import ManagerFuelPlan from './pages/manager/FuelPlan'
 import ManagerAlerts from './pages/manager/Alerts'
 import ManagerSettings from './pages/manager/Settings'
 
+// Shared pages
+import MaintenanceCalendar from './pages/shared/MaintenanceCalendar'
+import PartsPage from './pages/shared/Parts'
+import { tr } from './i18n'
+
 // Компонент завантаження
 function LoadingScreen() {
   return (
     <div className="loader-container" style={{ minHeight: '100vh' }}>
       <div className="loader"></div>
-      <p className="loader-text">Завантаження...</p>
+      <p className="loader-text">{tr("Завантаження...")}</p>
     </div>
   )
 }
@@ -142,6 +148,7 @@ function App() {
         <Route path="faults/new" element={<DriverFaultNew />} />
         <Route path="faults/:id" element={<DriverFaultDetail />} />
         <Route path="fuel" element={<DriverFuel />} />
+        <Route path="profile" element={<Profile />} />
       </Route>
 
       {/* Mechanic routes */}
@@ -162,6 +169,9 @@ function App() {
         <Route path="repairs/new" element={<MechanicRepairNew />} />
         <Route path="repairs/:id" element={<MechanicRepairDetail />} />
         <Route path="alerts" element={<MechanicAlerts />} />
+        <Route path="calendar" element={<MaintenanceCalendar role="mechanic" />} />
+        <Route path="parts" element={<PartsPage />} />
+        <Route path="profile" element={<Profile />} />
       </Route>
 
       {/* Manager routes */}
@@ -189,6 +199,14 @@ function App() {
         <Route path="fuel-plan" element={<ManagerFuelPlan />} />
         <Route path="alerts" element={<ManagerAlerts />} />
         <Route path="settings" element={<ManagerSettings />} />
+        <Route path="faults" element={<MechanicFaults />} />
+        <Route path="faults/:id" element={<MechanicFaultDetail />} />
+        <Route path="repairs" element={<MechanicRepairs />} />
+        <Route path="repairs/new" element={<MechanicRepairNew />} />
+        <Route path="repairs/:id" element={<MechanicRepairDetail />} />
+        <Route path="calendar" element={<MaintenanceCalendar role="manager" />} />
+        <Route path="parts" element={<PartsPage />} />
+        <Route path="profile" element={<Profile />} />
       </Route>
 
       {/* Root redirect */}

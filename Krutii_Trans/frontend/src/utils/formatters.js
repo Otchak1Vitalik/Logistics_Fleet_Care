@@ -1,5 +1,9 @@
 import { format, parseISO, isValid } from 'date-fns'
-import { uk } from 'date-fns/locale'
+import { uk, enUS } from 'date-fns/locale'
+import { tr, lang } from '../i18n'
+
+const dateLocale = lang === 'en' ? enUS : uk
+const numberLocale = lang === 'en' ? 'en-US' : 'uk-UA'
 
 // Сервер повертає дати як у форматі ISO, так і у форматі HTTP-date
 // ("Wed, 22 Nov 2026 00:00:00 GMT"), тому розбираємо обидва варіанти
@@ -13,19 +17,19 @@ export function formatDate(date, formatStr = 'dd.MM.yyyy') {
   if (!date) return '-'
   const parsed = parseDate(date)
   if (!isValid(parsed)) return '-'
-  return format(parsed, formatStr, { locale: uk })
+  return format(parsed, formatStr, { locale: dateLocale })
 }
 
 export function formatDateTime(date, formatStr = 'dd.MM.yyyy HH:mm') {
   if (!date) return '-'
   const parsed = parseDate(date)
   if (!isValid(parsed)) return '-'
-  return format(parsed, formatStr, { locale: uk })
+  return format(parsed, formatStr, { locale: dateLocale })
 }
 
 export function formatNumber(value, decimals = 0) {
   if (value === null || value === undefined) return '-'
-  return new Intl.NumberFormat('uk-UA', {
+  return new Intl.NumberFormat(numberLocale, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals
   }).format(value)
@@ -33,7 +37,7 @@ export function formatNumber(value, decimals = 0) {
 
 export function formatCurrency(value) {
   if (value === null || value === undefined) return '-'
-  return new Intl.NumberFormat('uk-UA', {
+  return new Intl.NumberFormat(numberLocale, {
     style: 'currency',
     currency: 'UAH',
     minimumFractionDigits: 2
@@ -42,7 +46,7 @@ export function formatCurrency(value) {
 
 export function formatOdometer(value) {
   if (value === null || value === undefined) return '-'
-  return `${formatNumber(value)} км`
+  return tr("{0} км", formatNumber(value))
 }
 
 export function formatPhone(phone) {
@@ -57,7 +61,7 @@ export function formatPhone(phone) {
 
 export function pluralize(count, forms) {
   // forms = [одна, дві-чотири, багато]
-  // Приклад: pluralize(5, ['день', 'дні', 'днів'])
+  // Приклад: pluralize(5, [tr("день"), tr("дні"), tr("днів")])
   const cases = [2, 0, 1, 1, 1, 2]
   const idx = count % 100 > 4 && count % 100 < 20
     ? 2
@@ -79,13 +83,13 @@ export function timeAgo(date) {
   const days = Math.floor(hours / 24)
 
   if (days > 0) {
-    return `${days} ${pluralize(days, ['день', 'дні', 'днів'])} тому`
+    return tr("{0} {1} тому", days, pluralize(days, [tr("день"), tr("дні"), tr("днів")]))
   }
   if (hours > 0) {
-    return `${hours} ${pluralize(hours, ['година', 'години', 'годин'])} тому`
+    return tr("{0} {1} тому", hours, pluralize(hours, [tr("година"), tr("години"), tr("годин")]))
   }
   if (minutes > 0) {
-    return `${minutes} ${pluralize(minutes, ['хвилина', 'хвилини', 'хвилин'])} тому`
+    return tr("{0} {1} тому", minutes, pluralize(minutes, [tr("хвилина"), tr("хвилини"), tr("хвилин")]))
   }
-  return 'Щойно'
+  return tr("Щойно")
 }

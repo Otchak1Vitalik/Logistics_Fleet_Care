@@ -3,11 +3,12 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { usersApi } from '../../api/users'
 import DataTable from '../../components/DataTable'
 import StatusBadge from '../../components/StatusBadge'
+import { tr } from '../../i18n'
 
 const ROLES = {
-  manager: 'Керівник',
-  mechanic: 'Механік',
-  driver: 'Водій'
+  manager: tr("Керівник"),
+  mechanic: tr("Механік"),
+  driver: tr("Водій")
 }
 
 function ManagerUsers() {
@@ -42,7 +43,7 @@ function ManagerUsers() {
   const columns = [
     {
       key: 'full_name',
-      label: "Ім'я",
+      label: tr("Ім'я"),
       render: (_, row) => (
         <div>
           <div className="font-medium">{row.full_name}</div>
@@ -54,12 +55,12 @@ function ManagerUsers() {
     },
     {
       key: 'role',
-      label: 'Роль',
+      label: tr("Роль"),
       render: (role) => ROLES[role] || role
     },
     {
       key: 'phone',
-      label: 'Телефон'
+      label: tr("Телефон")
     },
     {
       key: 'email',
@@ -67,7 +68,7 @@ function ManagerUsers() {
     },
     {
       key: 'is_active',
-      label: 'Статус',
+      label: tr("Статус"),
       render: (isActive) => (
         <StatusBadge status={isActive ? 'active' : 'decommissioned'} />
       )
@@ -87,41 +88,41 @@ function ManagerUsers() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Користувачі</h1>
+        <h1>{tr("Користувачі")}</h1>
         <button
           className="btn btn-primary"
           onClick={() => navigate('/manager/users/new')}
         >
-          Додати користувача
+          {tr("Додати користувача")}
         </button>
       </div>
 
       {/* Фільтри */}
       <div className="filters">
         <div className="filter-group">
-          <label>Роль</label>
+          <label>{tr("Роль")}</label>
           <select
             className="form-control"
             value={roleFilter}
             onChange={(e) => handleFilterChange('role', e.target.value)}
           >
-            <option value="">Всі ролі</option>
-            <option value="manager">Керівник</option>
-            <option value="mechanic">Механік</option>
-            <option value="driver">Водій</option>
+            <option value="">{tr("Всі ролі")}</option>
+            <option value="manager">{tr("Керівник")}</option>
+            <option value="mechanic">{tr("Механік")}</option>
+            <option value="driver">{tr("Водій")}</option>
           </select>
         </div>
 
         <div className="filter-group">
-          <label>Статус</label>
+          <label>{tr("Статус")}</label>
           <select
             className="form-control"
             value={activeFilter}
             onChange={(e) => handleFilterChange('is_active', e.target.value)}
           >
-            <option value="">Всі</option>
-            <option value="true">Активні</option>
-            <option value="false">Неактивні</option>
+            <option value="">{tr("Всі")}</option>
+            <option value="true">{tr("Активні")}</option>
+            <option value="false">{tr("Неактивні")}</option>
           </select>
         </div>
       </div>
@@ -133,7 +134,7 @@ function ManagerUsers() {
           data={users}
           isLoading={loading}
           onRowClick={(row) => navigate(`/manager/users/${row._id}`)}
-          emptyMessage="Користувачів не знайдено"
+          emptyMessage={tr("Користувачів не знайдено")}
         />
       </div>
     </div>

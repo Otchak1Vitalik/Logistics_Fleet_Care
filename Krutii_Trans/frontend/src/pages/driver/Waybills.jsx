@@ -4,6 +4,7 @@ import { useWaybillStore } from '../../store/waybillStore'
 import DataTable from '../../components/DataTable'
 import StatusBadge from '../../components/StatusBadge'
 import { formatDate, formatDateTime } from '../../utils/formatters'
+import { tr } from '../../i18n'
 
 function DriverWaybills() {
   const navigate = useNavigate()
@@ -16,34 +17,34 @@ function DriverWaybills() {
   const columns = [
     {
       key: 'number',
-      label: 'Номер',
+      label: tr("Номер"),
       width: '120px'
     },
     {
       key: 'vehicle',
-      label: 'Транспорт',
+      label: tr("Транспорт"),
       render: (_, row) => row.vehicle?.plate_number || '-'
     },
     {
       key: 'route',
-      label: 'Маршрут',
+      label: tr("Маршрут"),
       render: (_, row) => `${row.route_from || ''} - ${row.route_to || ''}`
     },
     {
       key: 'issue_date',
-      label: 'Дата',
+      label: tr("Дата"),
       width: '100px',
       render: (val) => formatDate(val)
     },
     {
       key: 'valid_until',
-      label: 'Дійсна до',
+      label: tr("Дійсна до"),
       width: '140px',
       render: (val) => formatDateTime(val)
     },
     {
       key: 'status',
-      label: 'Статус',
+      label: tr("Статус"),
       width: '120px',
       render: (val) => <StatusBadge status={val} />
     }
@@ -52,14 +53,14 @@ function DriverWaybills() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Мої путівки</h1>
+        <h1>{tr("Мої путівки")}</h1>
       </div>
 
       <DataTable
         columns={columns}
         data={waybills}
         isLoading={isLoading}
-        emptyMessage="Немає путівок"
+        emptyMessage={tr("Немає путівок")}
         onRowClick={(row) => navigate(`/driver/waybills/${row._id}`)}
       />
     </div>

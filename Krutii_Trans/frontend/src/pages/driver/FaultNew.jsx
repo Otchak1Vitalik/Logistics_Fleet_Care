@@ -5,6 +5,7 @@ import { vehiclesApi } from '../../api/vehicles'
 import { settingsApi } from '../../api/settings'
 import FormField from '../../components/FormField'
 import toast from 'react-hot-toast'
+import { tr } from '../../i18n'
 
 function DriverFaultNew() {
   const navigate = useNavigate()
@@ -54,7 +55,7 @@ function DriverFaultNew() {
         setFormData(prev => ({ ...prev, vehicle_id: vehicleOptions[0].value }))
       }
     } catch (error) {
-      toast.error('Помилка завантаження даних')
+      toast.error(tr("Помилка завантаження даних"))
     } finally {
       setIsDataLoading(false)
     }
@@ -85,7 +86,7 @@ function DriverFaultNew() {
   const handleAddUrl = () => {
     if (!photoUrl.trim()) return
     if (!photoUrl.startsWith('http://') && !photoUrl.startsWith('https://')) {
-      toast.error('URL має починатися з http:// або https://')
+      toast.error(tr("URL має починатися з http:// або https://"))
       return
     }
     setPhotos(prev => [...prev, {
@@ -104,12 +105,12 @@ function DriverFaultNew() {
     e.preventDefault()
 
     if (!formData.vehicle_id || !formData.category || !formData.severity || !formData.description) {
-      toast.error('Заповніть всі обов\'язкові поля')
+      toast.error(tr("Заповніть всі обов'язкові поля"))
       return
     }
 
     if (formData.description.length < 10) {
-      toast.error('Опис має бути не менше 10 символів')
+      toast.error(tr("Опис має бути не менше 10 символів"))
       return
     }
 
@@ -139,11 +140,11 @@ function DriverFaultNew() {
             await faultsApi.addPhotoUrl(faultId, photo.data)
           }
         } catch (err) {
-          console.error('Помилка завантаження фото:', err)
+          console.error(tr("Помилка завантаження фото:"), err)
         }
       }
 
-      toast.success(`Несправність ${response.data.fault.number} створено`)
+      toast.success(tr("Несправність {0} створено", response.data.fault.number))
       navigate('/driver/faults')
     } catch (error) {
       // Помилка вже показана
@@ -156,21 +157,21 @@ function DriverFaultNew() {
     <div className="page-container page-narrow">
       <div className="page-header">
         <button className="btn btn-text" onClick={() => navigate(-1)}>
-          Назад
+          {tr("Назад")}
         </button>
-        <h1>Нова несправність</h1>
+        <h1>{tr("Нова несправність")}</h1>
       </div>
 
       <div className="card">
         {isDataLoading ? (
           <div className="loading-container">
             <div className="spinner"></div>
-            <p>Завантаження...</p>
+            <p>{tr("Завантаження...")}</p>
           </div>
         ) : (
         <form onSubmit={handleSubmit}>
           <FormField
-            label="Транспортний засіб"
+            label={tr("Транспортний засіб")}
             name="vehicle_id"
             type="select"
             value={formData.vehicle_id}
@@ -182,13 +183,13 @@ function DriverFaultNew() {
 
           {vehicles.length === 0 && (
             <p className="text-warning mb-md">
-              У вас немає активних путівок. Зверніться до керівника.
+              {tr("У вас немає активних путівок. Зверніться до керівника.")}
             </p>
           )}
 
           <div className="form-row">
             <FormField
-              label="Категорія"
+              label={tr("Категорія")}
               name="category"
               type="select"
               value={formData.category}
@@ -198,7 +199,7 @@ function DriverFaultNew() {
             />
 
             <FormField
-              label="Критичність"
+              label={tr("Критичність")}
               name="severity"
               type="select"
               value={formData.severity}
@@ -209,18 +210,18 @@ function DriverFaultNew() {
           </div>
 
           <FormField
-            label="Опис несправності"
+            label={tr("Опис несправності")}
             name="description"
             type="textarea"
             value={formData.description}
             onChange={handleChange}
-            placeholder="Детально опишіть несправність..."
+            placeholder={tr("Детально опишіть несправність...")}
             rows={5}
             required
           />
 
           <FormField
-            label="Поточний пробіг (км)"
+            label={tr("Поточний пробіг (км)")}
             name="odometer"
             type="number"
             value={formData.odometer}
@@ -230,14 +231,14 @@ function DriverFaultNew() {
 
           {/* Секція фото */}
           <div className="form-group">
-            <label className="form-label">Фото (необов'язково)</label>
+            <label className="form-label">{tr("Фото (необов'язково)")}</label>
 
             {/* Превью фото */}
             {photos.length > 0 && (
               <div className="photo-preview-grid">
                 {photos.map((photo, index) => (
                   <div key={index} className="photo-preview-item">
-                    <img src={photo.preview} alt={`Фото ${index + 1}`} />
+                    <img src={photo.preview} alt={tr("Фото {0}", index + 1)} />
                     <button
                       type="button"
                       className="photo-remove-btn"
@@ -265,14 +266,14 @@ function DriverFaultNew() {
                 className="btn btn-secondary"
                 onClick={() => fileInputRef.current?.click()}
               >
-                Вибрати файл
+                {tr("Вибрати файл")}
               </button>
 
               <div className="photo-url-input">
                 <input
                   type="text"
                   className="form-input"
-                  placeholder="Або вставте URL фото"
+                  placeholder={tr("Або вставте URL фото")}
                   value={photoUrl}
                   onChange={(e) => setPhotoUrl(e.target.value)}
                 />
@@ -282,7 +283,7 @@ function DriverFaultNew() {
                   onClick={handleAddUrl}
                   disabled={!photoUrl.trim()}
                 >
-                  Додати
+                  {tr("Додати")}
                 </button>
               </div>
             </div>
@@ -294,14 +295,14 @@ function DriverFaultNew() {
               className="btn btn-secondary"
               onClick={() => navigate(-1)}
             >
-              Скасувати
+              {tr("Скасувати")}
             </button>
             <button
               type="submit"
               className="btn btn-primary"
               disabled={isLoading || vehicles.length === 0 || categories.length === 0}
             >
-              {isLoading ? 'Збереження...' : 'Створити'}
+              {isLoading ? tr("Збереження...") : tr("Створити")}
             </button>
           </div>
         </form>

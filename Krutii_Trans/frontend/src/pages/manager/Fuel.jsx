@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { fuelApi } from '../../api/fuel'
 import DataTable from '../../components/DataTable'
 import { formatDate, formatNumber } from '../../utils/formatters'
+import { tr } from '../../i18n'
 
 function ManagerFuel() {
   const navigate = useNavigate()
@@ -37,7 +38,7 @@ function ManagerFuel() {
   const invoiceColumns = [
     {
       key: 'number',
-      label: 'Номер',
+      label: tr("Номер"),
       render: (_, row) => (
         <div>
           <div className="font-medium">{row.number}</div>
@@ -49,75 +50,75 @@ function ManagerFuel() {
     },
     {
       key: 'supplier',
-      label: 'Постачальник',
+      label: tr("Постачальник"),
       render: (val) => val || '-'
     },
     {
       key: 'fuel_type',
-      label: 'Тип',
+      label: tr("Тип"),
       render: (type) => ({
-        diesel: 'Дизель',
-        petrol: 'Бензин',
-        gas: 'Газ'
+        diesel: tr("Дизель"),
+        petrol: tr("Бензин"),
+        gas: tr("Газ")
       }[type] || type)
     },
     {
       key: 'quantity',
-      label: 'Кількість',
-      render: (val) => `${formatNumber(val)} л`
+      label: tr("Кількість"),
+      render: (val) => tr("{0} л", formatNumber(val))
     },
     {
       key: 'distributed',
-      label: 'Розподілено',
+      label: tr("Розподілено"),
       render: (val, row) => (
         <div>
-          <span>{formatNumber(val || 0)} л</span>
+          <span>{formatNumber(val || 0)}{' '}{tr("л")}</span>
           <span className="text-muted" style={{ marginLeft: '8px' }}>
-            ({formatNumber(row.quantity - (val || 0))} залишок)
+            ({formatNumber(row.quantity - (val || 0))}{' '}{tr("залишок)")}
           </span>
         </div>
       )
     },
     {
       key: 'total_amount',
-      label: 'Сума',
-      render: (val) => val ? `${formatNumber(val)} грн` : '-'
+      label: tr("Сума"),
+      render: (val) => val ? tr("{0} грн", formatNumber(val)) : '-'
     }
   ]
 
   const recordColumns = [
     {
       key: 'date',
-      label: 'Дата',
+      label: tr("Дата"),
       render: (val) => formatDate(val)
     },
     {
       key: 'vehicle',
-      label: 'Транспорт',
+      label: tr("Транспорт"),
       render: (_, row) => row.vehicle?.plate_number || '-'
     },
     {
       key: 'driver',
-      label: 'Водій',
+      label: tr("Водій"),
       render: (_, row) => row.driver?.full_name || '-'
     },
     {
       key: 'quantity',
-      label: 'Кількість',
-      render: (val) => `${formatNumber(val)} л`
+      label: tr("Кількість"),
+      render: (val) => tr("{0} л", formatNumber(val))
     },
     {
       key: 'record_type',
-      label: 'Тип',
+      label: tr("Тип"),
       render: (type) => ({
-        issue: 'Видача',
-        external: 'Зовнішня заправка',
-        return: 'Повернення'
+        issue: tr("Видача"),
+        external: tr("Зовнішня заправка"),
+        return: tr("Повернення")
       }[type] || type)
     },
     {
       key: 'station',
-      label: 'АЗС',
+      label: tr("АЗС"),
       render: (val) => val || '-'
     }
   ]
@@ -125,12 +126,12 @@ function ManagerFuel() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Пальне</h1>
+        <h1>{tr("Пальне")}</h1>
         <button
           className="btn btn-primary"
           onClick={() => navigate('/manager/fuel/new')}
         >
-          Нова накладна
+          {tr("Нова накладна")}
         </button>
       </div>
 
@@ -139,30 +140,30 @@ function ManagerFuel() {
         <div className="dashboard-stats mb-lg">
           {summary.by_fuel_type?.map((item) => (
             <div key={item._id} className="stat-card">
-              <div className="stat-value">{formatNumber(item.total_received)} л</div>
+              <div className="stat-value">{formatNumber(item.total_received)}{' '}{tr("л")}</div>
               <div className="stat-label">
                 {{
-                  diesel: 'Дизель',
-                  petrol: 'Бензин',
-                  gas: 'Газ'
-                }[item._id] || item._id} (отримано)
+                  diesel: tr("Дизель"),
+                  petrol: tr("Бензин"),
+                  gas: tr("Газ")
+                }[item._id] || item._id}{' '}{tr("(отримано)")}
               </div>
               <div className="text-muted mt-sm" style={{ fontSize: '0.875rem' }}>
-                Розподілено: {formatNumber(item.total_distributed || 0)} л
+                {tr("Розподілено:")}{' '}{formatNumber(item.total_distributed || 0)}{' '}{tr("л")}
               </div>
             </div>
           ))}
           <div className="stat-card">
             <div className="stat-value">
-              {formatNumber(summary.monthly?.total_issued || 0)} л
+              {formatNumber(summary.monthly?.total_issued || 0)}{' '}{tr("л")}
             </div>
-            <div className="stat-label">Видано за місяць</div>
+            <div className="stat-label">{tr("Видано за місяць")}</div>
           </div>
           <div className="stat-card">
             <div className="stat-value">
-              {formatNumber(summary.monthly?.total_external || 0)} л
+              {formatNumber(summary.monthly?.total_external || 0)}{' '}{tr("л")}
             </div>
-            <div className="stat-label">Зовнішні заправки за місяць</div>
+            <div className="stat-label">{tr("Зовнішні заправки за місяць")}</div>
           </div>
         </div>
       )}
@@ -173,13 +174,13 @@ function ManagerFuel() {
           className={`tab ${activeTab === 'invoices' ? 'active' : ''}`}
           onClick={() => setActiveTab('invoices')}
         >
-          Накладні
+          {tr("Накладні")}
         </button>
         <button
           className={`tab ${activeTab === 'records' ? 'active' : ''}`}
           onClick={() => setActiveTab('records')}
         >
-          Записи видачі
+          {tr("Записи видачі")}
         </button>
       </div>
 
@@ -190,14 +191,14 @@ function ManagerFuel() {
             columns={invoiceColumns}
             data={invoices}
             isLoading={loading}
-            emptyMessage="Накладних не знайдено"
+            emptyMessage={tr("Накладних не знайдено")}
           />
         ) : (
           <DataTable
             columns={recordColumns}
             data={records}
             isLoading={loading}
-            emptyMessage="Записів не знайдено"
+            emptyMessage={tr("Записів не знайдено")}
           />
         )}
       </div>

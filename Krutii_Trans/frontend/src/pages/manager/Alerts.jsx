@@ -2,19 +2,20 @@ import { useEffect, useState } from 'react'
 import { alertsApi } from '../../api/alerts'
 import Loader from '../../components/Loader'
 import { formatDateTime } from '../../utils/formatters'
+import { tr } from '../../i18n'
 
 const ALERT_TYPES = {
-  info: { label: 'Інформація', color: 'var(--color-info)' },
-  warning: { label: 'Попередження', color: 'var(--color-warning)' },
-  critical: { label: 'Критично', color: 'var(--color-danger)' }
+  info: { label: tr("Інформація"), color: 'var(--color-info)' },
+  warning: { label: tr("Попередження"), color: 'var(--color-warning)' },
+  critical: { label: tr("Критично"), color: 'var(--color-danger)' }
 }
 
 const CATEGORIES = {
-  fault: 'Несправності',
-  maintenance: 'ТО',
-  fuel: 'Пальне',
-  escalation: 'Ескалація',
-  general: 'Загальне'
+  fault: tr("Несправності"),
+  maintenance: tr("ТО"),
+  fuel: tr("Пальне"),
+  escalation: tr("Ескалація"),
+  general: tr("Загальне")
 }
 
 function ManagerAlerts() {
@@ -76,23 +77,23 @@ function ManagerAlerts() {
   const unreadCount = alerts.filter((a) => !a.is_read).length
 
   if (loading) {
-    return <Loader text="Завантаження..." />
+    return <Loader text={tr("Завантаження...")} />
   }
 
   return (
     <div className="page-container">
       <div className="page-header">
         <h1>
-          Сповіщення
+          {tr("Сповіщення")}
           {unreadCount > 0 && (
             <span className="text-muted" style={{ fontSize: '1rem', marginLeft: '8px' }}>
-              ({unreadCount} непрочитаних)
+              ({unreadCount}{' '}{tr("непрочитаних)")}
             </span>
           )}
         </h1>
         {unreadCount > 0 && (
           <button className="btn btn-secondary" onClick={handleMarkAllAsRead}>
-            Прочитати всі
+            {tr("Прочитати всі")}
           </button>
         )}
       </div>
@@ -100,17 +101,17 @@ function ManagerAlerts() {
       {/* Фільтри */}
       <div className="filters">
         <div className="filter-group">
-          <label>Фільтр</label>
+          <label>{tr("Фільтр")}</label>
           <select
             className="form-control"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
           >
-            <option value="all">Всі</option>
-            <option value="unread">Непрочитані</option>
-            <option value="critical">Критичні</option>
-            <option value="warning">Попередження</option>
-            <option value="info">Інформація</option>
+            <option value="all">{tr("Всі")}</option>
+            <option value="unread">{tr("Непрочитані")}</option>
+            <option value="critical">{tr("Критичні")}</option>
+            <option value="warning">{tr("Попередження")}</option>
+            <option value="info">{tr("Інформація")}</option>
           </select>
         </div>
       </div>
@@ -119,7 +120,7 @@ function ManagerAlerts() {
       {filteredAlerts.length === 0 ? (
         <div className="card">
           <div className="empty-state">
-            {filter === 'unread' ? 'Немає непрочитаних сповіщень' : 'Немає сповіщень'}
+            {filter === 'unread' ? tr("Немає непрочитаних сповіщень") : tr("Немає сповіщень")}
           </div>
         </div>
       ) : (
@@ -150,7 +151,7 @@ function ManagerAlerts() {
                 </div>
                 <span className="item-title mt-sm">{alert.title}</span>
                 <span className="item-subtitle">{alert.message}</span>
-                <span className="text-muted" style={{ fontSize: '0.75rem', marginTop: '4px' }}>
+                <span className="text-muted" style={{ display: 'block', fontSize: '0.75rem', marginTop: '4px' }}>
                   {formatDateTime(alert.created_at)}
                 </span>
               </div>
@@ -160,14 +161,14 @@ function ManagerAlerts() {
                     className="btn btn-sm btn-text"
                     onClick={() => handleMarkAsRead(alert._id)}
                   >
-                    Прочитано
+                    {tr("Прочитано")}
                   </button>
                 )}
                 <button
                   className="btn btn-sm btn-text"
                   onClick={() => handleDismiss(alert._id)}
                 >
-                  Приховати
+                  {tr("Приховати")}
                 </button>
               </div>
             </div>

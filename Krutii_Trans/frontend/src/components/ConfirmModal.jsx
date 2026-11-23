@@ -1,9 +1,10 @@
+import { tr } from '../i18n'
 function ConfirmModal({
   title,
   message,
   children,
-  confirmText = 'Підтвердити',
-  cancelText = 'Скасувати',
+  confirmText = tr("Підтвердити"),
+  cancelText = tr("Скасувати"),
   onConfirm,
   onClose,
   confirmVariant = 'default' // default, danger

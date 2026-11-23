@@ -6,6 +6,7 @@ import Loader from '../../components/Loader'
 import StatusBadge from '../../components/StatusBadge'
 import ConfirmModal from '../../components/ConfirmModal'
 import { formatDate, formatDateTime, formatOdometer } from '../../utils/formatters'
+import { tr } from '../../i18n'
 
 function WaybillDetail() {
   const { id } = useParams()
@@ -33,7 +34,7 @@ function WaybillDetail() {
   const handleCancel = async () => {
     try {
       await waybillsApi.cancel(id, cancelReason)
-      toast.success('Путівку скасовано')
+      toast.success(tr("Путівку скасовано"))
       setShowCancelModal(false)
       loadWaybill()
     } catch (error) {
@@ -42,13 +43,13 @@ function WaybillDetail() {
   }
 
   if (loading) {
-    return <Loader text="Завантаження..." />
+    return <Loader text={tr("Завантаження...")} />
   }
 
   if (!waybill) {
     return (
       <div className="page-container">
-        <div className="empty-state">Путівку не знайдено</div>
+        <div className="empty-state">{tr("Путівку не знайдено")}</div>
       </div>
     )
   }
@@ -60,12 +61,12 @@ function WaybillDetail() {
   return (
     <div className="page-container">
       <Link to="/manager/waybills" className="back-link">
-        &larr; Назад до списку
+        {tr("← Назад до списку")}
       </Link>
 
       <div className="detail-header">
         <div className="detail-title">
-          <h1>Путівка {waybill.number}</h1>
+          <h1>{tr("Путівка")}{' '}{waybill.number}</h1>
           <StatusBadge status={waybill.status} />
         </div>
         <div className="detail-actions">
@@ -74,7 +75,7 @@ function WaybillDetail() {
               className="btn btn-danger"
               onClick={() => setShowCancelModal(true)}
             >
-              Скасувати
+              {tr("Скасувати")}
             </button>
           )}
         </div>
@@ -82,57 +83,57 @@ function WaybillDetail() {
 
       <div className="card">
         <div className="detail-section">
-          <h3>Основна інформація</h3>
+          <h3>{tr("Основна інформація")}</h3>
           <div className="info-grid">
             <div className="info-row">
-              <span className="label">Дата видачі</span>
+              <span className="label">{tr("Дата видачі")}</span>
               <span className="value">{formatDate(waybill.issue_date)}</span>
             </div>
             <div className="info-row">
-              <span className="label">Дійсна з</span>
+              <span className="label">{tr("Дійсна з")}</span>
               <span className="value">{formatDateTime(waybill.valid_from)}</span>
             </div>
             <div className="info-row">
-              <span className="label">Дійсна до</span>
+              <span className="label">{tr("Дійсна до")}</span>
               <span className="value">{formatDateTime(waybill.valid_until)}</span>
             </div>
             <div className="info-row">
-              <span className="label">Видав</span>
+              <span className="label">{tr("Видав")}</span>
               <span className="value">{waybill.issuer?.full_name || '-'}</span>
             </div>
           </div>
         </div>
 
         <div className="detail-section">
-          <h3>Транспорт та водій</h3>
+          <h3>{tr("Транспорт та водій")}</h3>
           <div className="info-grid">
             <div className="info-row">
-              <span className="label">Транспорт</span>
+              <span className="label">{tr("Транспорт")}</span>
               <span className="value">
                 {waybill.vehicle?.plate_number} - {waybill.vehicle?.brand} {waybill.vehicle?.model}
               </span>
             </div>
             <div className="info-row">
-              <span className="label">Водій</span>
+              <span className="label">{tr("Водій")}</span>
               <span className="value">{waybill.driver?.full_name}</span>
             </div>
           </div>
         </div>
 
         <div className="detail-section">
-          <h3>Маршрут</h3>
+          <h3>{tr("Маршрут")}</h3>
           <div className="info-grid">
             <div className="info-row">
-              <span className="label">Звідки</span>
+              <span className="label">{tr("Звідки")}</span>
               <span className="value">{waybill.route_from || '-'}</span>
             </div>
             <div className="info-row">
-              <span className="label">Куди</span>
+              <span className="label">{tr("Куди")}</span>
               <span className="value">{waybill.route_to || '-'}</span>
             </div>
             {waybill.route_description && (
               <div className="info-row" style={{ gridColumn: '1 / -1' }}>
-                <span className="label">Опис маршруту</span>
+                <span className="label">{tr("Опис маршруту")}</span>
                 <span className="value">{waybill.route_description}</span>
               </div>
             )}
@@ -140,45 +141,45 @@ function WaybillDetail() {
         </div>
 
         <div className="detail-section">
-          <h3>Пробіг</h3>
+          <h3>{tr("Пробіг")}</h3>
           <div className="info-grid">
             <div className="info-row">
-              <span className="label">Початковий</span>
+              <span className="label">{tr("Початковий")}</span>
               <span className="value">{formatOdometer(waybill.odometer_start)}</span>
             </div>
             <div className="info-row">
-              <span className="label">Кінцевий</span>
+              <span className="label">{tr("Кінцевий")}</span>
               <span className="value">{waybill.odometer_end ? formatOdometer(waybill.odometer_end) : '-'}</span>
             </div>
             <div className="info-row">
-              <span className="label">Пройдено</span>
+              <span className="label">{tr("Пройдено")}</span>
               <span className="value font-bold">
-                {distance !== null ? `${distance.toLocaleString()} км` : '-'}
+                {distance !== null ? tr("{0} км", distance.toLocaleString()) : '-'}
               </span>
             </div>
           </div>
         </div>
 
         <div className="detail-section">
-          <h3>Пальне</h3>
+          <h3>{tr("Пальне")}</h3>
           <div className="info-grid">
             <div className="info-row">
-              <span className="label">Видано</span>
-              <span className="value">{waybill.fuel_issued ? `${waybill.fuel_issued} л` : '-'}</span>
+              <span className="label">{tr("Видано")}</span>
+              <span className="value">{waybill.fuel_issued ? tr("{0} л", waybill.fuel_issued) : '-'}</span>
             </div>
             <div className="info-row">
-              <span className="label">Витрачено</span>
-              <span className="value">{waybill.fuel_used ? `${waybill.fuel_used} л` : '-'}</span>
+              <span className="label">{tr("Витрачено")}</span>
+              <span className="value">{waybill.fuel_used ? tr("{0} л", waybill.fuel_used) : '-'}</span>
             </div>
             <div className="info-row">
-              <span className="label">Залишок</span>
-              <span className="value">{waybill.fuel_remaining ? `${waybill.fuel_remaining} л` : '-'}</span>
+              <span className="label">{tr("Залишок")}</span>
+              <span className="value">{waybill.fuel_remaining ? tr("{0} л", waybill.fuel_remaining) : '-'}</span>
             </div>
             {distance && waybill.fuel_used && (
               <div className="info-row">
-                <span className="label">Фактичні витрати</span>
+                <span className="label">{tr("Фактичні витрати")}</span>
                 <span className="value font-bold">
-                  {((waybill.fuel_used / distance) * 100).toFixed(1)} л/100км
+                  {((waybill.fuel_used / distance) * 100).toFixed(1)}{' '}{tr("л/100км")}
                 </span>
               </div>
             )}
@@ -187,16 +188,16 @@ function WaybillDetail() {
 
         {(waybill.notes || waybill.completion_notes) && (
           <div className="detail-section">
-            <h3>Примітки</h3>
+            <h3>{tr("Примітки")}</h3>
             {waybill.notes && (
               <div className="info-row">
-                <span className="label">Примітки при видачі</span>
+                <span className="label">{tr("Примітки при видачі")}</span>
                 <span className="value">{waybill.notes}</span>
               </div>
             )}
             {waybill.completion_notes && (
               <div className="info-row">
-                <span className="label">Примітки при завершенні</span>
+                <span className="label">{tr("Примітки при завершенні")}</span>
                 <span className="value">{waybill.completion_notes}</span>
               </div>
             )}
@@ -205,9 +206,9 @@ function WaybillDetail() {
 
         {waybill.completed_at && (
           <div className="detail-section">
-            <h3>Завершення</h3>
+            <h3>{tr("Завершення")}</h3>
             <div className="info-row">
-              <span className="label">Дата завершення</span>
+              <span className="label">{tr("Дата завершення")}</span>
               <span className="value">{formatDateTime(waybill.completed_at)}</span>
             </div>
           </div>
@@ -217,24 +218,24 @@ function WaybillDetail() {
       {/* Модалка скасування */}
       {showCancelModal && (
         <ConfirmModal
-          title="Скасування путівки"
+          title={tr("Скасування путівки")}
           onClose={() => {
             setShowCancelModal(false)
             setCancelReason('')
           }}
           onConfirm={handleCancel}
-          confirmText="Скасувати путівку"
+          confirmText={tr("Скасувати путівку")}
           confirmVariant="danger"
         >
-          <p className="mb-md">Ви впевнені, що хочете скасувати цю путівку?</p>
+          <p className="mb-md">{tr("Ви впевнені, що хочете скасувати цю путівку?")}</p>
           <div className="form-field">
-            <label>Причина скасування</label>
+            <label>{tr("Причина скасування")}</label>
             <textarea
               className="form-control"
               value={cancelReason}
               onChange={(e) => setCancelReason(e.target.value)}
               rows={3}
-              placeholder="Вкажіть причину..."
+              placeholder={tr("Вкажіть причину...")}
             />
           </div>
         </ConfirmModal>

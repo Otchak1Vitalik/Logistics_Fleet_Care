@@ -1,5 +1,6 @@
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import { tr, translateResponse } from '../i18n'
 
 const api = axios.create({
   baseURL: '/api',
@@ -14,9 +15,14 @@ let isRedirecting = false
 
 // Response interceptor
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Тексти від сервера (статуси, категорії, сповіщення) - мовою інтерфейсу
+    response.data = translateResponse(response.data)
+    return response
+  },
   (error) => {
-    const message = error.response?.data?.error || 'Сталася помилка'
+    if (error.response) error.response.data = translateResponse(error.response.data)
+    const message = error.response?.data?.error || tr("Сталася помилка")
     const status = error.response?.status
     const url = error.config?.url || ''
 
@@ -46,7 +52,7 @@ api.interceptors.response.use(
     if (status !== 401 && status !== 403) {
       toast.error(message)
     } else if (status === 403) {
-      toast.error('Доступ заборонено')
+      toast.error(tr("Доступ заборонено"))
     }
 
     return Promise.reject(error)

@@ -1,3 +1,4 @@
+import { tr } from '../i18n'
 const STATUS_COLORS = {
   // Путівки
   issued: 'blue',
@@ -32,32 +33,32 @@ const STATUS_COLORS = {
 
 const STATUS_LABELS = {
   // Путівки
-  issued: 'Видано',
-  active: 'Активна',
-  completed: 'Завершена',
-  cancelled: 'Скасована',
+  issued: tr("Видано"),
+  active: tr("Активна"),
+  completed: tr("Завершена"),
+  cancelled: tr("Скасована"),
 
   // Ремонти
-  planned: 'Заплановано',
-  in_progress: 'В роботі',
+  planned: tr("Заплановано"),
+  in_progress: tr("В роботі"),
   // completed - Завершено (дублюється)
 
   // Несправності
-  new: 'Нова',
-  acknowledged: 'Прийнято',
-  in_repair: 'В ремонті',
-  resolved: 'Вирішено',
-  rejected: 'Відхилено',
+  new: tr("Нова"),
+  acknowledged: tr("Прийнято"),
+  in_repair: tr("В ремонті"),
+  resolved: tr("Вирішено"),
+  rejected: tr("Відхилено"),
 
   // Транспорт
-  repair: 'В ремонті',
-  inspection: 'На огляді',
-  decommissioned: 'Списано',
+  repair: tr("В ремонті"),
+  inspection: tr("На огляді"),
+  decommissioned: tr("Списано"),
 
   // Сповіщення
-  info: 'Інформація',
-  warning: 'Попередження',
-  critical: 'Критично'
+  info: tr("Інформація"),
+  warning: tr("Попередження"),
+  critical: tr("Критично")
 }
 
 function StatusBadge({ status, customLabel }) {

@@ -311,9 +311,11 @@ def update_waybill(waybill_id):
 
         # Пробіг змінився - одразу перевіряємо потребу в ТО, не чекаючи щоденної перевірки
         from services.alert_engine import check_vehicle_maintenance
+        from services.maintenance_forecast import daily_mileage
         vehicle = mongo.db.vehicles.find_one({'_id': ObjectId(waybill['vehicle_id'])})
         if vehicle:
-            check_vehicle_maintenance(mongo.db, vehicle)
+            rate = daily_mileage(mongo.db, vehicle_ids=[waybill['vehicle_id']]).get(waybill['vehicle_id'])
+            check_vehicle_maintenance(mongo.db, vehicle, avg_daily_km=rate)
 
     mongo.db.waybills.update_one(
         {'_id': ObjectId(waybill_id)},

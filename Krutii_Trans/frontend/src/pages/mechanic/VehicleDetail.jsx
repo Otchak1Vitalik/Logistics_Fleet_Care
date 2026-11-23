@@ -1,41 +1,31 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useVehicleStore } from '../../store/vehicleStore'
-import { vehiclesApi } from '../../api/vehicles'
 import StatusBadge from '../../components/StatusBadge'
 import Loader from '../../components/Loader'
 import { formatDate, formatOdometer } from '../../utils/formatters'
 import toast from 'react-hot-toast'
+import VehicleInsights from '../../components/VehicleInsights'
+import { tr } from '../../i18n'
 
 function MechanicVehicleDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { currentVehicle, fetchVehicle, updateVehicle, isLoading } = useVehicleStore()
-  const [history, setHistory] = useState(null)
 
   useEffect(() => {
     fetchVehicle(id)
-    loadHistory()
   }, [id])
-
-  const loadHistory = async () => {
-    try {
-      const response = await vehiclesApi.getHistory(id)
-      setHistory(response.data)
-    } catch (error) {
-      // Ігноруємо
-    }
-  }
 
   const handleStatusChange = async (newStatus) => {
     const result = await updateVehicle(id, { status: newStatus })
     if (result.success) {
-      toast.success('Статус оновлено')
+      toast.success(tr("Статус оновлено"))
     }
   }
 
   if (isLoading || !currentVehicle) {
-    return <Loader text="Завантаження..." />
+    return <Loader text={tr("Завантаження...")} />
   }
 
   const vehicle = currentVehicle
@@ -45,7 +35,7 @@ function MechanicVehicleDetail() {
       <div className="page-header">
         <div className="header-left">
           <button className="btn btn-text" onClick={() => navigate(-1)}>
-            Назад
+            {tr("Назад")}
           </button>
           <h1>{vehicle.plate_number}</h1>
           <StatusBadge status={vehicle.status} />
@@ -57,7 +47,7 @@ function MechanicVehicleDetail() {
               className="btn btn-warning"
               onClick={() => handleStatusChange('repair')}
             >
-              Взяти в ремонт
+              {tr("Взяти в ремонт")}
             </button>
           )}
           {vehicle.status === 'repair' && (
@@ -65,32 +55,32 @@ function MechanicVehicleDetail() {
               className="btn btn-success"
               onClick={() => handleStatusChange('active')}
             >
-              Повернути в роботу
+              {tr("Повернути в роботу")}
             </button>
           )}
           <button
             className="btn btn-primary"
             onClick={() => navigate('/mechanic/repairs/new', { state: { vehicleId: id } })}
           >
-            Створити ремонт
+            {tr("Створити ремонт")}
           </button>
         </div>
       </div>
 
       <div className="detail-grid">
         <div className="card">
-          <h3>Основна інформація</h3>
+          <h3>{tr("Основна інформація")}</h3>
           <dl className="info-list">
             <div className="info-item">
-              <dt>Марка</dt>
+              <dt>{tr("Марка")}</dt>
               <dd>{vehicle.brand}</dd>
             </div>
             <div className="info-item">
-              <dt>Модель</dt>
+              <dt>{tr("Модель")}</dt>
               <dd>{vehicle.model}</dd>
             </div>
             <div className="info-item">
-              <dt>Рік випуску</dt>
+              <dt>{tr("Рік випуску")}</dt>
               <dd>{vehicle.year || '-'}</dd>
             </div>
             <div className="info-item">
@@ -101,116 +91,75 @@ function MechanicVehicleDetail() {
         </div>
 
         <div className="card">
-          <h3>Пробіг та ТО</h3>
+          <h3>{tr("Пробіг та ТО")}</h3>
           <dl className="info-list">
             <div className="info-item">
-              <dt>Поточний пробіг</dt>
+              <dt>{tr("Поточний пробіг")}</dt>
               <dd>{formatOdometer(vehicle.odometer)}</dd>
             </div>
             <div className="info-item">
-              <dt>Останнє ТО (км)</dt>
+              <dt>{tr("Останнє ТО (км)")}</dt>
               <dd>{formatOdometer(vehicle.last_maintenance_km)}</dd>
             </div>
             <div className="info-item">
-              <dt>Останнє ТО (дата)</dt>
+              <dt>{tr("Останнє ТО (дата)")}</dt>
               <dd>{formatDate(vehicle.last_maintenance_date)}</dd>
             </div>
             <div className="info-item">
-              <dt>Наступне ТО (км)</dt>
+              <dt>{tr("Наступне ТО (км)")}</dt>
               <dd>{formatOdometer(vehicle.next_maintenance_km)}</dd>
             </div>
             <div className="info-item">
-              <dt>Наступне ТО (дата)</dt>
+              <dt>{tr("Наступне ТО (дата)")}</dt>
               <dd>{formatDate(vehicle.next_maintenance_date)}</dd>
             </div>
           </dl>
         </div>
 
         <div className="card">
-          <h3>Паливо</h3>
+          <h3>{tr("Паливо")}</h3>
           <dl className="info-list">
             <div className="info-item">
-              <dt>Тип пального</dt>
+              <dt>{tr("Тип пального")}</dt>
               <dd>
                 {vehicle.fuel_type === 'diesel'
-                  ? 'Дизель'
+                  ? tr("Дизель")
                   : vehicle.fuel_type === 'petrol'
-                  ? 'Бензин'
-                  : 'Газ'}
+                  ? tr("Бензин")
+                  : tr("Газ")}
               </dd>
             </div>
             <div className="info-item">
-              <dt>Норма витрат</dt>
-              <dd>{vehicle.fuel_norm} л/100км</dd>
+              <dt>{tr("Норма витрат")}</dt>
+              <dd>{vehicle.fuel_norm}{' '}{tr("л/100км")}</dd>
             </div>
             <div className="info-item">
-              <dt>Об\'єм баку</dt>
-              <dd>{vehicle.tank_capacity ? `${vehicle.tank_capacity} л` : '-'}</dd>
+              <dt>{tr("Об'єм баку")}</dt>
+              <dd>{vehicle.tank_capacity ? tr("{0} л", vehicle.tank_capacity) : '-'}</dd>
             </div>
           </dl>
         </div>
 
         <div className="card">
-          <h3>Документи</h3>
+          <h3>{tr("Документи")}</h3>
           <dl className="info-list">
             <div className="info-item">
-              <dt>Техогляд до</dt>
+              <dt>{tr("Техогляд до")}</dt>
               <dd>{formatDate(vehicle.inspection_expiry)}</dd>
             </div>
             <div className="info-item">
-              <dt>Страховка</dt>
+              <dt>{tr("Страховка")}</dt>
               <dd>{vehicle.insurance_policy || '-'}</dd>
             </div>
             <div className="info-item">
-              <dt>Страховка до</dt>
+              <dt>{tr("Страховка до")}</dt>
               <dd>{formatDate(vehicle.insurance_expiry)}</dd>
             </div>
           </dl>
         </div>
 
-        {/* Історія ремонтів */}
-        {history?.repairs && history.repairs.length > 0 && (
-          <div className="card full-width">
-            <h3>Останні ремонти</h3>
-            <ul className="list">
-              {history.repairs.map((repair) => (
-                <li
-                  key={repair._id}
-                  className="list-item clickable"
-                  onClick={() => navigate(`/mechanic/repairs/${repair._id}`)}
-                >
-                  <div className="item-main">
-                    <span className="item-title">{repair.number}</span>
-                    <span className="item-subtitle">{repair.description}</span>
-                  </div>
-                  <StatusBadge status={repair.status} />
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Історія несправностей */}
-        {history?.faults && history.faults.length > 0 && (
-          <div className="card full-width">
-            <h3>Останні несправності</h3>
-            <ul className="list">
-              {history.faults.map((fault) => (
-                <li
-                  key={fault._id}
-                  className="list-item clickable"
-                  onClick={() => navigate(`/mechanic/faults/${fault._id}`)}
-                >
-                  <div className="item-main">
-                    <span className="item-title">{fault.number}</span>
-                    <span className="item-subtitle">{fault.description}</span>
-                  </div>
-                  <StatusBadge status={fault.status} />
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {/* Прогноз ТО, підсумки та історія автомобіля */}
+        <VehicleInsights vehicleId={id} />
       </div>
     </div>
   )

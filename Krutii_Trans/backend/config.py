@@ -10,10 +10,10 @@ load_dotenv()
 
 class Config:
     # MongoDB
-    MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/bogatur')
+    MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/krutii_trans')
 
     # JWT
-    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'bogatur-secret-key-change-in-production')
+    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'krutii-trans-secret-change-in-production')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=8)
     JWT_TOKEN_LOCATION = ['cookies']
     JWT_COOKIE_SECURE = False  # True в production з HTTPS

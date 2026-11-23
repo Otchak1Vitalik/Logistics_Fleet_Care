@@ -17,5 +17,11 @@ export const reportsApi = {
     api.get('/reports/maintenance-schedule'),
 
   getCostsSummary: (params = {}) =>
-    api.get('/reports/costs-summary', { params })
+    api.get('/reports/costs-summary', { params }),
+
+  getAnalytics: (params = {}) =>
+    api.get('/reports/analytics', { params }),
+
+  getMaintenanceCalendar: (year, month) =>
+    api.get('/reports/maintenance-calendar', { params: { year, month } })
 }

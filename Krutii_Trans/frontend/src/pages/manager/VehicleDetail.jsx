@@ -8,18 +8,20 @@ import StatusBadge from '../../components/StatusBadge'
 import ConfirmModal from '../../components/ConfirmModal'
 import { formatDate, formatOdometer } from '../../utils/formatters'
 import 'react-datepicker/dist/react-datepicker.css'
+import VehicleInsights from '../../components/VehicleInsights'
+import { tr } from '../../i18n'
 
 const STATUSES = {
-  active: 'Активний',
-  repair: 'В ремонті',
-  inspection: 'На огляді',
-  decommissioned: 'Списано'
+  active: tr("Активний"),
+  repair: tr("В ремонті"),
+  inspection: tr("На огляді"),
+  decommissioned: tr("Списано")
 }
 
 const FUEL_TYPES = {
-  diesel: 'Дизель',
-  petrol: 'Бензин',
-  gas: 'Газ'
+  diesel: tr("Дизель"),
+  petrol: tr("Бензин"),
+  gas: tr("Газ")
 }
 
 function VehicleDetail() {
@@ -76,7 +78,7 @@ function VehicleDetail() {
 
   const handleSave = async () => {
     if (!form.plate_number.trim() || !form.brand.trim() || !form.model.trim()) {
-      toast.error('Заповніть обов\'язкові поля')
+      toast.error(tr("Заповніть обов'язкові поля"))
       return
     }
 
@@ -90,7 +92,7 @@ function VehicleDetail() {
       }
 
       await vehiclesApi.update(id, data)
-      toast.success('Дані збережено')
+      toast.success(tr("Дані збережено"))
       setIsEditing(false)
       loadVehicle()
     } catch (error) {
@@ -103,7 +105,7 @@ function VehicleDetail() {
   const handleStatusChange = async () => {
     try {
       await vehiclesApi.update(id, { status: newStatus })
-      toast.success('Статус змінено')
+      toast.success(tr("Статус змінено"))
       setShowStatusModal(false)
       loadVehicle()
     } catch (error) {
@@ -112,13 +114,13 @@ function VehicleDetail() {
   }
 
   if (loading) {
-    return <Loader text="Завантаження..." />
+    return <Loader text={tr("Завантаження...")} />
   }
 
   if (!vehicle) {
     return (
       <div className="page-container">
-        <div className="empty-state">Транспорт не знайдено</div>
+        <div className="empty-state">{tr("Транспорт не знайдено")}</div>
       </div>
     )
   }
@@ -126,7 +128,7 @@ function VehicleDetail() {
   return (
     <div className="page-container">
       <Link to="/manager/vehicles" className="back-link">
-        &larr; Назад до списку
+        {tr("← Назад до списку")}
       </Link>
 
       <div className="detail-header">
@@ -144,14 +146,14 @@ function VehicleDetail() {
                   loadVehicle()
                 }}
               >
-                Скасувати
+                {tr("Скасувати")}
               </button>
               <button
                 className="btn btn-primary"
                 onClick={handleSave}
                 disabled={saving}
               >
-                {saving ? 'Збереження...' : 'Зберегти'}
+                {saving ? tr("Збереження...") : tr("Зберегти")}
               </button>
             </>
           ) : (
@@ -163,13 +165,13 @@ function VehicleDetail() {
                   setShowStatusModal(true)
                 }}
               >
-                Змінити статус
+                {tr("Змінити статус")}
               </button>
               <button
                 className="btn btn-primary"
                 onClick={() => setIsEditing(true)}
               >
-                Редагувати
+                {tr("Редагувати")}
               </button>
             </>
           )}
@@ -180,11 +182,11 @@ function VehicleDetail() {
         {isEditing ? (
           /* Форма редагування */
           <form>
-            <h3 className="mb-md">Основна інформація</h3>
+            <h3 className="mb-md">{tr("Основна інформація")}</h3>
 
             <div className="form-row">
               <div className="form-field">
-                <label>Номерний знак</label>
+                <label>{tr("Номерний знак")}</label>
                 <input
                   type="text"
                   name="plate_number"
@@ -195,7 +197,7 @@ function VehicleDetail() {
               </div>
 
               <div className="form-field">
-                <label>VIN код</label>
+                <label>{tr("VIN код")}</label>
                 <input
                   type="text"
                   name="vin"
@@ -209,7 +211,7 @@ function VehicleDetail() {
 
             <div className="form-row">
               <div className="form-field">
-                <label>Марка</label>
+                <label>{tr("Марка")}</label>
                 <input
                   type="text"
                   name="brand"
@@ -220,7 +222,7 @@ function VehicleDetail() {
               </div>
 
               <div className="form-field">
-                <label>Модель</label>
+                <label>{tr("Модель")}</label>
                 <input
                   type="text"
                   name="model"
@@ -231,7 +233,7 @@ function VehicleDetail() {
               </div>
 
               <div className="form-field">
-                <label>Рік</label>
+                <label>{tr("Рік")}</label>
                 <input
                   type="number"
                   name="year"
@@ -242,25 +244,25 @@ function VehicleDetail() {
               </div>
             </div>
 
-            <h3 className="mb-md mt-lg">Паливні характеристики</h3>
+            <h3 className="mb-md mt-lg">{tr("Паливні характеристики")}</h3>
 
             <div className="form-row">
               <div className="form-field">
-                <label>Тип пального</label>
+                <label>{tr("Тип пального")}</label>
                 <select
                   name="fuel_type"
                   className="form-control"
                   value={form.fuel_type}
                   onChange={handleChange}
                 >
-                  <option value="diesel">Дизель</option>
-                  <option value="petrol">Бензин</option>
-                  <option value="gas">Газ</option>
+                  <option value="diesel">{tr("Дизель")}</option>
+                  <option value="petrol">{tr("Бензин")}</option>
+                  <option value="gas">{tr("Газ")}</option>
                 </select>
               </div>
 
               <div className="form-field">
-                <label>Норма (л/100км)</label>
+                <label>{tr("Норма (л/100км)")}</label>
                 <input
                   type="number"
                   name="fuel_norm"
@@ -272,7 +274,7 @@ function VehicleDetail() {
               </div>
 
               <div className="form-field">
-                <label>Об'єм баку (л)</label>
+                <label>{tr("Об'єм баку (л)")}</label>
                 <input
                   type="number"
                   name="tank_capacity"
@@ -283,11 +285,11 @@ function VehicleDetail() {
               </div>
             </div>
 
-            <h3 className="mb-md mt-lg">Пробіг та ТО</h3>
+            <h3 className="mb-md mt-lg">{tr("Пробіг та ТО")}</h3>
 
             <div className="form-row">
               <div className="form-field">
-                <label>Пробіг (км)</label>
+                <label>{tr("Пробіг (км)")}</label>
                 <input
                   type="number"
                   name="odometer"
@@ -298,7 +300,7 @@ function VehicleDetail() {
               </div>
 
               <div className="form-field">
-                <label>Наступне ТО (км)</label>
+                <label>{tr("Наступне ТО (км)")}</label>
                 <input
                   type="number"
                   name="next_maintenance_km"
@@ -309,7 +311,7 @@ function VehicleDetail() {
               </div>
 
               <div className="form-field">
-                <label>Наступне ТО (дата)</label>
+                <label>{tr("Наступне ТО (дата)")}</label>
                 <DatePicker
                   selected={form.next_maintenance_date}
                   onChange={(date) => setForm((prev) => ({ ...prev, next_maintenance_date: date }))}
@@ -319,11 +321,11 @@ function VehicleDetail() {
               </div>
             </div>
 
-            <h3 className="mb-md mt-lg">Документи</h3>
+            <h3 className="mb-md mt-lg">{tr("Документи")}</h3>
 
             <div className="form-row">
               <div className="form-field">
-                <label>Техогляд до</label>
+                <label>{tr("Техогляд до")}</label>
                 <DatePicker
                   selected={form.inspection_expiry}
                   onChange={(date) => setForm((prev) => ({ ...prev, inspection_expiry: date }))}
@@ -333,7 +335,7 @@ function VehicleDetail() {
               </div>
 
               <div className="form-field">
-                <label>Страховий поліс</label>
+                <label>{tr("Страховий поліс")}</label>
                 <input
                   type="text"
                   name="insurance_policy"
@@ -344,7 +346,7 @@ function VehicleDetail() {
               </div>
 
               <div className="form-field">
-                <label>Страховка до</label>
+                <label>{tr("Страховка до")}</label>
                 <DatePicker
                   selected={form.insurance_expiry}
                   onChange={(date) => setForm((prev) => ({ ...prev, insurance_expiry: date }))}
@@ -358,84 +360,84 @@ function VehicleDetail() {
           /* Перегляд */
           <>
             <div className="detail-section">
-              <h3>Основна інформація</h3>
+              <h3>{tr("Основна інформація")}</h3>
               <div className="info-grid">
                 <div className="info-row">
-                  <span className="label">Марка</span>
+                  <span className="label">{tr("Марка")}</span>
                   <span className="value">{vehicle.brand}</span>
                 </div>
                 <div className="info-row">
-                  <span className="label">Модель</span>
+                  <span className="label">{tr("Модель")}</span>
                   <span className="value">{vehicle.model}</span>
                 </div>
                 <div className="info-row">
-                  <span className="label">Рік випуску</span>
+                  <span className="label">{tr("Рік випуску")}</span>
                   <span className="value">{vehicle.year || '-'}</span>
                 </div>
                 <div className="info-row">
-                  <span className="label">VIN код</span>
+                  <span className="label">{tr("VIN код")}</span>
                   <span className="value">{vehicle.vin || '-'}</span>
                 </div>
               </div>
             </div>
 
             <div className="detail-section">
-              <h3>Паливні характеристики</h3>
+              <h3>{tr("Паливні характеристики")}</h3>
               <div className="info-grid">
                 <div className="info-row">
-                  <span className="label">Тип пального</span>
+                  <span className="label">{tr("Тип пального")}</span>
                   <span className="value">{FUEL_TYPES[vehicle.fuel_type]}</span>
                 </div>
                 <div className="info-row">
-                  <span className="label">Норма витрат</span>
-                  <span className="value">{vehicle.fuel_norm} л/100км</span>
+                  <span className="label">{tr("Норма витрат")}</span>
+                  <span className="value">{vehicle.fuel_norm}{' '}{tr("л/100км")}</span>
                 </div>
                 <div className="info-row">
-                  <span className="label">Об'єм баку</span>
-                  <span className="value">{vehicle.tank_capacity ? `${vehicle.tank_capacity} л` : '-'}</span>
+                  <span className="label">{tr("Об'єм баку")}</span>
+                  <span className="value">{vehicle.tank_capacity ? tr("{0} л", vehicle.tank_capacity) : '-'}</span>
                 </div>
               </div>
             </div>
 
             <div className="detail-section">
-              <h3>Пробіг та ТО</h3>
+              <h3>{tr("Пробіг та ТО")}</h3>
               <div className="info-grid">
                 <div className="info-row">
-                  <span className="label">Поточний пробіг</span>
+                  <span className="label">{tr("Поточний пробіг")}</span>
                   <span className="value">{formatOdometer(vehicle.odometer)}</span>
                 </div>
                 <div className="info-row">
-                  <span className="label">Останнє ТО (км)</span>
+                  <span className="label">{tr("Останнє ТО (км)")}</span>
                   <span className="value">{formatOdometer(vehicle.last_maintenance_km)}</span>
                 </div>
                 <div className="info-row">
-                  <span className="label">Останнє ТО (дата)</span>
+                  <span className="label">{tr("Останнє ТО (дата)")}</span>
                   <span className="value">{formatDate(vehicle.last_maintenance_date)}</span>
                 </div>
                 <div className="info-row">
-                  <span className="label">Наступне ТО (км)</span>
+                  <span className="label">{tr("Наступне ТО (км)")}</span>
                   <span className="value">{vehicle.next_maintenance_km ? formatOdometer(vehicle.next_maintenance_km) : '-'}</span>
                 </div>
                 <div className="info-row">
-                  <span className="label">Наступне ТО (дата)</span>
+                  <span className="label">{tr("Наступне ТО (дата)")}</span>
                   <span className="value">{formatDate(vehicle.next_maintenance_date)}</span>
                 </div>
               </div>
             </div>
 
             <div className="detail-section">
-              <h3>Документи</h3>
+              <h3>{tr("Документи")}</h3>
               <div className="info-grid">
                 <div className="info-row">
-                  <span className="label">Техогляд дійсний до</span>
+                  <span className="label">{tr("Техогляд дійсний до")}</span>
                   <span className="value">{formatDate(vehicle.inspection_expiry)}</span>
                 </div>
                 <div className="info-row">
-                  <span className="label">Страховий поліс</span>
+                  <span className="label">{tr("Страховий поліс")}</span>
                   <span className="value">{vehicle.insurance_policy || '-'}</span>
                 </div>
                 <div className="info-row">
-                  <span className="label">Страховка дійсна до</span>
+                  <span className="label">{tr("Страховка дійсна до")}</span>
                   <span className="value">{formatDate(vehicle.insurance_expiry)}</span>
                 </div>
               </div>
@@ -444,16 +446,19 @@ function VehicleDetail() {
         )}
       </div>
 
+      {/* Прогноз ТО, підсумки та історія автомобіля */}
+      {!isEditing && <VehicleInsights vehicleId={id} />}
+
       {/* Модалка зміни статусу */}
       {showStatusModal && (
         <ConfirmModal
-          title="Зміна статусу"
+          title={tr("Зміна статусу")}
           onClose={() => setShowStatusModal(false)}
           onConfirm={handleStatusChange}
-          confirmText="Змінити"
+          confirmText={tr("Змінити")}
         >
           <div className="form-field">
-            <label>Новий статус</label>
+            <label>{tr("Новий статус")}</label>
             <select
               className="form-control"
               value={newStatus}
