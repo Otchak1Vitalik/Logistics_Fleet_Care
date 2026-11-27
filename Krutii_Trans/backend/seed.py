@@ -25,7 +25,7 @@ def seed_database():
 
     # Очищення існуючих даних
     collections = ['users', 'vehicles', 'waybills', 'fuel_invoices', 'fuel_records',
-                   'fault_reports', 'repairs', 'alerts', 'settings', 'audit_log', 'login_codes', 'fuel_anomalies']
+                   'fault_reports', 'repairs', 'alerts', 'settings', 'audit_log', 'login_codes', 'fuel_anomalies', 'maintenance_history']
     for col in collections:
         db[col].delete_many({})
     print('Очищено існуючі дані.')
@@ -819,6 +819,15 @@ def seed_database():
     res = run_detection(db, notify=False)
     print(f"Перевірено {res['trips_checked']} рейсів, знайдено {res['found']} підозрілих випадків витрати пального.")
     print(f'Створено {db.audit_log.count_documents({})} записів журналу дій.')
+
+    # Історія стану автопарку за 3 роки для навчання моделі прогнозу несправностей
+    from services.predictive_maintenance import seed_history, train
+    n = seed_history(db)
+    state = train(db, force=True)
+    if state.get('ready'):
+        ev = state['evaluation']
+        best = next(m for m in ev['methods'] if m['key'] == ev['best'])
+        print(f"Історія для прогнозу несправностей: {n} знімків; модель «{best['title']}», ROC-AUC {best['roc_auc']:.2f}.")
 
     print('\n' + '=' * 50)
     print('ІНІЦІАЛІЗАЦІЯ ЗАВЕРШЕНА')

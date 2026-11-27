@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { vehiclesApi } from '../api/vehicles'
+import { predictiveApi } from '../api/predictive'
+import { RiskFactors } from '../pages/manager/Predictive'
 import StatusBadge from './StatusBadge'
 import { formatCurrency, formatDate, formatNumber } from '../utils/formatters'
 import { useRoleBase } from '../utils/useRoleBase'
@@ -25,6 +27,10 @@ function VehicleInsights({ vehicleId }) {
 
   useEffect(() => {
     vehiclesApi.getHistory(vehicleId).then((res) => setData(res.data)).catch(() => setData(null))
+  }, [vehicleId])
+  const [risk, setRisk] = useState(null)
+  useEffect(() => {
+    predictiveApi.risk({ vehicle_id: vehicleId }).then((res) => setRisk(res.data.items?.[0] || null)).catch(() => setRisk(null))
   }, [vehicleId])
 
   if (!data) return null
@@ -59,6 +65,18 @@ function VehicleInsights({ vehicleId }) {
     <>
       <div className="card full-width">
         <h3>{tr("Прогноз технічного обслуговування")}</h3>
+        {risk && (
+          <div className={`pm-vehicle-risk ${risk.level}`}>
+            <div className="pm-vehicle-risk-value">
+              <b>{Math.round(risk.probability * 100)} %</b>
+              <span>{tr("ймовірність несправності за 30 днів")}</span>
+            </div>
+            <div className="pm-vehicle-risk-body">
+              <RiskFactors item={risk} />
+              {risk.recommendation && <div className="pm-rec">{tr(risk.recommendation)}</div>}
+            </div>
+          </div>
+        )}
         {f.expected_date ? (
           <div className="forecast-card mt-md">
             <div>

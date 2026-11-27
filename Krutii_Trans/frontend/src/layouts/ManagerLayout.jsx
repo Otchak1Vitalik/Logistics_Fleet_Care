@@ -13,6 +13,7 @@ const navItems = [
   { to: '/manager/parts', label: tr("Склад"), icon: 'box' },
   { to: '/manager/fuel', label: tr("Паливо"), icon: 'fuel' },
   { to: '/manager/calendar', label: tr("Календар ТО"), icon: 'calendar' },
+  { to: '/manager/predictive', label: tr("Прогноз несправностей"), icon: 'pulse' },
   { to: '/manager/reports', label: tr("Звіти"), icon: 'chart' },
   { to: '/manager/alerts', label: tr("Сповіщення"), icon: 'bell' },
   { to: '/manager/audit', label: tr("Журнал дій"), icon: 'shield' },

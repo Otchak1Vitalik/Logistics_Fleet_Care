@@ -310,6 +310,23 @@ def setup_scheduler(scheduler, app):
         replace_existing=True
     )
 
+    def run_failure_risk_check():
+        with app.app_context():
+            from extensions import mongo
+            from services.predictive_maintenance import check_risks
+            check_risks(mongo.db)
+
+    def run_history_snapshot():
+        with app.app_context():
+            from extensions import mongo
+            from services.predictive_maintenance import take_snapshot
+            take_snapshot(mongo.db)
+
+    # Прогноз несправностей: сповіщення про авто з високим ризиком щодня о 8:20
+    scheduler.add_job(run_failure_risk_check, 'cron', hour=8, minute=20, id='failure_risk_check', replace_existing=True)
+    # Знімок стану автопарку для навчання моделі - першого числа кожного місяця
+    scheduler.add_job(run_history_snapshot, 'cron', day=1, hour=3, minute=0, id='history_snapshot', replace_existing=True)
+
     # Також запускаємо перевірку ТО при старті (з затримкою).
     # Планувальник працює в локальному часовому поясі, тому використовуємо datetime.now(),
     # а не utcnow() - інакше задача вважається пропущеною і не виконується.

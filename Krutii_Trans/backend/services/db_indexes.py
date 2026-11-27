@@ -27,3 +27,5 @@ def ensure_indexes(db):
     db.audit_log.create_index([('category', ASCENDING), ('status', ASCENDING), ('ts', DESCENDING)])
     db.fuel_anomalies.create_index([('kind', ASCENDING), ('source_type', ASCENDING), ('source_id', ASCENDING)], unique=True)
     db.fuel_anomalies.create_index([('status', ASCENDING), ('score', DESCENDING)])
+    db.maintenance_history.create_index([('vehicle_id', ASCENDING), ('date', ASCENDING)])
+    db.maintenance_history.create_index([('source', ASCENDING), ('label', ASCENDING)])

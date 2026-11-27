@@ -43,6 +43,10 @@ const word = (s) => (s && Object.prototype.hasOwnProperty.call(en, s) ? en[s] : 
 
 // Повідомлення з підстановками, які формує сервер
 const PATTERNS = [
+  [/^Високий ризик несправності: (.+)$/, (m) => `High failure risk: ${m[1]}`],
+  [/^Ймовірність несправності протягом (\d+) днів - (\d+) %\. ?(.*)$/,
+    (m) => `Probability of a fault within ${m[1]} days - ${m[2]} %.${m[3] ? ' ' + translateServer(m[3]) : ''}`],
+  [/^ознака (\S+)$/, (m) => `feature ${m[1]}`],
   [/^Підозріла витрата пального: (.+)$/, (m) => `Suspicious fuel consumption: ${m[1]}`],
   [/^Нові підозрілі випадки витрати пального: (\d+)$/, (m) => `New suspicious fuel consumption cases: ${m[1]}`],
   [/^Витрата ([\d.]+) л\/100 км при нормі ([\d.]+) л\/100 км \(з урахуванням сезону\) - на (\d+) % вище норми \(поріг (\d+) %\)\.(.*)$/,

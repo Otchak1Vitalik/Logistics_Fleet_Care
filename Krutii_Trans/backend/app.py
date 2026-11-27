@@ -55,6 +55,7 @@ def create_app():
     from routes.parts import parts_bp
     from routes.audit import audit_bp
     from routes.fuel_anomalies import fuel_anomalies_bp
+    from routes.predictive import predictive_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(users_bp, url_prefix='/api/users')
@@ -69,6 +70,7 @@ def create_app():
     app.register_blueprint(parts_bp, url_prefix='/api/parts')
     app.register_blueprint(audit_bp, url_prefix='/api/audit')
     app.register_blueprint(fuel_anomalies_bp, url_prefix='/api/fuel/anomalies')
+    app.register_blueprint(predictive_bp, url_prefix='/api/predictive')
 
     # Журнал дій: знімок запису до зміни і запис події після запиту
     from services import audit
