@@ -43,6 +43,8 @@ const word = (s) => (s && Object.prototype.hasOwnProperty.call(en, s) ? en[s] : 
 
 // Повідомлення з підстановками, які формує сервер
 const PATTERNS = [
+  [/^Невірний код\. Залишилось спроб: (\d+)\.$/, (m) => `Wrong code. Attempts left: ${m[1]}.`],
+  [/^Повторно надіслати код можна через (\d+) с\.$/, (m) => `You can resend the code in ${m[1]} s.`],
   [/^Нова несправність: (.+)$/, (m) => `New fault: ${m[1]}`],
   [/^Критична несправність: (.+)$/, (m) => `Critical fault: ${m[1]}`],
   [/^Серйозність: ([^.]+)\. (.*)$/, (m) => `Severity: ${word(m[1])}. ${translateServer(m[2])}`],

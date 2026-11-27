@@ -27,6 +27,20 @@ class Config:
     RATELIMIT_DEFAULT = "500/minute"
     RATELIMIT_STORAGE_URL = "memory://"
 
+    # Пошта для входу за кодом (Gmail: пароль застосунку). Якщо не задано - демо-режим:
+    # код виводиться в консоль сервера замість листа.
+    MAIL_SERVER = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+    MAIL_PORT = int(os.getenv('MAIL_PORT', '465'))
+    MAIL_USE_SSL = os.getenv('MAIL_USE_SSL', '1') == '1'
+    MAIL_USERNAME = os.getenv('MAIL_USERNAME', '')
+    MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', '').replace(' ', '')
+    MAIL_FROM_NAME = os.getenv('MAIL_FROM_NAME', 'KRUTII TRANS')
+
+    # Вхід за кодом з пошти
+    LOGIN_CODE_TTL_MINUTES = 5
+    LOGIN_CODE_MAX_ATTEMPTS = 5
+    LOGIN_CODE_RESEND_SECONDS = 30
+
     # CORS
     CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://localhost:5173,http://localhost:3000').split(',')
 

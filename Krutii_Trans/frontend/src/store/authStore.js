@@ -35,6 +35,11 @@ export const useAuthStore = create(
         }
       },
 
+      // Вхід, підтверджений іншим способом (код з пошти): сервер уже встановив cookie
+      setLoggedIn: (user) => {
+        set({ user, isAuthenticated: true, isLoading: false })
+      },
+
       logout: async () => {
         try {
           await authApi.logout()

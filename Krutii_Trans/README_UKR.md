@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/logo_wide_ukr.png" alt="KRUTII TRANS" width="700">
+</p>
+
 # KRUTII TRANS
 
 Система технічного обслуговування автопарку логістичної компанії.

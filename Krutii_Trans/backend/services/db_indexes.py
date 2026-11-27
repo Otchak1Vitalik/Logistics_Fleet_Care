@@ -19,3 +19,5 @@ def ensure_indexes(db):
     db.parts.create_index('name', unique=True)
     db.part_movements.create_index([('part_id', ASCENDING), ('created_at', DESCENDING)])
     db.waybills.create_index([('status', ASCENDING), ('completed_at', DESCENDING)])
+    db.login_codes.create_index('user_id', unique=True)
+    db.login_codes.create_index('expires_at', expireAfterSeconds=0)

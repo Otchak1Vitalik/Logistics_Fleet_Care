@@ -2626,3 +2626,141 @@ button.nav-item {
 /* Перекочування кнопки: при згортанні котиться вліво (пів оберту), при розгортанні - назад */
 .sidebar.collapsed .sidebar-toggle { transform: rotate(-180deg); }
 .toggle-lines span { transition: transform 0.35s ease, opacity 0.25s ease; }
+
+/* === Вхід за кодом з пошти === */
+.login-flip { animation: login-flip 0.55s cubic-bezier(0.2, 0.7, 0.3, 1); }
+@keyframes login-flip {
+  0% { transform: perspective(1100px) rotateY(-90deg); opacity: 0; }
+  100% { transform: perspective(1100px) rotateY(0); opacity: 1; }
+}
+.login-alt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: var(--spacing-3);
+  padding: 10px;
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+.login-alt:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.45); }
+
+.otp-screen { position: relative; text-align: center; color: #fff; }
+.otp-screen h2 { margin-bottom: var(--spacing-2) !important; }
+.otp-screen .form-field { text-align: left; }
+.otp-sub { color: rgba(255, 255, 255, 0.65); font-size: 0.875rem; line-height: 1.5; margin-bottom: var(--spacing-6); }
+.otp-sub b { color: #fff; }
+.otp-icon {
+  width: 56px; height: 56px; margin: var(--spacing-4) auto var(--spacing-3);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: rgba(99, 102, 241, 0.2); color: #a5b4fc;
+  box-shadow: 0 0 24px rgba(99, 102, 241, 0.35);
+}
+.otp-icon svg { width: 26px; height: 26px; }
+.otp-error { color: #fca5a5; font-size: 0.8125rem; margin: var(--spacing-2) 0; }
+.otp-back {
+  margin-top: var(--spacing-4); border: none; background: none; color: rgba(255, 255, 255, 0.6);
+  font-family: inherit; font-size: 0.8125rem; cursor: pointer;
+}
+.otp-back:hover { color: #fff; }
+
+/* 4 клітинки: у рядок, після введення - квадрат 2×2 з лініями («замок») */
+.otp-boxes { position: relative; width: 260px; height: 140px; margin: 0 auto; }
+.otp-cell {
+  position: absolute; width: 56px; height: 56px;
+  border-radius: 14px; border: 1.5px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.07); color: #fff;
+  font-family: inherit; font-size: 1.625rem; font-weight: 700; line-height: 1; text-align: center; padding: 0;
+  caret-color: #a5b4fc; outline: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 6px 14px rgba(0, 0, 0, 0.25);
+  transition: left 0.7s cubic-bezier(0.65, 0, 0.35, 1), top 0.7s cubic-bezier(0.65, 0, 0.35, 1),
+    border-color 0.35s ease, background 0.35s ease, box-shadow 0.35s ease, transform 0.2s ease;
+}
+.otp-cell:focus { border-color: #818cf8; background: rgba(129, 140, 248, 0.12); transform: translateY(-2px); }
+.otp-cell:disabled { opacity: 0.45; }
+.otp-boxes:not(.row) .otp-cell::selection { background: transparent; }
+.otp-boxes .c0 { left: 0; top: 42px; }
+.otp-boxes .c1 { left: 68px; top: 42px; }
+.otp-boxes .c2 { left: 136px; top: 42px; }
+.otp-boxes .c3 { left: 204px; top: 42px; }
+.otp-boxes.grid .c0 { left: 52px; top: 0; }
+.otp-boxes.grid .c1 { left: 152px; top: 0; }
+.otp-boxes.grid .c2 { left: 52px; top: 84px; }
+.otp-boxes.grid .c3 { left: 152px; top: 84px; }
+.otp-boxes.grid .otp-cell { border-color: #818cf8; }
+
+.otp-link { position: absolute; background: #818cf8; border-radius: 2px; opacity: 0;
+  transition: transform 0.28s ease-out, opacity 0.15s ease, background 0.35s ease; }
+.otp-link.h { height: 2px; width: 44px; left: 108px; transform: scaleX(0); }
+.otp-link.v { width: 2px; height: 28px; top: 56px; transform: scaleY(0); }
+/* лінії малюються по колу: верхня зліва направо, права згори вниз, нижня справа наліво, ліва знизу вгору */
+.otp-link.top { top: 27px; transform-origin: left center; }
+.otp-link.right { left: 179px; transform-origin: center top; }
+.otp-link.bottom { top: 111px; transform-origin: right center; }
+.otp-link.left { left: 79px; transform-origin: center bottom; }
+.otp-boxes.grid .otp-link, .otp-boxes.ok .otp-link { opacity: 1; transform: none; }
+.otp-boxes.grid .otp-link.top { transition-delay: 0.7s; }
+.otp-boxes.grid .otp-link.right { transition-delay: 0.95s; }
+.otp-boxes.grid .otp-link.bottom { transition-delay: 1.2s; }
+.otp-boxes.grid .otp-link.left { transition-delay: 1.45s; }
+/* код правильний: квадрат загоряється зеленим */
+.otp-boxes.ok .c0 { left: 52px; top: 0; }
+.otp-boxes.ok .c1 { left: 152px; top: 0; }
+.otp-boxes.ok .c2 { left: 52px; top: 84px; }
+.otp-boxes.ok .c3 { left: 152px; top: 84px; }
+.otp-boxes.ok .otp-cell { border-color: #22c55e; background: rgba(34, 197, 94, 0.16); box-shadow: 0 0 18px rgba(34, 197, 94, 0.45); }
+.otp-boxes.ok .otp-link { background: #22c55e; }
+.otp-ok-text { color: #86efac; font-weight: 600; }
+
+/* помилка: клітинки повертаються в рядок і «трусяться» червоним */
+.otp-boxes.error .otp-cell { border-color: #f87171; background: rgba(248, 113, 113, 0.12); animation: otp-shake 0.45s ease; }
+@keyframes otp-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.otp-status { min-height: 24px; margin-top: var(--spacing-4); font-size: 0.875rem; color: rgba(255, 255, 255, 0.7); }
+.otp-status b { color: #a5b4fc; font-variant-numeric: tabular-nums; }
+.otp-demo {
+  margin-top: var(--spacing-3); padding: 8px 12px; border-radius: var(--radius-md);
+  background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fcd34d; font-size: 0.75rem;
+}
+.otp-resend { margin-top: var(--spacing-4); font-size: 0.8125rem; color: rgba(255, 255, 255, 0.6); }
+.otp-resend button {
+  border: none; background: none; padding: 0; font-family: inherit; font-size: inherit;
+  font-weight: 700; color: #fff; cursor: pointer;
+}
+.otp-resend button:disabled { color: rgba(255, 255, 255, 0.4); cursor: default; font-weight: 500; }
+
+/* успіх: зелене коло з галочкою і конфеті */
+.otp-success { min-height: 340px; padding-top: var(--spacing-6); animation: otp-fade 0.5s ease; }
+@keyframes otp-fade { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+.otp-confetti { position: absolute; inset: -40px -40px 0; width: calc(100% + 80px); height: calc(100% + 40px); pointer-events: none; }
+.otp-check {
+  width: 84px; height: 84px; margin: var(--spacing-8) auto 0;
+  border-radius: 50%; background: #22c55e;
+  box-shadow: 0 0 0 10px rgba(34, 197, 94, 0.15), 0 10px 30px rgba(34, 197, 94, 0.45);
+  animation: otp-pop 0.7s 0.15s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+.otp-check svg { width: 100%; height: 100%; fill: none; stroke: #fff; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; }
+.otp-check polyline { stroke-dasharray: 40; stroke-dashoffset: 40; animation: otp-draw 0.55s 0.65s ease forwards; }
+@keyframes otp-pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+@keyframes otp-draw { to { stroke-dashoffset: 0; } }
+
+@media (max-width: 480px) {
+  .otp-boxes { transform: scale(0.88); transform-origin: top center; margin-bottom: -16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .login-flip, .otp-cell, .otp-check, .otp-check polyline { animation: none !important; transition: none !important; }
+  .otp-check polyline { stroke-dashoffset: 0; }
+}

@@ -48,6 +48,11 @@ api.interceptors.response.use(
       return Promise.reject(error)
     }
 
+    // Запити з прапорцем silent показують помилку самі (наприклад, екран коду входу)
+    if (error.config?.silent) {
+      return Promise.reject(error)
+    }
+
     // Показуємо помилку для інших статусів
     if (status !== 401 && status !== 403) {
       toast.error(message)

@@ -4,6 +4,7 @@ import { useAuthStore } from '../store/authStore'
 import toast from 'react-hot-toast'
 import { tr, lang, setLang } from '../i18n'
 import ContactDock from '../components/ContactDock'
+import EmailCodeLogin from '../components/EmailCodeLogin'
 
 const QUICK_LOGIN = [
   { username: 'admin', password: 'Admin1234', role: 'manager', label: tr("Керівник") },
@@ -11,12 +12,34 @@ const QUICK_LOGIN = [
   { username: 'driver_ivanov', password: 'Driver1234', role: 'driver', label: tr("Водій") }
 ]
 
+function LangSwitch() {
+  return (
+    <div className="login-lang" role="group" aria-label="Мова / Language">
+      {[['uk', 'UA'], ['en', 'EN']].map(([code, label]) => (
+        <button key={code} type="button" className={lang === code ? 'active' : ''}
+          onClick={() => setLang(code)} aria-pressed={lang === code}
+          title={code === 'uk' ? 'Українська' : 'English'}>
+          {label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 function Login() {
   const navigate = useNavigate()
   const { login, isLoading } = useAuthStore()
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  // password | email; режим зберігається, щоб перемикання мови (перезавантаження) не скидало екран коду
+  const [mode, setModeState] = useState(() => {
+    try { return sessionStorage.getItem('krutii-login-mode') === 'email' ? 'email' : 'password' } catch (e) { return 'password' }
+  })
+  const setMode = (m) => {
+    try { sessionStorage.setItem('krutii-login-mode', m === 'email' ? 'email' : 'password') } catch (e) { /* ignore */ }
+    setModeState(m)
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -47,17 +70,18 @@ function Login() {
     }
   }
 
-  return (
-    <div className="login-form">
-      <div className="login-lang" role="group" aria-label="Мова / Language">
-        {[['uk', 'UA'], ['en', 'EN']].map(([code, label]) => (
-          <button key={code} type="button" className={lang === code ? 'active' : ''}
-            onClick={() => setLang(code)} aria-pressed={lang === code}
-            title={code === 'uk' ? 'Українська' : 'English'}>
-            {label}
-          </button>
-        ))}
+  if (mode === 'email') {
+    return (
+      <div className="login-form login-flip" key="email">
+        <LangSwitch />
+        <EmailCodeLogin onBack={() => setMode('password-back')} />
       </div>
+    )
+  }
+
+  return (
+    <div className={`login-form ${mode === 'password-back' ? 'login-flip' : ''}`} key="password">
+      <LangSwitch />
       <h2>{tr("Вхід в систему")}</h2>
 
       <form onSubmit={handleSubmit}>
@@ -96,6 +120,14 @@ function Login() {
           {isLoading ? tr("Вхід...") : tr("Увійти")}
         </button>
       </form>
+
+      <button type="button" className="login-alt" onClick={() => setMode('email')}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2" />
+          <polyline points="22 6 12 13 2 6" />
+        </svg>
+        {tr("Увійти за кодом з пошти")}
+      </button>
 
       <div className="quick-login">
         <p className="quick-login-title">{tr("Швидкий вхід:")}</p>

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/logo_wide_eng.png" alt="KRUTII TRANS" width="700">
+</p>
+
 # KRUTII TRANS
 
 Fleet maintenance management system for a logistics company.
