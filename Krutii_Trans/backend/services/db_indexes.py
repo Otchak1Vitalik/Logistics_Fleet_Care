@@ -21,3 +21,7 @@ def ensure_indexes(db):
     db.waybills.create_index([('status', ASCENDING), ('completed_at', DESCENDING)])
     db.login_codes.create_index('user_id', unique=True)
     db.login_codes.create_index('expires_at', expireAfterSeconds=0)
+    # журнал дій: пошук за часом, користувачем, категорією; записи старші за рік видаляються автоматично
+    db.audit_log.create_index([('ts', ASCENDING)], name='audit_ttl', expireAfterSeconds=365 * 24 * 3600)
+    db.audit_log.create_index([('username', ASCENDING), ('ts', DESCENDING)])
+    db.audit_log.create_index([('category', ASCENDING), ('status', ASCENDING), ('ts', DESCENDING)])

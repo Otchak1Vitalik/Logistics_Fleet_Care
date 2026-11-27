@@ -103,7 +103,7 @@ function PartsPage() {
     {
       key: 'is_low', label: tr("Стан"),
       sortValue: (r) => (r.is_low ? 0 : 1),
-      render: (v) => <span className={`status-badge status-${v ? 'red' : 'green'}`}>{v ? tr("Закінчується") : tr("Достатньо")}</span>,
+      render: (v) => <span className={`status-badge status-${v ? 'danger' : 'success'}`}>{v ? tr("Закінчується") : tr("Достатньо")}</span>,
     },
   ]
 

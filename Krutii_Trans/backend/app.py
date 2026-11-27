@@ -53,6 +53,7 @@ def create_app():
     from routes.reports import reports_bp
     from routes.settings import settings_bp
     from routes.parts import parts_bp
+    from routes.audit import audit_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(users_bp, url_prefix='/api/users')
@@ -65,6 +66,12 @@ def create_app():
     app.register_blueprint(reports_bp, url_prefix='/api/reports')
     app.register_blueprint(settings_bp, url_prefix='/api/settings')
     app.register_blueprint(parts_bp, url_prefix='/api/parts')
+    app.register_blueprint(audit_bp, url_prefix='/api/audit')
+
+    # Журнал дій: знімок запису до зміни і запис події після запиту
+    from services import audit
+    app.before_request(lambda: audit.before(mongo.db))
+    app.after_request(lambda response: audit.after(mongo.db, response))
 
     # Створення індексів БД (якщо MongoDB недоступна - застосунок все одно стартує)
     from services.db_indexes import ensure_indexes

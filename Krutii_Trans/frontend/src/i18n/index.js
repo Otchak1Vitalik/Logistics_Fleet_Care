@@ -43,6 +43,9 @@ const word = (s) => (s && Object.prototype.hasOwnProperty.call(en, s) ? en[s] : 
 
 // Повідомлення з підстановками, які формує сервер
 const PATTERNS = [
+  [/^Підозріла активність: вхід «(.+)»$/, (m) => `Suspicious activity: sign-in «${m[1]}»`],
+  [/^(\d+) невдалих спроб входу для облікового запису «(.+)» за (\d+) хв\. Остання спроба з адреси (.+)\.$/,
+    (m) => `${m[1]} failed sign-in attempts for account «${m[2]}» within ${m[3]} min. Last attempt from ${m[4]}.`],
   [/^Невірний код\. Залишилось спроб: (\d+)\.$/, (m) => `Wrong code. Attempts left: ${m[1]}.`],
   [/^Повторно надіслати код можна через (\d+) с\.$/, (m) => `You can resend the code in ${m[1]} s.`],
   [/^Нова несправність: (.+)$/, (m) => `New fault: ${m[1]}`],

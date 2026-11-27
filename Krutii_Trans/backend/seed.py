@@ -24,7 +24,7 @@ def seed_database():
 
     # Очищення існуючих даних
     collections = ['users', 'vehicles', 'waybills', 'fuel_invoices', 'fuel_records',
-                   'fault_reports', 'repairs', 'alerts', 'settings']
+                   'fault_reports', 'repairs', 'alerts', 'settings', 'audit_log', 'login_codes']
     for col in collections:
         db[col].delete_many({})
     print('Очищено існуючі дані.')
@@ -748,6 +748,12 @@ def seed_database():
     db.settings.insert_one(settings)
     print('Створено налаштування системи.')
 
+    # =============================================
+    # ЖУРНАЛ ДІЙ (демонстраційна історія за 14 днів)
+    # =============================================
+    seed_audit_log(db, users, vehicles, waybills, faults, repairs, parts)
+    print(f'Створено {db.audit_log.count_documents({})} записів журналу дій.')
+
     print('\n' + '=' * 50)
     print('ІНІЦІАЛІЗАЦІЯ ЗАВЕРШЕНА')
     print('=' * 50)
@@ -764,6 +770,102 @@ def seed_database():
     print('  Керівник: admin / Admin1234')
     print('  Механік:  mech_koval / Mech1234')
     print('  Водій:    driver_ivanov / Driver1234')
+
+
+def seed_audit_log(db, users, vehicles, waybills, faults, repairs, parts):
+    """Реалістична історія дій: входи (зокрема невдалі), видача путівок, ремонти, зміни довідників."""
+    rnd = random.Random(42)
+    now = datetime.utcnow()
+    by_name = {u['username']: u for u in users}
+    office_ip = ['192.168.1.10', '192.168.1.14', '192.168.1.21']
+    agents = {'manager': 'Chrome · Windows', 'mechanic': 'Edge · Windows', 'driver': 'Chrome · Android'}
+    entries = []
+
+    def add(days_ago, hour, minute, username, category, action, endpoint, method='PUT', entity=None,
+            changes=None, status='success', error=None, ip=None, agent=None):
+        u = by_name.get(username, {})
+        ts = day_start(now - timedelta(days=days_ago)) + timedelta(hours=hour, minutes=minute, seconds=rnd.randint(0, 59))
+        if ts > now:
+            return
+        etype, eid, label = entity or (None, None, None)
+        entries.append({
+            'ts': ts, 'user_id': str(u['_id']) if u.get('_id') else None, 'username': username,
+            'full_name': u.get('full_name'), 'role': u.get('role'), 'category': category, 'action': action,
+            'endpoint': endpoint, 'method': method, 'entity_type': etype or category, 'entity_id': eid,
+            'entity_label': label, 'changes': changes or [], 'status': status,
+            'http_status': 200 if status == 'success' else 401, 'error': error,
+            'ip': ip or (rnd.choice(office_ip) if u.get('role') != 'driver' else f'46.211.{rnd.randint(2, 250)}.{rnd.randint(2, 250)}'),
+            'agent': agent or agents.get(u.get('role'), 'Chrome · Windows'),
+        })
+
+    def ent(kind, doc):
+        if kind == 'vehicle':
+            return ('vehicle', str(doc['_id']), f"{doc['plate_number']} {doc['brand']} {doc['model']}")
+        return (kind, str(doc['_id']), doc.get('number') or doc.get('name') or doc.get('full_name'))
+
+    drivers = [u['username'] for u in users if u['role'] == 'driver']
+    mechanics = [u['username'] for u in users if u['role'] == 'mechanic']
+    for d in range(14, -1, -1):
+        if (now - timedelta(days=d)).weekday() >= 5:
+            continue
+        add(d, 6, rnd.randint(0, 20), 'admin', 'login', 'Вхід у систему', 'auth.login', 'POST')
+        for m in mechanics:
+            add(d, 6, rnd.randint(20, 50), m, 'login', 'Вхід у систему', 'auth.login', 'POST')
+        for drv in rnd.sample(drivers, 4):
+            add(d, 5, rnd.randint(0, 59), drv, 'login', 'Вхід у систему', 'auth.login', 'POST')
+        wb = rnd.choice(waybills)
+        add(d, 7, rnd.randint(0, 50), 'admin', 'waybill', 'Видача путівки', 'waybills.create_waybill', 'POST', ent('waybill', wb))
+        add(d, 15, rnd.randint(0, 50), 'admin', 'logout', 'Вихід із системи', 'auth.logout', 'POST')
+
+    # ремонти: механіки змінюють статуси
+    for i, rep in enumerate(rnd.sample(repairs, min(10, len(repairs)))):
+        d = rnd.randint(0, 13)
+        mech = rnd.choice(mechanics)
+        add(d, 8, rnd.randint(0, 59), mech, 'repair', 'Зміна ремонту / ТО', 'repairs.update_repair', 'PUT', ent('repair', rep),
+            [{'field': 'status', 'old': 'planned', 'new': 'in_progress'}])
+        add(d, 12 + i % 4, rnd.randint(0, 59), mech, 'repair', 'Зміна ремонту / ТО', 'repairs.update_repair', 'PUT', ent('repair', rep),
+            [{'field': 'status', 'old': 'in_progress', 'new': 'completed'},
+             {'field': 'labor_hours', 'old': '—', 'new': str(rnd.choice([1.5, 2, 3, 4.5]))}])
+    # несправності: водії повідомляють, механіки приймають
+    for f in rnd.sample(faults, min(8, len(faults))):
+        d = rnd.randint(0, 13)
+        add(d, 9, rnd.randint(0, 59), rnd.choice(drivers), 'fault', 'Повідомлення про несправність', 'faults.create_fault', 'POST', ent('fault', f))
+        add(d, 10, rnd.randint(0, 59), rnd.choice(mechanics), 'fault', 'Обробка несправності', 'faults.update_fault', 'PUT', ent('fault', f),
+            [{'field': 'status', 'old': 'new', 'new': 'acknowledged'}])
+    # керівник змінює довідники
+    v1, v2 = vehicles[2], vehicles[8]
+    add(11, 9, 12, 'admin', 'vehicle', 'Зміна автомобіля', 'vehicles.update_vehicle', 'PUT', ent('vehicle', v1),
+        [{'field': 'status', 'old': 'active', 'new': 'repair'}])
+    add(6, 10, 3, 'admin', 'vehicle', 'Зміна автомобіля', 'vehicles.update_vehicle', 'PUT', ent('vehicle', v2),
+        [{'field': 'fuel_norm', 'old': '26.0', 'new': '27.5'}, {'field': 'insurance_policy', 'old': 'АР-1042233', 'new': 'АР-2210457'}])
+    add(9, 11, 40, 'admin', 'settings', 'Зміна налаштувань системи', 'settings.update_settings', 'PUT',
+        ('settings', None, 'Налаштування системи'), [{'field': 'maintenance_warning_km', 'old': '800', 'new': '1000'}])
+    drv = by_name[drivers[3]]
+    add(5, 14, 25, 'admin', 'user', 'Зміна користувача', 'users.update_user', 'PUT',
+        ('user', str(drv['_id']), f"{drv['full_name']} ({drv['username']})"),
+        [{'field': 'phone', 'old': '+380671112233', 'new': drv.get('phone') or '+380501230000'}])
+    add(4, 16, 5, 'admin', 'security', 'Скидання пароля користувача', 'users.reset_password', 'POST',
+        ('user', str(drv['_id']), f"{drv['full_name']} ({drv['username']})"), [{'field': 'password', 'old': '•••', 'new': 'змінено'}])
+    for p in rnd.sample(parts, 4):
+        add(rnd.randint(0, 12), 13, rnd.randint(0, 59), rnd.choice(mechanics), 'part', 'Надходження запчастин', 'parts.receive', 'POST',
+            ('part', str(p['_id']), p['name']), [{'field': 'quantity', 'old': str(p.get('quantity', 0)), 'new': str(p.get('quantity', 0) + 10)}])
+
+    # невдалі входи: водій помилився з паролем, і підозріла серія спроб на обліковий запис керівника
+    add(3, 5, 41, 'driver_bondar', 'login', 'Вхід у систему', 'auth.login', 'POST', status='fail', error='Невірний логін або пароль.')
+    add(3, 5, 42, 'driver_bondar', 'login', 'Вхід у систему', 'auth.login', 'POST')
+    for k in range(5):
+        add(2, 23, 10 + k, 'admin', 'login', 'Вхід у систему', 'auth.login', 'POST', status='fail',
+            error='Невірний логін або пароль.', ip='185.220.101.47', agent='Firefox · Linux')
+    if entries:
+        db.audit_log.insert_many(entries)
+    # відповідне сповіщення безпеки керівнику
+    db.alerts.insert_one({
+        'alert_type': 'critical', 'category': 'security', 'title': 'Підозріла активність: вхід «admin»',
+        'message': '5 невдалих спроб входу для облікового запису «admin» за 15 хв. Остання спроба з адреси 185.220.101.47.',
+        'recipient_id': None, 'recipient_role': 'manager', 'related_type': 'audit', 'related_id': 'admin',
+        'is_read': False, 'read_at': None, 'is_dismissed': False, 'dismissed_at': None,
+        'created_at': day_start(now - timedelta(days=2)) + timedelta(hours=23, minutes=14),
+    })
 
 
 if __name__ == '__main__':

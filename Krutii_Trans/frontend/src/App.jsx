@@ -36,6 +36,7 @@ import MechanicAlerts from './pages/mechanic/Alerts'
 // Manager pages
 import ManagerDashboard from './pages/manager/Dashboard'
 import ManagerUsers from './pages/manager/Users'
+import ManagerAuditLog from './pages/manager/AuditLog'
 import ManagerUserNew from './pages/manager/UserNew'
 import ManagerUserEdit from './pages/manager/UserEdit'
 import ManagerVehicles from './pages/manager/Vehicles'
@@ -198,6 +199,7 @@ function App() {
         <Route path="reports" element={<ManagerReports />} />
         <Route path="fuel-plan" element={<ManagerFuelPlan />} />
         <Route path="alerts" element={<ManagerAlerts />} />
+        <Route path="audit" element={<ManagerAuditLog />} />
         <Route path="settings" element={<ManagerSettings />} />
         <Route path="faults" element={<MechanicFaults />} />
         <Route path="faults/:id" element={<MechanicFaultDetail />} />

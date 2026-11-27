@@ -42,7 +42,9 @@ class AlertSchema(Schema):
         'maintenance': 'Технічне обслуговування',
         'fuel': 'Паливо',
         'general': 'Загальне',
-        'escalation': 'Ескалація'
+        'escalation': 'Ескалація',
+        'parts': 'Запчастини',
+        'security': 'Безпека'
     }
 
     def get_type_display(self, obj):

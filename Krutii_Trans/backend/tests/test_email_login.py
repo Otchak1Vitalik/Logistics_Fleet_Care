@@ -81,7 +81,10 @@ def test_expired_code(app, db, ids, sent):
     client.post('/api/auth/email-code/request', json={'username': 'driver2'})
     db.login_codes.update_one({'user_id': ids['driver2']}, {'$set': {'expires_at': datetime.utcnow() - timedelta(seconds=1)}})
     r = client.post('/api/auth/email-code/verify', json={'username': 'driver2', 'code': sent['code']})
-    assert r.status_code == 410
+    # 410 - термін минув; 404 - фоновий TTL-процес MongoDB (раз на хвилину) уже видалив прострочений код.
+    # В обох випадках код недійсний і вхід не виконано.
+    assert r.status_code in (404, 410)
+    assert app.test_client().get('/api/auth/me').status_code == 401
 
 
 def test_mailer_builds_letter(app, monkeypatch):

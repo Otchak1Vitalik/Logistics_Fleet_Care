@@ -15,6 +15,7 @@ const navItems = [
   { to: '/manager/calendar', label: tr("Календар ТО"), icon: 'calendar' },
   { to: '/manager/reports', label: tr("Звіти"), icon: 'chart' },
   { to: '/manager/alerts', label: tr("Сповіщення"), icon: 'bell' },
+  { to: '/manager/audit', label: tr("Журнал дій"), icon: 'shield' },
   { to: '/manager/settings', label: tr("Налаштування"), icon: 'settings' }
 ]
 
