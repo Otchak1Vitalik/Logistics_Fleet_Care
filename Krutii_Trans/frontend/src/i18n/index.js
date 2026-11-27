@@ -43,6 +43,13 @@ const word = (s) => (s && Object.prototype.hasOwnProperty.call(en, s) ? en[s] : 
 
 // Повідомлення з підстановками, які формує сервер
 const PATTERNS = [
+  [/^Заплановано ТО: (\d+)\.$/, (m) => `Maintenance scheduled: ${m[1]}.`],
+  [/^ТО прострочене на (\d+) дн\. - ставимо першочергово\.(.*)$/, (m) => `Maintenance is ${m[1]} days overdue - scheduled first.${m[2] ? ' ' + translateServer(m[2].trim()) : ''}`],
+  [/^Ризик відмови (\d+) % - ТО на (\d+) дн\. раніше строку\.(.*)$/, (m) => `Failure risk ${m[1]} % - maintenance ${m[2]} days early.${m[3] ? ' ' + translateServer(m[3].trim()) : ''}`],
+  [/^На (\d+) дн\. раніше строку - рівномірне завантаження сервісу\.(.*)$/, (m) => `${m[1]} days early - to balance the workshop load.${m[2] ? ' ' + translateServer(m[2].trim()) : ''}`],
+  [/^На (\d+) дн\. пізніше строку - низький ризик, звільняємо місце для ризикованіших\.(.*)$/, (m) => `${m[1]} days late - low risk, making room for riskier vehicles.${m[2] ? ' ' + translateServer(m[2].trim()) : ''}`],
+  [/^У строк\. (.+)$/, (m) => `On time. ${translateServer(m[1])}`],
+  [/^Враховано рейс: (.+)\.$/, (m) => `Trip taken into account: ${m[1]}.`],
   [/^Високий ризик несправності: (.+)$/, (m) => `High failure risk: ${m[1]}`],
   [/^Ймовірність несправності протягом (\d+) днів - (\d+) %\. ?(.*)$/,
     (m) => `Probability of a fault within ${m[1]} days - ${m[2]} %.${m[3] ? ' ' + translateServer(m[3]) : ''}`],

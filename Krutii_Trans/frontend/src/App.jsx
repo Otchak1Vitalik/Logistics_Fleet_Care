@@ -52,6 +52,7 @@ import ManagerReports from './pages/manager/Reports'
 import ManagerFuelPlan from './pages/manager/FuelPlan'
 import ManagerFuelAnomalies from './pages/manager/FuelAnomalies'
 import ManagerPredictive from './pages/manager/Predictive'
+import ManagerMaintenancePlan from './pages/manager/MaintenancePlan'
 import ManagerAlerts from './pages/manager/Alerts'
 import ManagerSettings from './pages/manager/Settings'
 
@@ -205,6 +206,7 @@ function App() {
         <Route path="alerts" element={<ManagerAlerts />} />
         <Route path="audit" element={<ManagerAuditLog />} />
         <Route path="predictive" element={<ManagerPredictive />} />
+        <Route path="maintenance-plan" element={<ManagerMaintenancePlan />} />
         <Route path="settings" element={<ManagerSettings />} />
         <Route path="faults" element={<MechanicFaults />} />
         <Route path="faults/:id" element={<MechanicFaultDetail />} />

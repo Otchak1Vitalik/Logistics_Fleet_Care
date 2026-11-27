@@ -95,6 +95,9 @@ function MaintenanceCalendar({ role }) {
           <span className="calendar-title">{MONTHS[month - 1]} {year}</span>
           <button className="btn btn-secondary btn-sm" onClick={() => shiftMonth(1)} aria-label={tr("Наступний місяць")}>›</button>
           <button className="btn btn-text btn-sm" onClick={goToday}>{tr("Сьогодні")}</button>
+          {role === 'manager' && (
+            <button className="btn btn-primary btn-sm" onClick={() => navigate('/manager/maintenance-plan')}>{tr("Оптимізувати графік")}</button>
+          )}
         </div>
       </div>
 
