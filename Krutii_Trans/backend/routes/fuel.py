@@ -418,6 +418,7 @@ def fuel_summary():
 
     return jsonify({
         'success': True,
+        'anomalies_new': mongo.db.fuel_anomalies.count_documents({'status': 'new'}),
         'by_fuel_type': by_type,
         'monthly': monthly[0] if monthly else {'total_issued': 0, 'total_external': 0}
     })

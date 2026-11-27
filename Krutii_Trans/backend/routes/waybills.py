@@ -364,6 +364,15 @@ def update_waybill(waybill_id):
         {'$set': update_data}
     )
 
+    if new_status == 'completed':
+        # новий рейс - одразу перевіряємо витрату пального на аномалії
+        try:
+            from services.fuel_anomalies import run_detection
+            run_detection(mongo.db)
+        except Exception as exc:  # noqa: BLE001 - аналітика не повинна заважати завершенню путівки
+            from flask import current_app
+            current_app.logger.warning('Перевірка аномалій пального не виконана: %s', exc)
+
     updated_waybill = mongo.db.waybills.find_one({'_id': ObjectId(waybill_id)})
     updated_waybill['_id'] = str(updated_waybill['_id'])
     enrich_waybill(updated_waybill)

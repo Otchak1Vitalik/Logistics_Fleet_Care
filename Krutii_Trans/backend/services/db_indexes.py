@@ -25,3 +25,5 @@ def ensure_indexes(db):
     db.audit_log.create_index([('ts', ASCENDING)], name='audit_ttl', expireAfterSeconds=365 * 24 * 3600)
     db.audit_log.create_index([('username', ASCENDING), ('ts', DESCENDING)])
     db.audit_log.create_index([('category', ASCENDING), ('status', ASCENDING), ('ts', DESCENDING)])
+    db.fuel_anomalies.create_index([('kind', ASCENDING), ('source_type', ASCENDING), ('source_id', ASCENDING)], unique=True)
+    db.fuel_anomalies.create_index([('status', ASCENDING), ('score', DESCENDING)])

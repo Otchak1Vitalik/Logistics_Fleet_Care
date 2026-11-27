@@ -43,6 +43,19 @@ const word = (s) => (s && Object.prototype.hasOwnProperty.call(en, s) ? en[s] : 
 
 // Повідомлення з підстановками, які формує сервер
 const PATTERNS = [
+  [/^Підозріла витрата пального: (.+)$/, (m) => `Suspicious fuel consumption: ${m[1]}`],
+  [/^Нові підозрілі випадки витрати пального: (\d+)$/, (m) => `New suspicious fuel consumption cases: ${m[1]}`],
+  [/^Витрата ([\d.]+) л\/100 км при нормі ([\d.]+) л\/100 км \(з урахуванням сезону\) - на (\d+) % вище норми \(поріг (\d+) %\)\.(.*)$/,
+    (m) => `Consumption ${m[1]} l/100 km vs norm ${m[2]} l/100 km (season-adjusted) - ${m[3]} % above the norm (threshold ${m[4]} %).${m[5] ? ' ' + translateServer(m[5].trim()) : ''}`],
+  [/^Звичайна витрата (цього автомобіля|автопарку) - близько (\d+) % від норми, у цьому рейсі - (\d+) % \(робастний z = ([\d.-]+) при порозі ([\d.]+)\)\.(.*)$/,
+    (m) => `The ${m[1] === 'автопарку' ? 'fleet' : "vehicle's"} usual consumption is about ${m[2]} % of the norm, on this trip - ${m[3]} % (robust z = ${m[4]}, threshold ${m[5]}).${m[6] ? ' ' + translateServer(m[6].trim()) : ''}`],
+  [/^Заправлено (\d+) л при об’ємі бака (\d+) л - на (\d+) л більше, ніж може вміститися\.(.*)$/,
+    (m) => `Refuelled ${m[1]} l with a ${m[2]} l tank - ${m[3]} l more than it can hold.${m[4] ? ' ' + translateServer(m[4].trim()) : ''}`],
+  [/^Повторна заправка (\d+) л через (\d+) год після попередньої, пробіг між ними лише (\d+) км\.(.*)$/,
+    (m) => `Repeated refuel of ${m[1]} l ${m[2]} h after the previous one, only ${m[3]} km driven in between.${m[4] ? ' ' + translateServer(m[4].trim()) : ''}`],
+  [/^Ціна ([\d.]+) грн\/л відрізняється від звичної \(([\d.]+) грн\/л\) на ([+-]\d+) %\.(.*)$/,
+    (m) => `Price ${m[1]} UAH/l differs from the usual (${m[2]} UAH/l) by ${m[3]} %.${m[4] ? ' ' + translateServer(m[4].trim()) : ''}`],
+  [/^Перевірте на сторінці «Аномалії витрати пального»\.$/, () => 'Review it on the «Fuel consumption anomalies» page.'],
   [/^Підозріла активність: вхід «(.+)»$/, (m) => `Suspicious activity: sign-in «${m[1]}»`],
   [/^(\d+) невдалих спроб входу для облікового запису «(.+)» за (\d+) хв\. Остання спроба з адреси (.+)\.$/,
     (m) => `${m[1]} failed sign-in attempts for account «${m[2]}» within ${m[3]} min. Last attempt from ${m[4]}.`],

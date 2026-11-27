@@ -127,12 +127,18 @@ function ManagerFuel() {
     <div className="page-container">
       <div className="page-header">
         <h1>{tr("Пальне")}</h1>
-        <button
-          className="btn btn-primary"
-          onClick={() => navigate('/manager/fuel/new')}
-        >
-          {tr("Нова накладна")}
-        </button>
+        <div className="page-actions">
+          <button className="btn btn-secondary" onClick={() => navigate('/manager/fuel/anomalies')}>
+            {tr("Аномалії витрати")}
+            {summary?.anomalies_new > 0 && <span className="fa-count">{summary.anomalies_new}</span>}
+          </button>
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate('/manager/fuel/new')}
+          >
+            {tr("Нова накладна")}
+          </button>
+        </div>
       </div>
 
       {/* Зведення */}

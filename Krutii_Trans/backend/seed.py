@@ -17,6 +17,7 @@ def day_start(dt):
 
 def seed_database():
     """Заповнює базу даних початковими даними."""
+    random.seed(2026)   # відтворювані демодані (однакові при кожному запуску)
     client = MongoClient(Config.MONGO_URI)
     db = client.get_database()
 
@@ -24,7 +25,7 @@ def seed_database():
 
     # Очищення існуючих даних
     collections = ['users', 'vehicles', 'waybills', 'fuel_invoices', 'fuel_records',
-                   'fault_reports', 'repairs', 'alerts', 'settings', 'audit_log', 'login_codes']
+                   'fault_reports', 'repairs', 'alerts', 'settings', 'audit_log', 'login_codes', 'fuel_anomalies']
     for col in collections:
         db[col].delete_many({})
     print('Очищено існуючі дані.')
@@ -252,7 +253,7 @@ def seed_database():
     vehicle_fuel = {v['plate_number']: v['fuel_type'] for v in vehicles}
     print(f'Створено {len(vehicles)} транспортних засобів.')
 
-    # === Путівки (90 завершених за 60 днів + 3 активні) ===
+    # === Путівки (220 завершених за 120 днів + 3 активні) ===
     routes = [
         ('Київ', 'Львів', 'Доставка будматеріалів'),
         ('Львів', 'Одеса', 'Перевезення продуктів'),
@@ -276,7 +277,12 @@ def seed_database():
 
     # Достатньо путівок, щоб середній добовий пробіг (прогноз ТО) був реалістичним.
     # Активні путівки - на різних авто; одна з них у демо-водія driver_ivanov.
-    plan = [(random.randint(1, 60), None) for _ in range(90)] + [(0, 'driver_ivanov'), (0, None), (0, None)]
+    plan = [(random.randint(1, 120), None) for _ in range(220)] + [(0, 'driver_ivanov'), (0, None), (0, None)]
+    # Модель витрати пального: у кожного авто своя звична витрата відносно норми (технічний стан),
+    # у кожного водія - невеликий власний стиль, плюс сезон і випадковий шум рейсу.
+    from services.fuel_analyzer import get_season_coefficient
+    vehicle_bias = {p: min(1.04, max(0.86, random.gauss(0.95, 0.04))) for p in plate_numbers}
+    driver_style = {d: random.gauss(1.0, 0.025) for d in driver_usernames}
     busy_plates = set()
     for days_ago, fixed_driver in plan:
         route = random.choice(routes)
@@ -292,11 +298,13 @@ def seed_database():
 
         if days_ago > 0:
             # Завершена путівка
-            fuel_used = int(fuel_issued * random.uniform(0.85, 1.15))
             status = 'completed'
             odo_start = random.randint(50000, 200000)
             odo_end = odo_start + distance
             completed_at = datetime.utcnow() - timedelta(days=days_ago - 1)
+            season = get_season_coefficient(completed_at, {'winter_coefficient': 1.09})
+            fuel_used = round(distance / 100 * fuel_norm * season * vehicle_bias[plate]
+                              * driver_style[driver] * random.gauss(1.0, 0.03), 1)
         else:
             # Активна або видана
             fuel_used = None
@@ -328,6 +336,28 @@ def seed_database():
             'completed_at': completed_at
         })
         waybill_num += 1
+
+    # Вбудовані аномалії з прихованими мітками (demo_anomaly) - для перевірки методів виявлення:
+    #  overspend - явна перевитрата на 25-45 % (злив пального);
+    #  atypical  - витрата в межах норми, але помітно вища за звичну для економного авто
+    #              (правило норми таке пропускає, статистичний метод має знайти).
+    plate_of = {vid: p for p, vid in vehicle_ids.items()}
+    completed_idx = [i for i, w in enumerate(waybills) if w['status'] == 'completed']
+    for i in random.sample(completed_idx, 12):
+        w = waybills[i]
+        w['fuel_used'] = round(w['fuel_used'] * random.uniform(1.25, 1.45), 1)
+        w['demo_anomaly'] = 'overspend'
+    trips_per_plate = {}
+    for i in completed_idx:
+        trips_per_plate.setdefault(plate_of[waybills[i]['vehicle_id']], []).append(i)
+    economical = [p for p, idx in trips_per_plate.items() if vehicle_bias[p] <= 0.92 and len(idx) >= 7]
+    for p in economical[:6]:
+        i = next(i for i in trips_per_plate[p] if not waybills[i].get('demo_anomaly'))
+        w = waybills[i]
+        norm = next(v['fuel_norm'] for v in vehicles if v['plate_number'] == p)
+        season = get_season_coefficient(w['completed_at'], {'winter_coefficient': 1.09})
+        w['fuel_used'] = round((w['odometer_end'] - w['odometer_start']) / 100 * norm * season * random.uniform(1.04, 1.08), 1)
+        w['demo_anomaly'] = 'atypical'
 
     db.waybills.insert_many(waybills)
     print(f'Створено {len(waybills)} путівок.')
@@ -565,33 +595,64 @@ def seed_database():
     db.fuel_invoices.insert_many(invoices)
     print(f'Створено {len(invoices)} паливних накладних.')
 
-    # === Записи про видачу пального (50 штук) ===
+    # === Записи про видачу пального ===
+    # Обсяг - частина бака, ціна - залежно від типу пального, пробіг - узгоджений з датою.
+    tank_of = {v['plate_number']: v['tank_capacity'] for v in vehicles}
+    odo_of = {v['plate_number']: v['odometer'] for v in vehicles}
+    base_price = {'diesel': (52.0, 56.0), 'petrol': (54.0, 58.0), 'gas': (28.0, 32.0)}
     fuel_records = []
-    for i in range(50):
-        days_ago = random.randint(0, 60)
-        plate = random.choice(active_plates)
-        driver = random.choice(driver_usernames)
-        quantity = random.randint(100, 400)
-        # Частина записів - зовнішні заправки на АЗС з ціною і сумою, решта - видача з накладної
-        is_external = random.random() < 0.35
-        price = round(random.uniform(50.0, 58.0), 2) if is_external else None
+    used_days = {}
 
-        fuel_records.append({
+    def make_record(plate, when, quantity, price=None, odometer=None, label=None, external=None):
+        is_external = (random.random() < 0.35) if external is None else external
+        if is_external and price is None:
+            price = round(random.uniform(*base_price[vehicle_fuel[plate]]), 2)
+        days = (datetime.utcnow() - when).days
+        rec = {
             'vehicle_id': vehicle_ids[plate],
-            'driver_id': user_ids[driver],
-            'date': day_start(datetime.utcnow() - timedelta(days=days_ago)),
+            'driver_id': user_ids[random.choice(driver_usernames)],
+            'date': when,
             'fuel_type': vehicle_fuel[plate],
             'quantity': quantity,
-            'odometer': random.randint(50000, 200000),
+            'odometer': odometer if odometer is not None else odo_of[plate] - days * random.randint(150, 300),
             'record_type': 'external' if is_external else 'issue',
             'station': random.choice(suppliers) if is_external else None,
-            'price_per_liter': price,
+            'price_per_liter': price if is_external else None,
             'total_amount': round(quantity * price, 2) if is_external else None,
             'notes': None,
             'created_by': user_ids['admin'],
-            'created_at': datetime.utcnow() - timedelta(days=days_ago),
-            'updated_at': datetime.utcnow() - timedelta(days=days_ago)
-        })
+            'created_at': when,
+            'updated_at': when,
+        }
+        if label:
+            rec['demo_anomaly'] = label
+        fuel_records.append(rec)
+        return rec
+
+    while len(fuel_records) < 60:
+        plate = random.choice(active_plates)
+        days_ago = random.randint(1, 90)
+        # одне авто заправляється не частіше ніж раз на 3 дні
+        if any(abs(days_ago - d) < 3 for d in used_days.get(plate, [])):
+            continue
+        used_days.setdefault(plate, []).append(days_ago)
+        when = datetime.utcnow() - timedelta(days=days_ago, hours=random.randint(0, 10))
+        make_record(plate, when, round(tank_of[plate] * random.uniform(0.45, 0.9)))
+
+    # вбудовані аномалії заправок (з прихованими мітками)
+    for plate in random.sample(active_plates, 2):           # заправлено більше, ніж уміщує бак
+        when = datetime.utcnow() - timedelta(days=random.randint(5, 60), hours=3)
+        make_record(plate, when, round(tank_of[plate] * random.uniform(1.25, 1.5)), label='over_tank')
+    for plate in random.sample(active_plates, 2):           # ціна на 30-40 % вища за звичну
+        when = datetime.utcnow() - timedelta(days=random.randint(5, 60), hours=5)
+        lo, hi = base_price[vehicle_fuel[plate]]
+        make_record(plate, when, round(tank_of[plate] * 0.6), price=round((lo + hi) / 2 * random.uniform(1.3, 1.4), 2),
+                    external=True, label='price')
+    for plate in random.sample(active_plates, 2):           # повторна заправка через кілька годин майже без пробігу
+        when = datetime.utcnow() - timedelta(days=random.randint(5, 60), hours=12)
+        first = make_record(plate, when, round(tank_of[plate] * 0.8), external=False)
+        make_record(plate, when + timedelta(hours=random.randint(3, 8)), round(tank_of[plate] * 0.6),
+                    odometer=first['odometer'] + random.randint(10, 60), external=True, label='double')
 
     db.fuel_records.insert_many(fuel_records)
     print(f'Створено {len(fuel_records)} записів про видачу пального.')
@@ -752,6 +813,11 @@ def seed_database():
     # ЖУРНАЛ ДІЙ (демонстраційна історія за 14 днів)
     # =============================================
     seed_audit_log(db, users, vehicles, waybills, faults, repairs, parts)
+
+    # Пошук аномалій у витраті пального на демоданих
+    from services.fuel_anomalies import run_detection
+    res = run_detection(db, notify=False)
+    print(f"Перевірено {res['trips_checked']} рейсів, знайдено {res['found']} підозрілих випадків витрати пального.")
     print(f'Створено {db.audit_log.count_documents({})} записів журналу дій.')
 
     print('\n' + '=' * 50)

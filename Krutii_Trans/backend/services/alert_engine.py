@@ -294,6 +294,22 @@ def setup_scheduler(scheduler, app):
         replace_existing=True
     )
 
+    def run_fuel_anomaly_check():
+        with app.app_context():
+            from extensions import mongo
+            from services.fuel_anomalies import run_detection
+            run_detection(mongo.db)
+
+    # Пошук аномалій у витраті пального щодня о 8:10
+    scheduler.add_job(
+        run_fuel_anomaly_check,
+        'cron',
+        hour=8,
+        minute=10,
+        id='fuel_anomaly_check',
+        replace_existing=True
+    )
+
     # Також запускаємо перевірку ТО при старті (з затримкою).
     # Планувальник працює в локальному часовому поясі, тому використовуємо datetime.now(),
     # а не utcnow() - інакше задача вважається пропущеною і не виконується.

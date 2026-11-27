@@ -50,6 +50,7 @@ import ManagerFuel from './pages/manager/Fuel'
 import ManagerFuelInvoiceNew from './pages/manager/FuelInvoiceNew'
 import ManagerReports from './pages/manager/Reports'
 import ManagerFuelPlan from './pages/manager/FuelPlan'
+import ManagerFuelAnomalies from './pages/manager/FuelAnomalies'
 import ManagerAlerts from './pages/manager/Alerts'
 import ManagerSettings from './pages/manager/Settings'
 
@@ -197,6 +198,7 @@ function App() {
         <Route path="waybills/:id" element={<ManagerWaybillDetail />} />
         <Route path="fuel" element={<ManagerFuel />} />
         <Route path="fuel/new" element={<ManagerFuelInvoiceNew />} />
+        <Route path="fuel/anomalies" element={<ManagerFuelAnomalies />} />
         <Route path="reports" element={<ManagerReports />} />
         <Route path="fuel-plan" element={<ManagerFuelPlan />} />
         <Route path="alerts" element={<ManagerAlerts />} />

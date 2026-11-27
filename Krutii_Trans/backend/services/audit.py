@@ -43,18 +43,21 @@ ACTIONS = {
     'parts.create_part': ('part', 'Додавання запчастини'),
     'parts.update_part': ('part', 'Зміна запчастини'),
     'parts.receive': ('part', 'Надходження запчастин'),
+    'fuel_anomalies.review': ('fuel', 'Рішення щодо підозрілої витрати пального'),
+    'fuel_anomalies.run': ('fuel', 'Перевірка аномалій пального'),
 }
 # параметр маршруту -> колекція, з якої береться «знімок» запису
 SNAPSHOT_ARGS = {
     'user_id': 'users', 'vehicle_id': 'vehicles', 'waybill_id': 'waybills',
-    'fault_id': 'fault_reports', 'repair_id': 'repairs', 'part_id': 'parts',
+    'fault_id': 'fault_reports', 'repair_id': 'repairs', 'part_id': 'parts', 'anomaly_id': 'fuel_anomalies',
 }
 ENTITY_TYPES = {
     'users': 'user', 'vehicles': 'vehicle', 'waybills': 'waybill', 'fault_reports': 'fault',
-    'repairs': 'repair', 'parts': 'part', 'settings': 'settings',
+    'repairs': 'repair', 'parts': 'part', 'settings': 'settings', 'fuel_anomalies': 'fuel',
 }
 # службові поля, які не показуємо в «було -> стало»
-IGNORED_FIELDS = {'_id', 'created_at', 'updated_at', 'last_login', 'password_hash', 'photos', 'created_by', 'updated_by'}
+IGNORED_FIELDS = {'_id', 'created_at', 'updated_at', 'last_login', 'password_hash', 'photos', 'created_by', 'updated_by',
+                  'reasons', 'metrics', 'methods', 'score', 'level', 'detected_at', 'demo_label', 'review'}
 SECURITY_FAIL_LIMIT = 5          # невдалих входів поспіль -> сповіщення керівнику
 SECURITY_FAIL_WINDOW_MIN = 15
 RETENTION_DAYS = 365
