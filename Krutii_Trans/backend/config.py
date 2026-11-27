@@ -36,6 +36,9 @@ class Config:
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', '').replace(' ', '')
     MAIL_FROM_NAME = os.getenv('MAIL_FROM_NAME', 'KRUTII TRANS')
 
+    # Адреса сайту (для QR-коду на PDF-путівці)
+    FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173').rstrip('/')
+
     # Вхід за кодом з пошти
     LOGIN_CODE_TTL_MINUTES = 5
     LOGIN_CODE_MAX_ATTEMPTS = 5

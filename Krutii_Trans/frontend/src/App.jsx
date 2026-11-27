@@ -12,6 +12,7 @@ import ManagerLayout from './layouts/ManagerLayout'
 import Login from './pages/Login'
 import ChangePassword from './pages/ChangePassword'
 import Profile from './pages/Profile'
+import WaybillRedirect from './pages/WaybillRedirect'
 
 // Driver pages
 import DriverDashboard from './pages/driver/Dashboard'
@@ -210,6 +211,9 @@ function App() {
         <Route path="parts" element={<PartsPage />} />
         <Route path="profile" element={<Profile />} />
       </Route>
+
+      {/* Перехід за QR-кодом з PDF-путівки */}
+      <Route path="/w/:id" element={<WaybillRedirect />} />
 
       {/* Root redirect */}
       <Route

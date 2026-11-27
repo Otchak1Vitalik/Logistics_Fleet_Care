@@ -71,7 +71,8 @@ if not exist "venv\Scripts\python.exe" (
     echo Seeding demo data...
     call venv\Scripts\python.exe seed.py
 ) else (
-    echo Virtual environment already exists, skipping install.
+    echo Checking Python dependencies...
+    call venv\Scripts\python.exe -m pip install -q -r requirements.txt
 )
 
 cd ..

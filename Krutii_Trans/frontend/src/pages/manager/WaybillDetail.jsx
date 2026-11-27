@@ -7,6 +7,7 @@ import StatusBadge from '../../components/StatusBadge'
 import ConfirmModal from '../../components/ConfirmModal'
 import { formatDate, formatDateTime, formatOdometer } from '../../utils/formatters'
 import { tr } from '../../i18n'
+import WaybillPdfButton from '../../components/WaybillPdfButton'
 
 function WaybillDetail() {
   const { id } = useParams()
@@ -70,6 +71,7 @@ function WaybillDetail() {
           <StatusBadge status={waybill.status} />
         </div>
         <div className="detail-actions">
+          <WaybillPdfButton id={waybill._id} />
           {(waybill.status === 'issued' || waybill.status === 'active') && (
             <button
               className="btn btn-danger"

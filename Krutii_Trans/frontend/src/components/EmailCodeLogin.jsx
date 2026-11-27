@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { authApi } from '../api/auth'
 import { useAuthStore } from '../store/authStore'
 import { tr, lang } from '../i18n'
+import { afterLoginPath } from '../utils/afterLogin'
 
 const LENGTH = 4
 const EMPTY = Array(LENGTH).fill('')
@@ -135,7 +136,7 @@ function EmailCodeLogin({ onBack }) {
       setStep('success')
       setTimeout(() => {
         setLoggedIn(result.user)
-        navigate(`/${result.user.role}`)
+        navigate(afterLoginPath(result.user.role))
       }, 3200)
     } else {
       setPhase('error')

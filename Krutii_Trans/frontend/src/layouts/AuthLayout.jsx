@@ -1,6 +1,7 @@
 import { Outlet, Navigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { tr } from '../i18n'
+import { peekAfterLogin } from '../utils/afterLogin'
 
 function AuthLayout() {
   const { isAuthenticated, user, _hasHydrated } = useAuthStore()
@@ -21,7 +22,7 @@ function AuthLayout() {
 
   // Якщо вже авторизований і є роль - перенаправляємо
   if (isAuthenticated && user?.role) {
-    return <Navigate to={`/${user.role}`} replace />
+    return <Navigate to={peekAfterLogin(user.role)} replace />
   }
 
   return (

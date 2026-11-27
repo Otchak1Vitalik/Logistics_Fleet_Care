@@ -1039,6 +1039,12 @@ const en = {
   "зміна": "change",
   "зміни": "changes",
   "змін": "changes",
+  "Друк путівки (PDF)": "Print waybill (PDF)",
+  "Подорожній лист для друку (за зразком типової форми № 1)": "Printable waybill (based on standard form No. 1)",
+  "Картку путівки переглядають керівник і водій. PDF путівки доступний і механіку.": "The waybill card is available to the manager and the driver. The waybill PDF is available to the mechanic too.",
+  "Не вдалося завантажити PDF": "Could not download the PDF",
+  "Зберегти PDF путівки на комп’ютер": "Save the waybill PDF to your computer",
+  "Завантажити PDF": "Download PDF",
 }
 
 export default en

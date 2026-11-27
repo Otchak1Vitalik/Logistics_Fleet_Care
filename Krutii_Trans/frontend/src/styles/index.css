@@ -2819,3 +2819,13 @@ button.nav-item {
 @media (max-width: 768px) {
   .audit-diff { min-width: 0; width: 100%; }
 }
+
+/* Кнопка-посилання (PDF путівки) вирівнюється як звичайні кнопки */
+a.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+.header-actions { display: flex; align-items: center; gap: var(--spacing-3); flex-wrap: wrap; }
+.detail-actions { align-items: center; flex-wrap: wrap; }
+/* кнопка завантаження на кольоровій шапці картки (сторінки керівника) */
+.detail-actions .btn-export.busy,
+.detail-actions .btn-export.busy:disabled { color: #fff; border-color: rgba(255, 255, 255, 0.7); background: rgba(255, 255, 255, 0.22); }
+.detail-actions .btn-export.done,
+.detail-actions .btn-export.done:hover:not(:disabled) { background: #16a34a; border-color: #16a34a; color: #fff; }

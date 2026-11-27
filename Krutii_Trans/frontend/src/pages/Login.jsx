@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { tr, lang, setLang } from '../i18n'
 import ContactDock from '../components/ContactDock'
 import EmailCodeLogin from '../components/EmailCodeLogin'
+import { afterLoginPath } from '../utils/afterLogin'
 
 const QUICK_LOGIN = [
   { username: 'admin', password: 'Admin1234', role: 'manager', label: tr("Керівник") },
@@ -53,7 +54,7 @@ function Login() {
 
     if (result.success) {
       toast.success(tr("Вхід виконано успішно"))
-      navigate(`/${result.user.role}`)
+      navigate(afterLoginPath(result.user.role))
     } else {
       toast.error(result.error)
     }
@@ -64,7 +65,7 @@ function Login() {
 
     if (result.success) {
       toast.success(tr("Вхід як {0}", credentials.label))
-      navigate(`/${result.user.role}`)
+      navigate(afterLoginPath(result.user.role))
     } else {
       toast.error(result.error)
     }

@@ -127,6 +127,48 @@ def get_waybill(waybill_id):
     })
 
 
+@waybills_bp.route('/<waybill_id>/pdf', methods=['GET'])
+@require_auth
+def waybill_pdf(waybill_id):
+    """PDF путівного листа для друку (за зразком типової форми № 1). Доступ - як до самої путівки."""
+    from flask import current_app, make_response
+    from services.waybill_pdf import build_waybill_pdf
+    from services.fuel_analyzer import calculate_fuel_norm
+
+    try:
+        waybill = mongo.db.waybills.find_one({'_id': ObjectId(waybill_id)})
+    except Exception:  # noqa: BLE001
+        return jsonify({'success': False, 'error': 'Невірний формат ID.'}), 400
+    if not waybill:
+        return jsonify({'success': False, 'error': 'Путівку не знайдено.'}), 404
+    if g.current_user['role'] == 'driver' and waybill.get('driver_id') != g.current_user['_id']:
+        return jsonify({'success': False, 'error': 'Доступ заборонено.'}), 403
+
+    waybill['_id'] = str(waybill['_id'])
+    enrich_waybill(waybill)
+    settings = mongo.db.settings.find_one({'_id': 'system'}) or {}
+    vehicle = waybill.get('vehicle') or {}
+    start, end = waybill.get('odometer_start'), waybill.get('odometer_end')
+    norm = None
+    if isinstance(start, (int, float)) and isinstance(end, (int, float)) and end > start and vehicle.get('fuel_norm'):
+        when = waybill.get('completed_at') or waybill.get('valid_from')
+        norm = calculate_fuel_norm(end - start, vehicle['fuel_norm'], when if isinstance(when, datetime) else None, settings)
+
+    pdf = build_waybill_pdf(
+        waybill,
+        company_name=settings.get('company_name') or 'KRUTII TRANS',
+        verify_url=f"{current_app.config['FRONTEND_URL']}/w/{waybill['_id']}",
+        norm_liters=norm,
+    )
+    filename = 'putivka-' + str(waybill.get('number', waybill['_id'])).replace('ПЛ', 'PL') + '.pdf'
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    mode = 'attachment' if request.args.get('download') == '1' else 'inline'   # ?download=1 - одразу зберегти файл
+    response.headers['Content-Disposition'] = f'{mode}; filename="{filename}"'
+    response.headers['Cache-Control'] = 'no-store'
+    return response
+
+
 @waybills_bp.route('', methods=['POST'])
 @require_auth
 @require_role('manager')

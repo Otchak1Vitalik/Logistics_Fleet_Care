@@ -8,6 +8,7 @@ import { formatDate, formatDateTime, formatOdometer } from '../../utils/formatte
 import { formatFuel } from '../../utils/fuelCalc'
 import toast from 'react-hot-toast'
 import { tr } from '../../i18n'
+import WaybillPdfButton from '../../components/WaybillPdfButton'
 
 function DriverWaybillDetail() {
   const { id } = useParams()
@@ -67,6 +68,7 @@ function DriverWaybillDetail() {
         </div>
 
         <div className="header-actions">
+          <WaybillPdfButton id={waybill._id} />
           {waybill.status === 'issued' && (
             <button className="btn btn-primary" onClick={handleActivate}>
               {tr("Активувати")}
