@@ -5,7 +5,8 @@ import DataTable from '../../components/DataTable'
 import StatusBadge from '../../components/StatusBadge'
 import Loader from '../../components/Loader'
 import { formatDate, formatNumber, formatOdometer } from '../../utils/formatters'
-import { downloadCsv, fileDate } from '../../utils/exportReport'
+import { fileDate } from '../../utils/exportReport'
+import { downloadXlsx } from '../../utils/xlsx'
 import { tr } from '../../i18n'
 
 const TAB_TITLES = {
@@ -129,10 +130,27 @@ function ManagerReports() {
     }
   }
 
+  // Стан кнопки експорту: idle -> busy (анімація стрілки) -> done (галочка «Завантажено»)
+  const [exportState, setExportState] = useState('idle')
   const handleExport = () => {
     const exp = getExportData()
-    if (!exp) return
-    downloadCsv(`zvit-${TAB_FILES[activeTab]}-${fileDate()}.csv`, exp.headers, exp.rows)
+    if (!exp || exportState !== 'idle') return
+    setExportState('busy')
+    setTimeout(() => {
+      try {
+        downloadXlsx(`zvit-${TAB_FILES[activeTab]}-${fileDate()}.xlsx`, {
+          sheetName: TAB_TITLES[activeTab],
+          title: `KRUTII TRANS – ${TAB_TITLES[activeTab]}`,
+          subtitle: `${tr("Сформовано:")} ${formatDate(new Date(), 'dd.MM.yyyy HH:mm')}`,
+          headers: exp.headers,
+          rows: exp.rows,
+        })
+        setExportState('done')
+        setTimeout(() => setExportState('idle'), 2200)
+      } catch (e) {
+        setExportState('idle')
+      }
+    }, 650)
   }
 
   const handleTabChange = (tab) => {
@@ -453,14 +471,23 @@ function ManagerReports() {
       <div className="page-header">
         <h1>{tr("Звіти")}</h1>
         <div className="report-actions no-print">
-          <button className="btn btn-secondary" onClick={handleExport} disabled={loading || !data}
-            title={tr("Завантажити поточну таблицю у файл для Excel")}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-            Excel
+          <button className={`btn btn-secondary btn-export ${exportState}`} onClick={handleExport}
+            disabled={loading || !data || exportState === 'busy'}
+            title={tr("Завантажити поточну таблицю у файл Excel")}>
+            {exportState === 'done' ? (
+              <svg className="export-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="4 12 10 18 20 6" />
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <g className="export-arrow">
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </g>
+              </svg>
+            )}
+            <span>{exportState === 'done' ? tr("Завантажено") : exportState === 'busy' ? tr("Готуємо файл...") : 'Excel'}</span>
           </button>
           <button className="btn btn-secondary" onClick={() => window.print()} disabled={loading || !data}
             title={tr("Надрукувати або зберегти як PDF")}>

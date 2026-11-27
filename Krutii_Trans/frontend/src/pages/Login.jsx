@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import toast from 'react-hot-toast'
-import { tr } from '../i18n'
+import { tr, lang, setLang } from '../i18n'
+import ContactDock from '../components/ContactDock'
 
 const QUICK_LOGIN = [
   { username: 'admin', password: 'Admin1234', role: 'manager', label: tr("Керівник") },
@@ -48,6 +49,15 @@ function Login() {
 
   return (
     <div className="login-form">
+      <div className="login-lang" role="group" aria-label="Мова / Language">
+        {[['uk', 'UA'], ['en', 'EN']].map(([code, label]) => (
+          <button key={code} type="button" className={lang === code ? 'active' : ''}
+            onClick={() => setLang(code)} aria-pressed={lang === code}
+            title={code === 'uk' ? 'Українська' : 'English'}>
+            {label}
+          </button>
+        ))}
+      </div>
       <h2>{tr("Вхід в систему")}</h2>
 
       <form onSubmit={handleSubmit}>
@@ -103,6 +113,8 @@ function Login() {
           ))}
         </div>
       </div>
+
+      <ContactDock />
     </div>
   )
 }

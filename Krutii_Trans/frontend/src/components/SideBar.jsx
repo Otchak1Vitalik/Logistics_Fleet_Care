@@ -1,4 +1,7 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { useAuthStore } from '../store/authStore'
+import { useSidebarStore } from '../store/sidebarStore'
+import { tr } from '../i18n'
 
 const ICONS = {
   home: (
@@ -78,6 +81,20 @@ const ICONS = {
       <line x1="6" y1="20" x2="6" y2="14" />
     </svg>
   ),
+  profile: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="10" r="3" />
+      <path d="M6.17 18.84A7 7 0 0 1 12 16a7 7 0 0 1 5.83 2.84" />
+    </svg>
+  ),
+  logout: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+  ),
   settings: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <circle cx="12" cy="12" r="3" />
@@ -86,23 +103,62 @@ const ICONS = {
   )
 }
 
-function SideBar({ items, role }) {
+// Підказка позиціонується поверх сторінки (position: fixed), тому не обрізається прокруткою панелі
+const placeTooltip = (e) => {
+  const r = e.currentTarget.getBoundingClientRect()
+  e.currentTarget.style.setProperty('--tip-y', `${r.top + r.height / 2}px`)
+}
+
+function NavItem({ to, end, icon, label, onClick }) {
+  const inner = (
+    <>
+      <span className="nav-icon">{ICONS[icon]}</span>
+      <span className="nav-label">{label}</span>
+      <span className="nav-tooltip" role="tooltip">{label}</span>
+    </>
+  )
+  if (onClick) {
+    return <button type="button" className="nav-item" onClick={onClick} aria-label={label}
+        onMouseEnter={placeTooltip} onFocus={placeTooltip}>{inner}</button>
+  }
   return (
-    <aside className={`sidebar sidebar-${role}`}>
+    <NavLink to={to} end={end} aria-label={label} onMouseEnter={placeTooltip} onFocus={placeTooltip}
+      className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+      {inner}
+    </NavLink>
+  )
+}
+
+// Бічна панель: розгортається / згортається до іконок; у згорнутому стані назви показуються підказками
+function SideBar({ items, role }) {
+  const navigate = useNavigate()
+  const { logout } = useAuthStore()
+  const { collapsed, toggle } = useSidebarStore()
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/login')
+  }
+
+  return (
+    <aside className={`sidebar sidebar-${role} ${collapsed ? 'collapsed' : ''}`}>
+      <div className="sidebar-header">
+        <button type="button" className="sidebar-toggle" onClick={toggle}
+          title={collapsed ? tr("Розгорнути меню") : tr("Згорнути меню")}
+          aria-label={collapsed ? tr("Розгорнути меню") : tr("Згорнути меню")} aria-expanded={!collapsed}>
+          <span className="toggle-lines" aria-hidden="true">
+            <span /><span /><span />
+          </span>
+        </button>
+      </div>
+
       <nav className="sidebar-nav">
-        {items.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
-            className={({ isActive }) =>
-              `nav-item ${isActive ? 'active' : ''}`
-            }
-          >
-            <span className="nav-icon">{ICONS[item.icon]}</span>
-            <span className="nav-label">{item.label}</span>
-          </NavLink>
-        ))}
+        <div className="primary-nav">
+          {items.map((item) => <NavItem key={item.to} {...item} />)}
+        </div>
+        <div className="secondary-nav">
+          <NavItem icon="logout" label={tr("Вийти")} onClick={handleLogout} />
+        </div>
       </nav>
     </aside>
   )

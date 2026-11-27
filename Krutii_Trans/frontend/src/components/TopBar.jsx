@@ -90,21 +90,10 @@ function TopBar() {
           </div>
         </button>
 
-        <div className="topbar-divider"></div>
+        <div className="topbar-divider topbar-logout-mobile"></div>
 
         <button
-          className="btn-topbar"
-          onClick={() => navigate('/change-password')}
-          title={tr("Змiнити пароль")}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-          </svg>
-        </button>
-
-        <button
-          className="btn-topbar btn-logout"
+          className="btn-topbar btn-logout topbar-logout-mobile"
           onClick={handleLogout}
           title={tr("Вийти")}
         >

@@ -2271,3 +2271,358 @@ button.topbar-user {
   font-weight: 600;
 }
 .profile-section-title { margin: var(--spacing-2) 0 var(--spacing-3); }
+
+/* === Згортання бічної панелі === */
+:root[data-sidebar="collapsed"] { --sidebar-width: 84px; }
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  transition: width 0.35s ease;
+}
+.main-area { transition: margin-left 0.35s ease; }
+.topbar { transition: left 0.35s ease; }
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  padding: var(--spacing-3) var(--spacing-4) var(--spacing-1);
+  transition: padding-right 0.35s ease;
+}
+
+.sidebar-toggle {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-white);
+  color: #111827;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.35s ease, background var(--transition-fast), box-shadow var(--transition-fast);
+}
+.sidebar-toggle svg { width: 18px; height: 18px; }
+.sidebar-toggle:hover { background: #eef0f4; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3); }
+
+.sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-1) 0 var(--spacing-2);
+}
+.secondary-nav {
+  margin-top: auto;
+  padding-top: var(--spacing-1);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* компактніші пункти, щоб усе меню вміщалося без прокрутки */
+.sidebar .nav-item {
+  position: relative;
+  width: 100%;
+  white-space: nowrap;
+  padding-top: 11px;
+  padding-bottom: 11px;
+  margin: 3px 0;
+  font-size: 0.96rem;
+}
+.sidebar .nav-icon { width: 23px; height: 23px; }
+button.nav-item {
+  background: none;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.nav-label { transition: opacity 0.2s ease; }
+.nav-tooltip { display: none; }
+
+/* згорнутий стан */
+/* кнопка лишається притиснутою до правого краю, а відступ плавно росте до центру вузької панелі -
+   тож вона їде разом з краєм панелі й не «перескакує» */
+.sidebar.collapsed .sidebar-header {
+  padding-right: calc((var(--sidebar-width) - 30px) / 2);
+}
+.sidebar.collapsed .nav-item {
+  justify-content: center;
+  gap: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+.sidebar.collapsed .nav-label {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+.sidebar.collapsed .nav-tooltip {
+  display: block;
+  position: fixed;
+  left: calc(var(--sidebar-width) + 12px);
+  top: var(--tip-y, 50%);
+  transform: translate(-8px, -50%);
+  opacity: 0;
+  pointer-events: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: #111827;
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 300;
+}
+.sidebar.collapsed .nav-tooltip::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  background: inherit;
+  transform: translateY(-50%) rotate(45deg);
+}
+.sidebar.collapsed .nav-item:hover .nav-tooltip,
+.sidebar.collapsed .nav-item:focus-visible .nav-tooltip {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+[data-theme="dark"] .sidebar.collapsed .nav-tooltip { background: #f9fafb; color: #111827; }
+
+/* на телефоні лишається нижня панель навігації без згортання */
+@media (max-width: 768px) {
+  :root[data-sidebar="collapsed"] { --sidebar-width: 0; }
+  .sidebar-header, .secondary-nav, .nav-tooltip,
+  .sidebar.collapsed .nav-tooltip { display: none; }
+  .sidebar, .sidebar.collapsed { width: 100%; overflow-x: auto; overflow-y: hidden; flex-direction: row; }
+  .sidebar-nav { flex-direction: row; padding: 0; }
+  .primary-nav { display: flex; height: 100%; }
+  .sidebar .nav-item, .sidebar.collapsed .nav-item { width: auto; gap: 2px; padding: var(--spacing-2) var(--spacing-3); margin: 0; }
+  .sidebar .nav-icon { width: 22px; height: 22px; }
+  .sidebar.collapsed .nav-label { opacity: 1; width: auto; }
+}
+@media print { .sidebar { display: none !important; } }
+
+/* Вихід є в бічній панелі, тому у верхній панелі кнопка лишається лише на телефоні */
+.topbar-logout-mobile { display: none; }
+@media (max-width: 768px) {
+  .topbar-logout-mobile { display: inline-flex; }
+}
+
+/* === Контакти на сторінці входу (плитки, що перевертаються) === */
+.contact-dock {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: var(--spacing-6);
+  padding: 10px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.contact-dock .letter {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  perspective: 500px;
+  color: var(--brand);
+  text-decoration: none;
+  border-radius: 12px;
+  transition: transform 0.3s ease;
+}
+.letter-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+.letter-front, .letter-back {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+.letter-front {
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+.letter-back {
+  transform: rotateY(180deg);
+  background: rgba(17, 24, 39, 0.9);
+}
+.letter-back svg { width: 22px; height: 22px; }
+
+.contact-dock .letter:hover .letter-inner,
+.contact-dock .letter:focus-visible .letter-inner { transform: rotateY(180deg); }
+.contact-dock .letter:hover .letter-back,
+.contact-dock .letter:focus-visible .letter-back {
+  border-color: var(--brand);
+  animation: dock-glow 1.4s ease-in-out infinite alternate;
+}
+@keyframes dock-glow {
+  0% { box-shadow: 0 0 6px var(--brand); }
+  100% { box-shadow: 0 0 18px var(--brand); }
+}
+
+/* підйом плитки та її сусідів */
+.contact-dock .letter:hover { transform: translateY(-10px) scale(1.12); z-index: 2; }
+.contact-dock .letter:hover + .letter,
+.contact-dock .letter:has(+ .letter:hover) { transform: translateY(-5px) scale(1.05); }
+
+.letter-tooltip {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translate(-50%, -4px);
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #fff;
+  color: #111827;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 3;
+}
+.letter-tooltip::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background: inherit;
+  transform: translateX(-50%) rotate(45deg);
+}
+.contact-dock .letter:hover .letter-tooltip,
+.contact-dock .letter:focus-visible .letter-tooltip { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 480px) {
+  .contact-dock { gap: 5px; padding: 8px; }
+  .contact-dock .letter { width: 38px; height: 38px; }
+  .letter-front { font-size: 1rem; }
+  .letter-back svg { width: 18px; height: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .letter-inner, .contact-dock .letter { transition: none; }
+  .contact-dock .letter:hover .letter-back { animation: none; }
+}
+
+/* === Перемикач мови на сторінці входу === */
+.login-form { position: relative; }
+.login-form h2 { margin-top: var(--spacing-6); }
+.login-lang {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.login-lang button {
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.65);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+.login-lang button:hover { color: #fff; }
+.login-lang button.active {
+  background: var(--sidebar-manager);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.5);
+}
+@media (max-width: 480px) {
+  .login-lang { top: 10px; right: 10px; }
+  .login-lang button { padding: 3px 8px; font-size: 0.6875rem; }
+}
+
+/* === Кнопка «Excel»: анімація завантаження === */
+.btn-export { min-width: 118px; transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.15s ease; }
+.btn-export:active { transform: scale(0.96); }
+.btn-export.busy .export-arrow { animation: export-drop 0.6s ease-in-out infinite; }
+@keyframes export-drop {
+  0% { transform: translateY(-3px); opacity: 0.3; }
+  50% { transform: translateY(1px); opacity: 1; }
+  100% { transform: translateY(4px); opacity: 0; }
+}
+.btn-export.done,
+.btn-export.done:hover {
+  background: #16a34a;
+  border-color: #16a34a;
+  color: #fff;
+  animation: export-pop 0.35s ease;
+}
+.btn-export .export-check polyline {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: export-draw 0.4s 0.1s ease forwards;
+}
+@keyframes export-draw { to { stroke-dashoffset: 0; } }
+@keyframes export-pop {
+  0% { transform: scale(0.94); }
+  60% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+.btn-export.busy,
+.btn-export.busy:disabled { opacity: 1; cursor: progress; color: var(--color-primary, #4f46e5); border-color: currentColor; }
+
+/* Значок кнопки згортання: розгорнуто - одна риска, згорнуто - три (☰) */
+.toggle-lines {
+  position: relative;
+  width: 16px;
+  height: 12px;
+  display: block;
+}
+.toggle-lines span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  top: 5px;
+  transition: transform 0.3s ease, opacity 0.2s ease;
+}
+/* розгорнута панель: усі три риски злиті в одну посередині */
+.toggle-lines span:nth-child(1),
+.toggle-lines span:nth-child(3) { opacity: 0; }
+/* згорнута панель: риски розходяться вгору й униз */
+.sidebar.collapsed .toggle-lines span:nth-child(1) { transform: translateY(-5px); opacity: 1; }
+.sidebar.collapsed .toggle-lines span:nth-child(3) { transform: translateY(5px); opacity: 1; }
+
+/* Перекочування кнопки: при згортанні котиться вліво (пів оберту), при розгортанні - назад */
+.sidebar.collapsed .sidebar-toggle { transform: rotate(-180deg); }
+.toggle-lines span { transition: transform 0.35s ease, opacity 0.25s ease; }

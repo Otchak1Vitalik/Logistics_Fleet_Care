@@ -920,6 +920,12 @@ const en = {
   "ПІБ, роль і дані посвідчення змінює керівник.": "Full name, role and licence details are changed by the manager.",
   "Налаштування системи": "System settings",
   "Немає даних для оновлення.": "No data to update.",
+  "Згорнути меню": "Collapse menu",
+  "Розгорнути меню": "Expand menu",
+  "Профіль": "Profile",
+  "Завантажено": "Downloaded",
+  "Готуємо файл...": "Preparing file...",
+  "Завантажити поточну таблицю у файл Excel": "Download the current table as an Excel file",
 }
 
 export default en
