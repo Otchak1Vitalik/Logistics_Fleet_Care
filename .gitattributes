@@ -1,0 +1,3 @@
+# Windows-скрипти - завжди з CRLF, shell-скрипти - з LF
+*.bat text eol=crlf
+*.sh  text eol=lf

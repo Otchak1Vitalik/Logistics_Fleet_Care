@@ -4,6 +4,8 @@
 
 # KRUTII TRANS
 
+[![tests](https://github.com/Otchak1Vitalik/Logistics_Fleet_Care/actions/workflows/tests.yml/badge.svg)](https://github.com/Otchak1Vitalik/Logistics_Fleet_Care/actions/workflows/tests.yml)
+
 Система технічного обслуговування автопарку логістичної компанії.
 
 Крім обліку путівок, пального, несправностей і ремонтів, система аналізує дані автопарку: виявляє підозрілу витрату пального, прогнозує несправності методами машинного навчання, оптимізує графік ТО та показує автомобілі на карті в реальному часі за даними GPS-трекерів (телематика).
@@ -20,7 +22,8 @@
 - **Документи:** ReportLab (PDF-путівки з QR-кодом, шрифти DejaVu з кирилицею)
 - **Frontend:** React 18, Zustand, Recharts, Vite, React Router, Leaflet + OpenStreetMap
 - **Database:** MongoDB
-- **Тести:** pytest (окрема тестова база `krutii_test`)
+- **Тести:** pytest (окрема тестова база `krutii_test`), GitHub Actions
+- **Розгортання:** Docker, Docker Compose, nginx
 - **UI:** Власна дизайн-система з glassmorphism ефектами, світла й темна тема, інтерфейс українською та англійською
 
 ## Можливості
@@ -75,6 +78,17 @@
 ### Швидкий старт (Windows)
 
 Запустіть `start.bat` у папці `Krutii_Trans`. Скрипт перевірить MongoDB, створить віртуальне середовище, встановить залежності, за першого запуску заповнить базу демоданими й відкриє три вікна: **Backend**, **Frontend** і **Simulator**. У вікні Simulator натисніть `1`, щоб увімкнути симулятор телематики (машини на карті), або `2`, щоб закрити його.
+
+### Docker (будь-яка ОС)
+
+Потрібен лише [Docker Desktop](https://www.docker.com/products/docker-desktop/) - Python, Node.js і MongoDB встановлювати не треба. У папці `Krutii_Trans`:
+
+```bash
+docker compose up --build                       # база, бекенд і сайт
+docker compose --profile simulator up --build   # те саме + симулятор телематики
+```
+
+Сайт: http://localhost:5173. За першого запуску база автоматично заповнюється демоданими. Зупинка - `Ctrl+C` або `docker compose down`; повністю скинути дані - `docker compose down -v`. Пароль пошти для входу за кодом береться з `backend/.env`, якщо файл існує.
 
 ### Backend
 
@@ -140,6 +154,7 @@ venv\Scripts\python.exe -m ml.scania_validate
   config.py           # Конфігурація (MongoDB, JWT, rate limits, пошта)
   seed.py             # Демо-дані
   simulator.py        # Симулятор GPS-трекерів (телематика)
+  Dockerfile, docker-entrypoint.py # Образ бекенду (автозаповнення демоданими)
   .env.example        # Зразок налаштувань пошти
   /routes             # API endpoints
     auth.py           # Авторизація (пароль, код з пошти, профіль)
@@ -196,6 +211,8 @@ venv\Scripts\python.exe -m ml.scania_validate
   /styles             # CSS з дизайн-системою
 
 /docs                 # Логотипи та скриншоти
+docker-compose.yml    # Запуск усієї системи в Docker
+/frontend/Dockerfile, nginx.conf # Образ сайту (nginx)
 ```
 
 ## Ключові особливості
@@ -362,7 +379,7 @@ cd backend
 venv\Scripts\python.exe -m pytest -q
 ```
 
-90 автоматизованих тестів (авторизація і вхід за кодом, ескалації, цикл «несправність → ремонт», пальне, склад, журнал дій, PDF, аномалії пального, ML-прогноз, оптимізація ТО, телематика). Тести працюють з окремою базою `krutii_test`, яка очищується перед кожним тестом.
+90 автоматизованих тестів (авторизація і вхід за кодом, ескалації, цикл «несправність → ремонт», пальне, склад, журнал дій, PDF, аномалії пального, ML-прогноз, оптимізація ТО, телематика). Тести працюють з окремою базою `krutii_test`, яка очищується перед кожним тестом. На GitHub тести, збірка сайту й Docker-образів запускаються автоматично при кожному push (GitHub Actions, `.github/workflows/tests.yml`).
 
 ## Джерела даних і ліцензії
 

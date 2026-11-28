@@ -20,6 +20,7 @@
 import argparse
 import json
 import math
+import os
 import random
 import sys
 import time
@@ -225,7 +226,7 @@ def incident(trucks, rnd):
 
 def main():
     ap = argparse.ArgumentParser(description='Симулятор телематики KRUTII TRANS')
-    ap.add_argument('--api', default='http://localhost:5001')
+    ap.add_argument('--api', default=os.getenv('SIMULATOR_API', 'http://localhost:5001'))
     ap.add_argument('--speed', type=float, default=30.0)
     ap.add_argument('--interval', type=float, default=2.0)
     ap.add_argument('--no-incidents', action='store_true')

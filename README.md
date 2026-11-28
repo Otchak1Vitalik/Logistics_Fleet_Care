@@ -4,6 +4,8 @@
 
 # KRUTII TRANS
 
+[![tests](https://github.com/Otchak1Vitalik/Logistics_Fleet_Care/actions/workflows/tests.yml/badge.svg)](https://github.com/Otchak1Vitalik/Logistics_Fleet_Care/actions/workflows/tests.yml)
+
 Автоматизована система управління технічним обслуговуванням автомобілів логістичної компанії.<br>
 *Automated vehicle maintenance management system for a logistics company.*
 
@@ -29,7 +31,7 @@
 - 📄 **PDF-путівки з QR-кодом**, журнал дій, вхід за кодом з пошти, експорт в Excel, українська та англійська мови<br>
   *PDF waybills with a QR code, activity log, email code sign-in, Excel export, Ukrainian and English*
 
-**Stack:** Flask · MongoDB · scikit-learn · React 18 · Vite · Recharts · Leaflet
+**Stack:** Flask · MongoDB · scikit-learn · React 18 · Vite · Recharts · Leaflet · Docker
 
 ## Швидкий старт · *Quick start*
 
@@ -38,6 +40,9 @@
 
 **Windows:** запустіть `Krutii_Trans\start.bat`, потім відкрийте http://localhost:5173<br>
 *Windows: run `Krutii_Trans\start.bat`, then open http://localhost:5173*
+
+**Docker:** у папці `Krutii_Trans` виконайте `docker compose up --build`<br>
+*Docker: in the `Krutii_Trans` folder run `docker compose up --build`*
 
 Демо-вхід: `admin` / `Admin1234`<br>
 *Demo sign-in: `admin` / `Admin1234`*
@@ -49,6 +54,7 @@ Krutii_Trans/
   backend/    Flask API, ML, simulator, tests
   frontend/   React application
   docs/       logos and screenshots
+  docker-compose.yml  run everything in Docker
   start.bat   one-click start (Windows)
 ```
 

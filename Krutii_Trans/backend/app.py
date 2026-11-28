@@ -103,9 +103,19 @@ def create_app():
 
 
 if __name__ == '__main__':
+    import logging
     import os
+
+    class _NoHealthLog(logging.Filter):
+        """Перевірки здоров'я (Docker) не засмічують журнал запитів."""
+        def filter(self, record):
+            return '/api/health' not in record.getMessage()
+
+    logging.getLogger('werkzeug').addFilter(_NoHealthLog())
     app = create_app()
     # Режим налагодження вмикається лише явно (FLASK_DEBUG=1).
     # Автоперезавантажувач вимкнено: інакше Flask запускає два процеси
     # і фонові задачі планувальника виконуються двічі.
-    app.run(debug=os.getenv('FLASK_DEBUG') == '1', use_reloader=False, port=5001)
+    # HOST=0.0.0.0 - у Docker-контейнері (щоб сервер був доступний іншим контейнерам)
+    app.run(debug=os.getenv('FLASK_DEBUG') == '1', use_reloader=False,
+            host=os.getenv('HOST', '127.0.0.1'), port=int(os.getenv('PORT', '5001')))

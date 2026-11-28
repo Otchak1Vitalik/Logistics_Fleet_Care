@@ -4,6 +4,8 @@
 
 # KRUTII TRANS
 
+[![tests](https://github.com/Otchak1Vitalik/Logistics_Fleet_Care/actions/workflows/tests.yml/badge.svg)](https://github.com/Otchak1Vitalik/Logistics_Fleet_Care/actions/workflows/tests.yml)
+
 Fleet maintenance management system for a logistics company.
 
 Besides waybills, fuel, faults and repairs, the system analyses fleet data: it detects suspicious fuel consumption, predicts failures with machine learning, optimizes the maintenance schedule and shows vehicles on a live map using GPS tracker data (telematics).
@@ -20,7 +22,8 @@ Besides waybills, fuel, faults and repairs, the system analyses fleet data: it d
 - **Documents:** ReportLab (PDF waybills with a QR code, DejaVu fonts with Cyrillic support)
 - **Frontend:** React 18, Zustand, Recharts, Vite, React Router, Leaflet + OpenStreetMap
 - **Database:** MongoDB
-- **Tests:** pytest (separate test database `krutii_test`)
+- **Tests:** pytest (separate test database `krutii_test`), GitHub Actions
+- **Deployment:** Docker, Docker Compose, nginx
 - **UI:** Custom design system with glassmorphism effects, light and dark themes, Ukrainian and English interface
 
 ## Features
@@ -75,6 +78,17 @@ Besides waybills, fuel, faults and repairs, the system analyses fleet data: it d
 ### Quick start (Windows)
 
 Run `start.bat` in the `Krutii_Trans` folder. The script checks MongoDB, creates the virtual environment, installs dependencies, fills the database with demo data on the first run and opens three windows: **Backend**, **Frontend** and **Simulator**. In the Simulator window press `1` to start the telematics simulator (cars on the map) or `2` to close it.
+
+### Docker (any OS)
+
+Only [Docker Desktop](https://www.docker.com/products/docker-desktop/) is required - no need to install Python, Node.js or MongoDB. In the `Krutii_Trans` folder:
+
+```bash
+docker compose up --build                       # database, backend and website
+docker compose --profile simulator up --build   # the same + telematics simulator
+```
+
+Website: http://localhost:5173. On the first run the database is filled with demo data automatically. Stop with `Ctrl+C` or `docker compose down`; reset all data with `docker compose down -v`. The email password for code sign-in is taken from `backend/.env` if the file exists.
 
 ### Backend
 
@@ -140,6 +154,7 @@ venv\Scripts\python.exe -m ml.scania_validate
   config.py           # Configuration (MongoDB, JWT, rate limits, email)
   seed.py             # Demo data
   simulator.py        # GPS tracker simulator (telematics)
+  Dockerfile, docker-entrypoint.py # Backend image (automatic demo data)
   .env.example        # Email settings template
   /routes             # API endpoints
     auth.py           # Authentication (password, email code, profile)
@@ -196,6 +211,8 @@ venv\Scripts\python.exe -m ml.scania_validate
   /styles             # CSS with design system
 
 /docs                 # Logos and screenshots
+docker-compose.yml    # Run the whole system in Docker
+/frontend/Dockerfile, nginx.conf # Website image (nginx)
 ```
 
 ## Key Features
@@ -362,7 +379,7 @@ cd backend
 venv\Scripts\python.exe -m pytest -q
 ```
 
-90 automated tests (authentication and email code sign-in, escalations, the "fault → repair" cycle, fuel, warehouse, activity log, PDF, fuel anomalies, ML prediction, maintenance optimization, telematics). Tests use a separate `krutii_test` database that is cleared before each test.
+90 automated tests (authentication and email code sign-in, escalations, the "fault → repair" cycle, fuel, warehouse, activity log, PDF, fuel anomalies, ML prediction, maintenance optimization, telematics). Tests use a separate `krutii_test` database that is cleared before each test. On GitHub the tests, the website build and the Docker images run automatically on every push (GitHub Actions, `.github/workflows/tests.yml`).
 
 ## Data Sources and Licenses
 

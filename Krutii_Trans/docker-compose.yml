@@ -1,0 +1,65 @@
+# KRUTII TRANS у Docker: запуск командою  docker compose up --build
+# Сайт: http://localhost:5173   (симулятор телематики: docker compose --profile simulator up)
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    attach: false                        # не показувати вивід бази в терміналі
+    command: ["mongod", "--quiet"]       # без докладних логів кожного з'єднання
+    logging:
+      driver: none                       # логи бази не засмічують термінал
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+      start_interval: 2s
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      MONGO_URI: mongodb://mongo:27017/krutii_trans
+      FRONTEND_URL: http://localhost:5173
+      CORS_ORIGINS: http://localhost:5173
+    env_file:
+      - path: ./backend/.env          # пароль пошти для входу за кодом (необов'язково)
+        required: false
+    volumes:
+      - uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/api/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 120s
+      start_interval: 3s
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+
+  simulator:
+    build: ./backend
+    profiles: ["simulator"]
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      MONGO_URI: mongodb://mongo:27017/krutii_trans
+      SIMULATOR_API: http://backend:5001
+    command: ["python", "simulator.py"]
+
+volumes:
+  mongo-data:
+  uploads:
