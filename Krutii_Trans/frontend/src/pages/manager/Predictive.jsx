@@ -37,10 +37,19 @@ function useChartColors() {
 }
 const tooltipStyle = { background: 'var(--color-surface)', border: '1px solid var(--color-gray-200)', borderRadius: 8, fontSize: 12 }
 
+const TM_SIGNALS = { overheat: tr("перегрів"), low_battery: tr("низька напруга"), dtc: tr("коди помилок") }
+
 export function RiskFactors({ item }) {
-  if (!item.factors?.length) return <span className="text-muted">{tr("Помітних чинників немає")}</span>
+  const sig = item.telematics
+  const tmChips = sig ? Object.keys(TM_SIGNALS).filter((k) => sig[k] > 0) : []
+  if (!item.factors?.length && !tmChips.length) return <span className="text-muted">{tr("Помітних чинників немає")}</span>
   return (
     <div className="pm-factors">
+      {tmChips.map((k) => (
+        <span key={k} className="pm-factor tm" title={tr("Сигнал телематики за 14 днів (модель на ньому не навчалася)")}>
+          {tr("Телематика")}: <b>{TM_SIGNALS[k]}{sig[k] > 1 ? ` ×${sig[k]}` : ''}</b>
+        </span>
+      ))}
       {item.factors.map((f) => (
         <span key={f.feature} className="pm-factor" title={tr("Звичне значення: {0}", featureValue(f.feature, f.typical))}>
           {tr(f.label)}: <b>{featureValue(f.feature, f.value)}</b>

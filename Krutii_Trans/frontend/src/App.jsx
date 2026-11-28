@@ -58,6 +58,7 @@ import ManagerSettings from './pages/manager/Settings'
 
 // Shared pages
 import MaintenanceCalendar from './pages/shared/MaintenanceCalendar'
+import FleetMap from './pages/shared/FleetMap'
 import PartsPage from './pages/shared/Parts'
 import { tr } from './i18n'
 
@@ -175,6 +176,7 @@ function App() {
         <Route path="repairs/:id" element={<MechanicRepairDetail />} />
         <Route path="alerts" element={<MechanicAlerts />} />
         <Route path="calendar" element={<MaintenanceCalendar role="mechanic" />} />
+        <Route path="map" element={<FleetMap />} />
         <Route path="parts" element={<PartsPage />} />
         <Route path="profile" element={<Profile />} />
       </Route>
@@ -214,6 +216,7 @@ function App() {
         <Route path="repairs/new" element={<MechanicRepairNew />} />
         <Route path="repairs/:id" element={<MechanicRepairDetail />} />
         <Route path="calendar" element={<MaintenanceCalendar role="manager" />} />
+        <Route path="map" element={<FleetMap />} />
         <Route path="parts" element={<PartsPage />} />
         <Route path="profile" element={<Profile />} />
       </Route>

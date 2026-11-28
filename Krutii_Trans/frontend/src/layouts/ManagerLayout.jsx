@@ -7,6 +7,7 @@ const navItems = [
   { to: '/manager', label: tr("Головна"), icon: 'home', end: true },
   { to: '/manager/users', label: tr("Користувачі"), icon: 'users' },
   { to: '/manager/vehicles', label: tr("Автопарк"), icon: 'truck' },
+  { to: '/manager/map', label: tr("Карта автопарку"), icon: 'map' },
   { to: '/manager/waybills', label: tr("Путівки"), icon: 'document' },
   { to: '/manager/faults', label: tr("Несправності"), icon: 'warning' },
   { to: '/manager/repairs', label: tr("Ремонти"), icon: 'wrench' },

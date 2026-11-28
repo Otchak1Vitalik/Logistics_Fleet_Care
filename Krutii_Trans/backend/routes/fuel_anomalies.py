@@ -13,7 +13,7 @@ from services import fuel_anomalies as fa
 
 fuel_anomalies_bp = Blueprint('fuel_anomalies', __name__)
 
-KINDS = {'trip_overspend', 'over_tank', 'double_refuel', 'price'}
+KINDS = {'trip_overspend', 'over_tank', 'double_refuel', 'price', 'fuel_drain'}
 
 
 def _out(doc):

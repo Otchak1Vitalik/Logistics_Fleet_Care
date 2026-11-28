@@ -2333,8 +2333,8 @@ button.topbar-user {
   position: relative;
   width: 100%;
   white-space: nowrap;
-  padding-top: clamp(3px, calc((100vh - 510px) / 28), 11px);
-  padding-bottom: clamp(3px, calc((100vh - 510px) / 28), 11px);
+  padding-top: clamp(3px, calc((100vh - 545px) / 30), 11px);
+  padding-bottom: clamp(3px, calc((100vh - 545px) / 30), 11px);
   margin: 2px 0;
   font-size: 0.96rem;
 }
@@ -2838,7 +2838,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
 .fa-crumbs a { color: var(--color-gray-500); text-decoration: none; }
 .fa-crumbs a:hover { color: var(--color-primary); }
 .fa-filters { display: flex; flex-wrap: wrap; gap: var(--spacing-3); justify-content: space-between; margin-bottom: var(--spacing-4); }
-.fa-filters select { flex: 0 1 220px; }
+.fa-filters select { flex: 0 1 270px; }
 .fa-table td { vertical-align: middle; font-size: 0.875rem; }
 .fa-table .text-muted { font-size: 0.75rem; }
 .fa-row { cursor: pointer; }
@@ -3036,3 +3036,93 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
   .mp-hint { margin-left: 0; }
 }
 .mp-opt svg { width: 14px; height: 14px; }
+
+/* === Карта автопарку (телематика) === */
+.fm-summary { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: var(--spacing-3); }
+.fm-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 16px; font-size: 0.8125rem;
+  border: 1px solid var(--color-gray-200); background: var(--color-surface); color: var(--color-gray-700); cursor: pointer;
+}
+.fm-chip i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.fm-chip b { font-variant-numeric: tabular-nums; }
+.fm-chip.active { border-color: var(--color-primary); color: var(--color-primary); background: rgba(99, 102, 241, .08); }
+.fm-chip.danger b { color: var(--color-danger); }
+.fm-hint { margin-bottom: var(--spacing-3); }
+.fm-hint code { background: rgba(0,0,0,.06); padding: 1px 6px; border-radius: 4px; }
+.fm-layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: var(--spacing-4); }
+.fm-map { height: calc(100vh - 250px); min-height: 460px; padding: 0 !important; overflow: hidden; z-index: 0; }
+.fm-side { height: calc(100vh - 250px); min-height: 460px; overflow-y: auto; padding: var(--spacing-3) !important; }
+.fm-list { list-style: none; margin: var(--spacing-3) 0 0; padding: 0; }
+.fm-list li { display: flex; gap: 10px; padding: 9px 8px; border-radius: 8px; cursor: pointer; align-items: flex-start; }
+.fm-list li:hover { background: var(--color-gray-50); }
+.fm-list li.alarm { background: var(--color-danger-light); }
+.fm-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+.fm-li-main { flex: 1; min-width: 0; }
+.fm-li-top { display: flex; justify-content: space-between; gap: 8px; font-size: 0.875rem; }
+.fm-li-top .text-muted { font-size: 0.75rem; white-space: nowrap; }
+.fm-li-sub { font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fm-li-alarm { color: var(--color-danger-dark); font-weight: 600; }
+.fm-fuel { height: 3px; background: var(--color-gray-200); border-radius: 2px; margin-top: 5px; overflow: hidden; }
+.fm-fuel span { display: block; height: 100%; background: #f59e0b; }
+.fm-fuel span.low { background: var(--color-danger); }
+.fm-none { cursor: default !important; }
+.fm-marker {
+  width: 30px; height: 30px; border-radius: 50%; background: var(--c); border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center;
+  transition: transform .2s ease;
+}
+.fm-marker svg { width: 16px; height: 16px; transition: transform .6s ease; }
+.fm-dot-inner { width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+.fm-marker.selected { transform: scale(1.25); box-shadow: 0 0 0 4px rgba(99,102,241,.45), 0 2px 6px rgba(0,0,0,.35); }
+.fm-marker.alarm { animation: fm-pulse 1.4s ease-out infinite; }
+@keyframes fm-pulse { 0% { box-shadow: 0 0 0 0 rgba(220,38,38,.55); } 100% { box-shadow: 0 0 0 14px rgba(220,38,38,0); } }
+.fm-marker-label {
+  position: absolute; top: 31px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+  font: 600 10px/1 var(--font-family, sans-serif); color: #1e293b; background: rgba(255,255,255,.85);
+  padding: 2px 4px; border-radius: 3px; pointer-events: none;
+}
+.fm-city { font: 600 11px/14px var(--font-family, sans-serif); color: #475569; white-space: nowrap; text-shadow: 0 0 3px #fff, 0 0 3px #fff; }
+.leaflet-container { background: #eef2f7; font-family: inherit; }
+[data-theme="dark"] .leaflet-container { background: #1e293b; }
+.fm-panel { display: grid; gap: var(--spacing-3); }
+.fm-back { justify-self: start; padding-left: 0 !important; }
+.fm-panel-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.fm-plate { font-size: 1.25rem; font-weight: 700; color: inherit; text-decoration: none; }
+.fm-plate:hover { color: var(--color-primary); }
+.fm-conn { font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 10px; color: #fff; background: var(--c); white-space: nowrap; }
+.fm-updated { font-size: 0.75rem; margin-top: -8px; }
+.fm-alarms { display: flex; flex-wrap: wrap; gap: 6px; }
+.fm-alarms span { background: var(--color-danger); color: #fff; font-size: 0.75rem; font-weight: 700; padding: 3px 9px; border-radius: 10px; }
+.fm-waybill { font-size: 0.875rem; padding: 8px 10px; border-radius: 8px; background: var(--color-gray-50); }
+.fm-waybill .text-muted { font-size: 0.75rem; }
+.fm-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.fm-metric { display: flex; flex-direction: column; padding: 7px 8px; border-radius: 8px; background: var(--color-gray-50); min-width: 0; }
+.fm-metric span { font-size: 0.6875rem; color: var(--color-gray-500); }
+.fm-metric b { font-size: 0.9375rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fm-metric small { font-size: 0.6875rem; color: var(--color-gray-500); }
+.fm-metric.warn { background: var(--color-danger-light); }
+.fm-metric.warn b { color: var(--color-danger-dark); }
+.fm-dtc { font-size: 0.8125rem; padding: 8px 10px; border-radius: 8px; background: var(--color-warning-light); color: var(--color-warning-dark); display: grid; gap: 3px; }
+.fm-charts-title { font-size: 0.75rem; }
+.fm-chart-title { font-size: 0.75rem; font-weight: 600; margin-top: 4px; }
+.fm-events h4 { margin: 0 0 6px; font-size: 0.875rem; }
+.fm-events ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.fm-ev { display: flex; gap: 8px; font-size: 0.8125rem; line-height: 1.35; }
+.fm-ev .text-muted { font-size: 0.75rem; }
+.fm-ev-icon { width: 22px; text-align: center; }
+.fm-ev.fuel_drain b, .fm-ev.overheat b, .fm-ev.no_waybill b { color: var(--color-danger-dark); }
+.fm-empty-vehicle { font-size: 0.875rem; color: var(--color-gray-500); padding: 12px 0; }
+.fm-provision { display: flex; align-items: center; gap: 10px; border-top: 1px solid var(--color-gray-200); padding-top: 10px; font-size: 0.75rem; }
+.fm-key { word-break: break-all; white-space: pre-wrap; display: block; }
+@media (max-width: 1100px) {
+  .fm-layout { grid-template-columns: 1fr; }
+  .fm-map { height: 55vh; min-height: 320px; }
+  .fm-side { height: auto; max-height: none; }
+}
+.fa-method.telematics { background: #dcfce7; color: #166534; }
+[data-theme="dark"] .fa-method.telematics { background: #14532d; color: #bbf7d0; }
+.pm-factor.tm { background: var(--color-danger-light); color: var(--color-danger-dark); }
+.fm-marker.idle, .fm-marker.offline { width: 18px; height: 18px; margin: 6px; border-width: 1.5px; }
+.fm-marker.idle .fm-dot-inner, .fm-marker.offline .fm-dot-inner { width: 5px; height: 5px; }
+.fm-marker-label { display: none; }
+.fm-marker-label.always, .fm-zoomed .fm-marker-label { display: block; }

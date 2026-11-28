@@ -29,3 +29,9 @@ def ensure_indexes(db):
     db.fuel_anomalies.create_index([('status', ASCENDING), ('score', DESCENDING)])
     db.maintenance_history.create_index([('vehicle_id', ASCENDING), ('date', ASCENDING)])
     db.maintenance_history.create_index([('source', ASCENDING), ('label', ASCENDING)])
+    # телематика: сирі точки зберігаються 90 днів
+    db.telemetry.create_index([('ts', ASCENDING)], name='telemetry_ttl', expireAfterSeconds=90 * 24 * 3600)
+    db.telemetry.create_index([('vehicle_id', ASCENDING), ('ts', ASCENDING)])
+    db.telematics_events.create_index([('vehicle_id', ASCENDING), ('ts', DESCENDING)])
+    db.telematics_events.create_index([('ts', DESCENDING)])
+    db.vehicles.create_index('telematics.key_hash', sparse=True)

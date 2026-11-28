@@ -15,12 +15,14 @@ const KINDS = {
   over_tank: { label: tr("Заправка понад бак") },
   double_refuel: { label: tr("Повторна заправка") },
   price: { label: tr("Нетипова ціна") },
+  fuel_drain: { label: tr("Злив пального (телематика)") },
 }
 const METHODS = {
   rule: { label: tr("Норма"), title: tr("Правило норми: перевищення норми з урахуванням сезону більше за поріг") },
   stat: { label: 'z-score', title: tr("Робастний z-score: нетипово висока витрата відносно звичної для цього авто") },
   ml: { label: 'ML', title: tr("Isolation Forest: нетиповий рейс за сукупністю ознак") },
   check: { label: tr("Перевірка"), title: tr("Формальна перевірка заправки") },
+  telematics: { label: tr("Датчик"), title: tr("Датчик рівня пального (телематика): різке падіння рівня на стоянці") },
 }
 const STATUSES = {
   new: { label: tr("Нова"), cls: 'status-warning' },
@@ -85,6 +87,9 @@ function Metrics({ a }) {
   ] : a.kind === 'price' ? [
     [tr("Ціна"), tr("{0} грн/л", m.price)], [tr("Звична ціна"), tr("{0} грн/л", m.median_price)],
     [tr("Відхилення"), `${m.deviation_pct > 0 ? '+' : ''}${m.deviation_pct} %`],
+  ] : a.kind === 'fuel_drain' ? [
+    [tr("Зникло з бака"), tr("{0} л", formatNumber(m.liters, 1))],
+    [tr("Місце"), `${m.lat?.toFixed(4)}, ${m.lon?.toFixed(4)}`],
   ] : a.kind === 'over_tank' ? [
     [tr("Заправлено"), tr("{0} л", formatNumber(m.quantity))], [tr("Об'єм бака"), tr("{0} л", formatNumber(m.tank))],
   ] : [
@@ -298,6 +303,7 @@ function FuelAnomalies() {
                         <td className="fa-key">
                           {a.kind === 'trip_overspend' ? <>{a.metrics.actual_l100} <span className="text-muted">/ {a.metrics.norm_l100} {tr("л/100 км")}</span></>
                             : a.kind === 'price' ? <>{tr("{0} грн/л", a.metrics.price)} <span className="text-muted">({a.metrics.deviation_pct > 0 ? '+' : ''}{a.metrics.deviation_pct} %)</span></>
+                              : a.kind === 'fuel_drain' ? <>{tr("{0} л", formatNumber(a.metrics.liters))} <span className="text-muted">{tr("на стоянці")}</span></>
                               : a.kind === 'over_tank' ? <>{tr("{0} л", a.metrics.quantity)} <span className="text-muted">/ {tr("бак {0} л", a.metrics.tank)}</span></>
                                 : <>{tr("{0} л", a.metrics.quantity)} <span className="text-muted">{tr("через {0} год", a.metrics.hours)}</span></>}
                         </td>

@@ -25,7 +25,8 @@ def seed_database():
 
     # Очищення існуючих даних
     collections = ['users', 'vehicles', 'waybills', 'fuel_invoices', 'fuel_records',
-                   'fault_reports', 'repairs', 'alerts', 'settings', 'audit_log', 'login_codes', 'fuel_anomalies', 'maintenance_history']
+                   'fault_reports', 'repairs', 'alerts', 'settings', 'audit_log', 'login_codes', 'fuel_anomalies', 'maintenance_history',
+                   'telemetry', 'telematics_state', 'telematics_events']
     for col in collections:
         db[col].delete_many({})
     print('Очищено існуючі дані.')
@@ -358,6 +359,29 @@ def seed_database():
         season = get_season_coefficient(w['completed_at'], {'winter_coefficient': 1.09})
         w['fuel_used'] = round((w['odometer_end'] - w['odometer_start']) / 100 * norm * season * random.uniform(1.04, 1.08), 1)
         w['demo_anomaly'] = 'atypical'
+
+    # Додаткові активні путівки (машини в рейсі зараз) - для карти автопарку й симулятора телематики.
+    # Окремий генератор випадкових чисел, щоб не змінювати решту демоданих.
+    extra = random.Random(77)
+    busy_drivers = {w['driver_id'] for w in waybills if w['status'] in ('active', 'issued')}
+    free_drivers = [d for d in driver_usernames if user_ids[d] not in busy_drivers]
+    free_plates = [p for p in active_plates if p not in busy_plates]
+    extra.shuffle(free_plates)
+    long_routes = [r for r in routes if r[2] != 'Порожній рейс']
+    for driver, route in zip(free_drivers[:5], extra.sample(long_routes, 5)):
+        plate = free_plates.pop()
+        busy_plates.add(plate)
+        v = next(x for x in vehicles if x['plate_number'] == plate)
+        started = datetime.utcnow() - timedelta(hours=extra.uniform(1, 4))
+        waybills.append({
+            'number': f'ПЛ-{waybill_num}', 'vehicle_id': vehicle_ids[plate], 'driver_id': user_ids[driver],
+            'issued_by': user_ids['admin'], 'issue_date': day_start(started), 'valid_from': started,
+            'valid_until': started + timedelta(hours=24), 'route_from': route[0], 'route_to': route[1],
+            'route_description': route[2], 'odometer_start': v['odometer'], 'odometer_end': None,
+            'fuel_issued': 150, 'fuel_used': None, 'status': 'active', 'notes': None, 'completion_notes': None,
+            'created_at': started, 'updated_at': started, 'completed_at': None,
+        })
+        waybill_num += 1
 
     db.waybills.insert_many(waybills)
     print(f'Створено {len(waybills)} путівок.')

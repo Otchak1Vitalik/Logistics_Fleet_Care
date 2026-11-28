@@ -47,6 +47,7 @@ ACTIONS = {
     'fuel_anomalies.run': ('fuel', 'Перевірка аномалій пального'),
     'predictive.retrain': ('settings', 'Перенавчання моделі прогнозу несправностей'),
     'maintenance_plan.apply': ('repair', 'Затвердження оптимізованого графіка ТО'),
+    'telematics.provision': ('vehicle', 'Підключення трекера телематики'),
 }
 # параметр маршруту -> колекція, з якої береться «знімок» запису
 SNAPSHOT_ARGS = {

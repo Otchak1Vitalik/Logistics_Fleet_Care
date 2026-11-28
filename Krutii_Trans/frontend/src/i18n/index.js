@@ -43,6 +43,21 @@ const word = (s) => (s && Object.prototype.hasOwnProperty.call(en, s) ? en[s] : 
 
 // Повідомлення з підстановками, які формує сервер
 const PATTERNS = [
+  [/^(Перегрів двигуна|Низька напруга акумулятора|Можливий злив пального|Рух без путівки): (.+)$/,
+    (m) => `${{ 'Перегрів двигуна': 'Engine overheating', 'Низька напруга акумулятора': 'Low battery voltage', 'Можливий злив пального': 'Possible fuel drain', 'Рух без путівки': 'Driving without a waybill' }[m[1]]}: ${m[2]}`],
+  [/^Код помилки (\S+): (.+)$/, (m) => `Error code ${m[1]}: ${m[2]}`],
+  [/^Температура двигуна (\d+) °C \(норма до (\d+) °C\)\.$/, (m) => `Engine temperature ${m[1]} °C (normal up to ${m[2]} °C).`],
+  [/^Напруга бортової мережі ([\d.]+) В \(мінімум ([\d.]+) В\)\.$/, (m) => `System voltage ${m[1]} V (minimum ${m[2]} V).`],
+  [/^(P\d{4}|U\d{4}): (.+)\.$/, (m) => `${m[1]}: ${translateServer(m[2])}.`],
+  [/^Рівень пального впав на (\d+) л за (\d+) хв на стоянці\.(.*)$/,
+    (m) => `Fuel level dropped by ${m[1]} l in ${m[2]} min while parked.${m[3] ? ' ' + translateServer(m[3].trim()) : ''}`],
+  [/^Зафіксовано датчиком рівня пального \(телематика\)\.$/, () => 'Detected by the fuel level sensor (telematics).'],
+  [/^Заправка (\d+) л\.$/, (m) => `Refuel ${m[1]} l.`],
+  [/^Автомобіль рухається зі швидкістю (\d+) км\/год без активної путівки\.$/, (m) => `The vehicle is moving at ${m[1]} km/h without an active waybill.`],
+  [/^Телематика: коди помилок (.+) - провести комп'ютерну діагностику\.(.*)$/,
+    (m) => `Telematics: error codes ${m[1]} - run computer diagnostics.${m[2] ? ' ' + translateServer(m[2].trim()) : ''}`],
+  [/^Телематика: перегрів двигуна - перевірити систему охолодження\. (.+)$/,
+    (m) => `Telematics: engine overheating - check the cooling system. ${translateServer(m[1])}`],
   [/^Заплановано ТО: (\d+)\.$/, (m) => `Maintenance scheduled: ${m[1]}.`],
   [/^ТО прострочене на (\d+) дн\. - ставимо першочергово\.(.*)$/, (m) => `Maintenance is ${m[1]} days overdue - scheduled first.${m[2] ? ' ' + translateServer(m[2].trim()) : ''}`],
   [/^Ризик відмови (\d+) % - ТО на (\d+) дн\. раніше строку\.(.*)$/, (m) => `Failure risk ${m[1]} % - maintenance ${m[2]} days early.${m[3] ? ' ' + translateServer(m[3].trim()) : ''}`],

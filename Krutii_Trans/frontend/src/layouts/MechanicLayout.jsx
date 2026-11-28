@@ -6,6 +6,7 @@ import { tr } from '../i18n'
 const navItems = [
   { to: '/mechanic', label: tr("Головна"), icon: 'home', end: true },
   { to: '/mechanic/fleet', label: tr("Автопарк"), icon: 'truck' },
+  { to: '/mechanic/map', label: tr("Карта автопарку"), icon: 'map' },
   { to: '/mechanic/faults', label: tr("Несправності"), icon: 'warning' },
   { to: '/mechanic/repairs', label: tr("Ремонти"), icon: 'wrench' },
   { to: '/mechanic/parts', label: tr("Склад"), icon: 'box' },

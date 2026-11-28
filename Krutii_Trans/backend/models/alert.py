@@ -44,7 +44,8 @@ class AlertSchema(Schema):
         'general': 'Загальне',
         'escalation': 'Ескалація',
         'parts': 'Запчастини',
-        'security': 'Безпека'
+        'security': 'Безпека',
+        'telematics': 'Телематика'
     }
 
     def get_type_display(self, obj):

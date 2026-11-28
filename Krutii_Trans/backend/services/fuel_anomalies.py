@@ -27,6 +27,7 @@ PRICE_DEVIATION = 0.15       # ціна відрізняється від мед
 DOUBLE_REFUEL_HOURS = 24
 DOUBLE_REFUEL_KM = 150
 DEFAULT_PRICES = {'diesel': 54.0, 'petrol': 56.0, 'gas': 30.0}
+RECOMPUTED_KINDS = ('trip_overspend', 'over_tank', 'double_refuel', 'price')
 METHOD_LABELS = {'rule': 'Правило норми', 'stat': 'Статистика (z-score)', 'ml': 'Isolation Forest'}
 
 
@@ -256,7 +257,8 @@ def run_detection(db, notify=True):
             if f['level'] == 'high':
                 new_high.append(f)
     # випадки, які після перерахунку вже не вважаються аномаліями і ще не розглянуті, - прибираємо
-    for doc in db.fuel_anomalies.find({'status': 'new'}, {'kind': 1, 'source_id': 1}):
+    # (зливи, зафіксовані телематикою, цим перерахунком не перевіряються - їх не чіпаємо)
+    for doc in db.fuel_anomalies.find({'status': 'new', 'kind': {'$in': list(RECOMPUTED_KINDS)}}, {'kind': 1, 'source_id': 1}):
         if (doc['kind'], doc['source_id']) not in keys:
             db.fuel_anomalies.delete_one({'_id': doc['_id']})
 

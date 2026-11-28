@@ -26,7 +26,8 @@ SNAPSHOT_STEP_DAYS = 14
 HISTORY_MONTHS = 36
 TEST_MONTHS = 12
 LEVEL_HIGH, LEVEL_MEDIUM = 0.25, 0.12      # приблизно у 3,5 і 1,7 раза вище за середній рівень відмов
-FUEL_WINDOW_DAYS = 14         # відхилення витрати пального - середнє за останні 2 тижні
+FUEL_WINDOW_DAYS = 14
+SYNTHETIC_ANCHOR = datetime(2026, 11, 26)         # відхилення витрати пального - середнє за останні 2 тижні
 
 FEATURES = [
     ('age_years', 'Вік автомобіля'),
@@ -58,7 +59,11 @@ def synthetic_history(vehicles, settings, now=None, months=HISTORY_MONTHS, seed=
     Повертає (знімки, події) - події (ТО, несправності) потрібні лише для графіків і тестів.
     """
     rnd = random.Random(seed)
-    now = (now or datetime.utcnow()).replace(hour=0, minute=0, second=0, microsecond=0)
+    # Історія генерується відносно фіксованої дати, а потім зсувається до «сьогодні» -
+    # так результат (і метрики моделі) однаковий незалежно від дня запуску seed.py.
+    real_now = (now or datetime.utcnow()).replace(hour=0, minute=0, second=0, microsecond=0)
+    shift = real_now - SYNTHETIC_ANCHOR
+    now = SYNTHETIC_ANCHOR
     start = now - timedelta(days=months * 30 + HORIZON_DAYS)
     interval_km = float(settings.get('maintenance_interval_km') or 10000)
     interval_days = float(settings.get('maintenance_interval_days') or 180)
@@ -142,6 +147,8 @@ def synthetic_history(vehicles, settings, now=None, months=HISTORY_MONTHS, seed=
         for s in snapshots:
             if s['vehicle_id'] == vid and s['label'] is None:
                 s['label'] = int(any(0 < (f - s['date']).days <= HORIZON_DAYS for f in own))
+    for x in snapshots + events:
+        x['date'] += shift
     return snapshots, events
 
 
@@ -364,6 +371,13 @@ def _recommendation(feats, factors, level):
     return None
 
 
+def _telematics_recommendation(sig):
+    """Телематика бачить симптоми, яких немає в історії навчання моделі, - окрема рекомендація."""
+    if sig['overheat']:
+        return 'Телематика: перегрів двигуна - перевірити систему охолодження.'
+    return f"Телематика: коди помилок {', '.join(sig['codes'][:3])} - провести комп'ютерну діагностику."
+
+
 def fleet_risk(db, vehicle_id=None):
     state = train(db)
     if not state.get('ready'):
@@ -377,6 +391,8 @@ def fleet_risk(db, vehicle_id=None):
         query['_id'] = oid
     vehicles = list(db.vehicles.find(query))
     feats = current_features(db, vehicles=vehicles)
+    from services.telematics import signals as telematics_signals
+    tm_signals = telematics_signals(db, [str(v['_id']) for v in vehicles])
     items = []
     for v in vehicles:
         vid = str(v['_id'])
@@ -385,11 +401,16 @@ def fleet_risk(db, vehicle_id=None):
         p = float(state['model'].predict_proba(np.array([[float(filled[k]) for k in FEATURE_KEYS]]))[0, 1])
         level = _level(p)
         factors = _factors(state, f)
+        sig = tm_signals.get(vid)
+        recommendation = _recommendation(f, factors, level)
+        if sig and (sig['overheat'] or sig['dtc']):
+            recommendation = _telematics_recommendation(sig) + (' ' + recommendation if recommendation else '')
         items.append({
+            'telematics': sig,
             'vehicle_id': vid, 'plate': v.get('plate_number'),
             'vehicle_label': f"{v.get('plate_number')} {v.get('brand', '')} {v.get('model', '')}".strip(),
             'status': v.get('status'), 'probability': round(p, 3), 'level': level,
-            'features': f, 'factors': factors, 'recommendation': _recommendation(f, factors, level),
+            'features': f, 'factors': factors, 'recommendation': recommendation,
             'next_maintenance_km': v.get('next_maintenance_km'), 'next_maintenance_date': v.get('next_maintenance_date'),
         })
     items.sort(key=lambda x: -x['probability'])
